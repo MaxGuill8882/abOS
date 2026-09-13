@@ -36,6 +36,7 @@ const SEARCH_INPUT_SELECTOR = "#start-menu-search";
 const GAME_WINDOW_KEY = "games-app";
 const GAMES_WIN_SELECTOR = "#games-app-win";
 const PALETTE_WIN_SELECTOR = "#command-palette-overlay";
+const PALETTE_ROOT_SELECTOR = ".command-palette-root";
 const SETTINGS_WIN_SELECTOR = "#yukiOS-settings";
 const BROWSER_WIN_SELECTOR = '[id^="scramjet-window-"]';
 
@@ -75,7 +76,7 @@ const STEPS = [
     icon: "fas fa-keyboard",
     title: "Press Ctrl+K.",
     body: "That opens the command palette, the fastest way to launch anything. Press Ctrl+K now.",
-    target: () => $(PALETTE_WIN_SELECTOR) || null,
+    target: () => $(PALETTE_ROOT_SELECTOR) || $(PALETTE_WIN_SELECTOR) || null,
     cardSide: "bottom",
     waitForWindow: GAME_WINDOW_KEY
   },
@@ -84,7 +85,19 @@ const STEPS = [
     icon: "fas fa-gamepad",
     title: "3000+ games run right here.",
     body: "This is a game launcher with steam theme. Web games, DOS, Flash, 3DS, retro consoles (Pokemon games), all with no downloads.",
-    target: () => $(GAMES_WIN_SELECTOR) || null,
+    target: () => {
+      const el = $(GAMES_WIN_SELECTOR);
+      if (el && el.style.display === "none") {
+        try {
+          os.tray.restoreFromTray(el.id);
+        } catch {}
+        el.style.display = "flex";
+        try {
+          os.window.bringToFront(el);
+        } catch {}
+      }
+      return el || null;
+    },
     buttons: { primary: { label: "Got it", action: "advance" } }
   },
   {
@@ -207,9 +220,29 @@ function checkCurrentStep() {
     advance();
     return;
   }
-  if (step?.id === "palette" && tour.steps === STEPS && !tour.palettePhraseShown && $(PALETTE_WIN_SELECTOR)) {
+  if (
+    step?.id === "palette" &&
+    tour.steps === STEPS &&
+    !tour.palettePhraseShown &&
+    ($(PALETTE_ROOT_SELECTOR) || $(PALETTE_WIN_SELECTOR))
+  ) {
     tour.palettePhraseShown = true;
     setText($(BODY_SELECTOR, tour.card), "Now type 'steam' and press Enter.");
+    positionElements();
+  }
+  if (step?.id === "palette" && tour.palettePhraseShown && $(GAMES_WIN_SELECTOR)) {
+    const gw = $(GAMES_WIN_SELECTOR);
+    if (gw.style.display === "none") {
+      try {
+        os.tray.restoreFromTray(gw.id);
+      } catch {}
+      gw.style.display = "flex";
+      try {
+        os.window.bringToFront(gw);
+      } catch {}
+    }
+    advance();
+    return;
   }
   positionElements();
 }
@@ -224,6 +257,18 @@ function showStep(index) {
   const step = tour.steps[index];
   tour.stepIndex = index;
   tour.currentStep = step;
+  if (step.id === "games") {
+    const gw = $(GAMES_WIN_SELECTOR);
+    if (gw && gw.style.display === "none") {
+      try {
+        os.tray.restoreFromTray(gw.id);
+      } catch {}
+      gw.style.display = "flex";
+      try {
+        os.window.bringToFront(gw);
+      } catch {}
+    }
+  }
   if (index >= tour.steps.length - 1) tour.tourCompleted = true;
   tour.waitPrimed = !step.waitFor;
   window.clearTimeout(tour.primeTimer);
@@ -432,9 +477,14 @@ function positionElements() {
     toggleClass(card, CARD_CENTERED_CLASS, true);
     return;
   }
-  const revealWindow = targetEl.closest(".window");
-  if (revealWindow) raiseElement(revealWindow);
-  else restoreRaised();
+  const paletteOverlay = $("#command-palette-overlay");
+  const isPaletteTarget = paletteOverlay && (paletteOverlay === targetEl || paletteOverlay.contains(targetEl));
+  if (isPaletteTarget) raiseElement(paletteOverlay);
+  else {
+    const revealWindow = targetEl.closest(".window");
+    if (revealWindow) raiseElement(revealWindow);
+    else restoreRaised();
+  }
   const left = rect.left - SPOTLIGHT_PAD;
   const top = rect.top - SPOTLIGHT_PAD;
   const width = rect.width + SPOTLIGHT_PAD * 2;

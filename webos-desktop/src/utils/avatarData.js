@@ -14,7 +14,6 @@ export const PREDEFINED_AVATARS = [
   resolveIconUrl("static/icons/undertale.webp"),
   resolveIconUrl("static/icons/omori.webp"),
   resolveIconUrl("static/icons/inscryption.webp"),
-  resolveIconUrl("static/icons/minecraft.webp"),
   resolveIconUrl("static/icons/sonic.webp"),
   resolveIconUrl("static/icons/mario.webp"),
   resolveIconUrl("static/icons/pvz.webp"),

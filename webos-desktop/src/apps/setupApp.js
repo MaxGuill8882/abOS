@@ -6,44 +6,43 @@ import { SystemUtilities } from "../system.js";
 import { Achievements } from "../achievements.js";
 import { AppSource } from "../AppSource.js";
 import { PREDEFINED_AVATARS } from "../utils/avatarData.js";
-import { applyFontFamily, applyTheme } from "../settings/settingsApply.js";
+import { applyFontFamily, applyTheme, applyGuiScale, applyDesktopIconSize } from "../settings/settingsApply.js";
 import { $, $$, bindEvent, setText, setHTML, toggleClass, createElement } from "../shared/domUtils.js";
 import { getAllThemes } from "../shared/themeEngine.js";
 import { KeybindManager, KEYBIND_DEFINITIONS } from "../keybindManager.js";
 import { BaseApp, StorageKeys, os, ServiceKeys } from "../framework.js";
 import { startIntroTour } from "./introTour.js";
-import { modeManager, MODES } from "../modeManager.js";
 import { buildHeaderForStyle, resolveHeaderStyleId } from "../windowManager/headerStyles.js";
 export const FEATURE_DATA = {
   step2: [
     {
       icon: "fas fa-desktop",
       title: "True Desktop Experience",
-      desc: "Full windowed multitasking with drag, resize, snap, minimize, maximize",
+      desc: "Drag, snap, and tile windows like a native desktop",
       animation: "tilt-card"
     },
     {
       icon: "fas fa-gamepad",
       title: "3000+ Games & Emulators",
-      desc: "JS-DOS, V86, Ruffle Flash, Azahar 3DS, and retro console emulation",
+      desc: "Play DOS, Flash, and console classics instantly",
       animation: "spin-card"
     },
     {
       icon: "fas fa-folder-tree",
       title: "Persistent Filesystem",
-      desc: "IndexedDB storage that survives browser restarts",
+      desc: "Files and settings persist locally, always ready",
       animation: "bounce-card"
     },
     {
       icon: "fas fa-box-archive",
       title: "80 Built-in Apps",
-      desc: "Notepad, Terminal, Browser, Office viewer, Calculator, and more",
+      desc: "Notepad to Terminal to Browser, ready instantly",
       animation: "glow-card"
     },
     {
       icon: "fas fa-keyboard",
       title: "Keyboard Shortcuts",
-      desc: "F1 (command palette), Alt+Q (window switch) Ctrl+D (desktop), Ctrl+arrows (snap)",
+      desc: "Launch with Ctrl+K, switch windows with Alt+Q",
       animation: "slide-card"
     }
   ],
@@ -51,149 +50,149 @@ export const FEATURE_DATA = {
     {
       icon: "fas fa-keyboard",
       title: "Command Palette",
-      desc: "Global launcher and system shell via Ctrl+K / F1"
+      desc: "Launch apps, files, and commands with Ctrl+K"
     },
     {
       icon: "fas fa-save",
       title: "Session Persistence",
-      desc: "Restores windows, layout, and app state across reloads"
+      desc: "Reopens your windows exactly as you left them"
     },
     {
       icon: "fas fa-paint-brush",
       title: "Full Customization",
-      desc: "Themes, wallpapers, UI scaling, and Performance Mode"
+      desc: "Themes, wallpapers and fonts to make it yours"
     },
     {
       icon: "fas fa-bell",
       title: "Notifications",
-      desc: "Toast notifications with Do Not Disturb mode"
+      desc: "Tidy toasts with Do Not Disturb for focus"
     },
     {
       icon: "fas fa-sliders-h",
       title: "Audio Mixer",
-      desc: "Per-app volume control with master volume"
+      desc: "Control master and per-app volume in one place"
     },
     {
       icon: "fas fa-download",
       title: "Import / Export",
-      desc: "Backup and migrate full system configuration"
+      desc: "Back up your system and restore it anywhere"
     }
   ],
   step3b: [
     {
       icon: "fas fa-layer-group",
       title: "Taskbar & Start Menu",
-      desc: "Launch apps, manage windows, switch workspaces"
+      desc: "Launch apps and flip workspaces instantly"
     },
     {
       icon: "fas fa-eye",
       title: "Window Preview",
-      desc: "Hover taskbar for live window previews (Tab Peek)"
+      desc: "Hover taskbar icons for live window previews"
     },
     {
       icon: "fas fa-window-restore",
       title: "Window Management",
-      desc: "Advanced z-ordering, drag system, lifecycle control"
+      desc: "Smart z-ordering keeps your workflow smooth"
     },
     {
       icon: "fas fa-arrows-alt",
       title: "Window Snapping",
-      desc: "Drag to edges/corners, keyboard snap with Ctrl+arrows"
+      desc: "Drag to edges or press Ctrl+arrows to snap"
     },
     {
       icon: "fas fa-upload",
       title: "File Drag-and-Drop",
-      desc: "Drag files from host OS to desktop"
+      desc: "Drop files from your computer onto the desktop"
     },
     {
       icon: "fas fa-network-wired",
       title: "Unified Ecosystem",
-      desc: "Core apps interconnected through shared services"
+      desc: "Apps share files and state through one core"
     },
     {
       icon: "fas fa-cloud",
       title: "PWA & Offline",
-      desc: "Installable webOS with full offline capability"
+      desc: "Install it and run fully offline"
     },
     {
       icon: "fas fa-arrows-up-down-left-right",
       title: "Workspace System",
-      desc: "Multiple virtual desktops for organizing tasks"
+      desc: "Juggle tasks across multiple virtual desktops"
     },
     {
       icon: "fas fa-code-branch",
       title: "App Creator",
-      desc: "Add custom apps with proxies and icons"
+      desc: "Turn any website into a desktop app"
     },
     {
       icon: "fas fa-gamepad",
       title: "Yuki Steam Game Hub",
-      desc: "Browse 3000+ games with store pages"
+      desc: "Browse and launch thousands of games instantly"
     },
     {
       icon: "fas fa-microchip",
       title: "Multi-Runtime Engine",
-      desc: "JS-DOS, V86, Azahar 3DS, Ruffle, WebAssembly"
+      desc: "Run DOS, x86, Flash, and 3DS side by side"
     },
     {
       icon: "fas fa-trophy",
       title: "Stats & Achievements",
-      desc: "Track usage, milestones, playtime"
+      desc: "Earn achievements as you explore and play"
     },
     {
       icon: "fas fa-calendar-alt",
       title: "Calendar System",
-      desc: "Calendar popup with event management"
+      desc: "Manage events from the taskbar calendar"
     },
     {
       icon: "fas fa-robot",
       title: "Clippy Assistant",
-      desc: "Animated desktop helper with tips"
+      desc: "Get playful tips from your desktop helper"
     },
     {
       icon: "fas fa-user-lock",
       title: "Session Management",
-      desc: "Login screen with 15-minute auto-login"
+      desc: "Secure login with quick auto-start"
     },
     {
       icon: "fas fa-adjust",
       title: "Window Transparency",
-      desc: "Dynamic transparency, hides when gaming"
+      desc: "Adjust glass effects for focus or flair"
     },
     {
       icon: "fas fa-camera",
       title: "Screen Capture",
-      desc: "Full page and area screenshots with auto-save to Pictures, plus screen recording"
+      desc: "Capture screenshots and recordings to Pictures"
     },
     {
       icon: "fas fa-eye-dropper",
       title: "Color Picker",
-      desc: "Pick colors from anywhere on screen with Alt+H and a magnified preview"
+      desc: "Sample any pixel with Alt+H and magnifier"
     },
     {
       icon: "fas fa-mouse-pointer",
       title: "Context Menus",
-      desc: "Right-click menus for desktop, explorer, taskbar, tray, start menu, and Yuki Steam library"
+      desc: "Right-click anywhere for powerful actions"
     },
     {
       icon: "fas fa-file-export",
       title: "File Actions Menu",
-      desc: "Convert files, zip them up, download in bulk, or set as wallpaper from right-click"
+      desc: "Convert, compress, or set wallpapers in one click"
     },
     {
       icon: "fas fa-window-maximize",
       title: "Window Control Menu",
-      desc: "Snap left/right/maximize, move windows between workspaces, pin/unpin taskbar, and open properties"
+      desc: "Snap, move, or pin windows with one menu"
     },
     {
       icon: "fas fa-gamepad",
       title: "Yuki Steam Context Actions",
-      desc: "Favorites, hide/unhide, collections, add game shortcuts to desktop, and report broken games"
+      desc: "Favorite, hide, and organize your game library"
     },
     {
       icon: "fas fa-arrows-alt",
       title: "Taskbar Positioning",
-      desc: "Configurable: bottom, top, left, right"
+      desc: "Place the taskbar on any screen edge"
     }
   ],
   step6: {
@@ -238,21 +237,19 @@ export class SetupApp extends BaseApp {
     this.userChoices = {
       theme: "dark",
       wallpaper: null,
-      weather: true,
       notifications: true,
       sound: true,
-      achievements: true,
-      analytics: true,
+      clipboardManager: true,
       performanceMode: "balanced",
       transparency: "medium",
+      taskbarPosition: os.storage.get(StorageKeys.taskbarPosition) || "bottom",
+      taskbarAlignment: os.storage.get(StorageKeys.taskbarAlignment) || "left",
+      desktopIconSize: Number(os.storage.get(StorageKeys.desktopIconSize)) || 48,
+      guiScale: Number(os.storage.get(StorageKeys.guiScale)) || 100,
+      windowAnimationSpeed: os.storage.get(StorageKeys.windowAnimationSpeed) || "1.0",
       username: os.storage.get(StorageKeys.username) || "Guest",
       profilePicture: os.storage.get(StorageKeys.profilePicture) || PREDEFINED_AVATARS[0],
       fontFamily: "opensans",
-      macOsControls: false,
-      dockEnabled: false,
-      mikuCursor: true,
-      clippy: false,
-      clipboardManager: true,
       iconPack: getIconPack()
     };
     this.wallpapers = [];
@@ -347,7 +344,7 @@ export class SetupApp extends BaseApp {
             <i class="fas fa-snowflake"></i>
           </div>
           <h1 class="hero-title">Hey there, ${nickname}</h1>
-          <p class="hero-subtitle">A full desktop in one browser tab. Nothing to install, nothing to block, everything saved</p>
+          <p class="hero-subtitle">A complete desktop in one tab. No installs, always ready, always yours</p>
           <button class="setup-info-btn" id="setup-info-btn">
             <i class="fas fa-circle-info"></i>
           </button>
@@ -383,7 +380,7 @@ export class SetupApp extends BaseApp {
         <div class="setup-value-prop">
           <div class="value-prop-icon"><i class="fas fa-snowflake"></i></div>
           <h2 class="value-prop-title">A full desktop in one browser tab</h2>
-          <p class="value-prop-sub">No installs. Nothing for a school or work network to block. Every file, setting, and open window is saved right here. Come back anytime and it's exactly where you left it.</p>
+          <p class="value-prop-sub">No installs. Runs instantly on any network. Every file, setting, and window stays exactly where you left it. Return anytime and resume.</p>
         </div>
         ${this.buildFeatureGrid(FEATURE_DATA.step2, "Here's What You Get", "fas fa-star")}
       </div>
@@ -407,7 +404,7 @@ export class SetupApp extends BaseApp {
     return `
       <div class="personalize-section">
         <label class="section-label">Icon Style</label>
-        <p style="font-size:12px;color:var(--text-secondary);margin:4px 0 8px;">Same preview as Settings — click to switch, Papirus is default</p>
+        <p style="font-size:12px;color:var(--text-secondary);margin:4px 0 8px;">Same preview as Settings. Click to switch, Papirus is default</p>
         <div class="icon-pack-chooser" id="setup-iconpack-chooser" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;">
           <button class="icon-pack-option ${isPapirus ? "active" : ""}" data-icon-pack="papirus" style="display:flex;flex-direction:column;align-items:center;padding:10px;border:1.5px solid ${isPapirus ? "var(--brand)" : "var(--glass-border)"};border-radius:8px;background:${isPapirus ? "color-mix(in srgb, var(--brand) 12%, transparent)" : "var(--glass)"};cursor:pointer;gap:6px;">
             <span style="font-weight:600;font-size:13px;"><i class="fas fa-palette" style="margin-right:6px;"></i>Papirus</span>
@@ -567,27 +564,152 @@ export class SetupApp extends BaseApp {
     `;
   }
 
+  buildTaskbarPositionSelector() {
+    const opts = [
+      { value: "bottom", label: "Bottom", icon: "fas fa-arrow-down" },
+      { value: "top", label: "Top", icon: "fas fa-arrow-up" },
+      { value: "left", label: "Left", icon: "fas fa-arrow-left" },
+      { value: "right", label: "Right", icon: "fas fa-arrow-right" }
+    ];
+    return `
+      <div class="settings-half">
+        <label class="section-label">Taskbar Position</label>
+        <div class="taskbar-position-selector" style="display:flex;gap:6px;flex-wrap:wrap;">
+          ${opts
+            .map(
+              (o) => `
+            <button class="taskbar-pos-btn ${this.userChoices.taskbarPosition === o.value ? "active" : ""}" data-pos="${o.value}" style="flex:1;min-width:60px;padding:8px 6px;border-radius:6px;border:1px solid var(--glass-border);background:${this.userChoices.taskbarPosition === o.value ? "var(--brand)" : "var(--glass)"};color:${this.userChoices.taskbarPosition === o.value ? "var(--text-on-brand)" : "var(--text-primary)"};font-size:12px;font-weight:600;cursor:pointer;">
+              <i class="${o.icon}"></i> ${o.label}
+            </button>
+          `
+            )
+            .join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  buildTaskbarAlignmentSelector() {
+    const opts = [
+      { value: "left", label: "Left" },
+      { value: "center", label: "Center" },
+      { value: "right", label: "Right" }
+    ];
+    return `
+      <div class="settings-half">
+        <label class="section-label">Taskbar Alignment</label>
+        <div class="taskbar-alignment-selector" style="display:flex;gap:6px;">
+          ${opts
+            .map(
+              (o) => `
+            <button class="taskbar-align-btn ${this.userChoices.taskbarAlignment === o.value ? "active" : ""}" data-align="${o.value}" style="flex:1;padding:8px;border-radius:6px;border:1px solid var(--glass-border);background:${this.userChoices.taskbarAlignment === o.value ? "var(--brand)" : "var(--glass)"};color:${this.userChoices.taskbarAlignment === o.value ? "var(--text-on-brand)" : "var(--text-primary)"};font-size:12px;font-weight:600;cursor:pointer;">
+              ${o.label}
+            </button>
+          `
+            )
+            .join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  buildIconSizeSelector() {
+    const opts = [
+      { value: 32, label: "Small" },
+      { value: 48, label: "Medium" },
+      { value: 64, label: "Large" }
+    ];
+    return `
+      <div class="settings-half">
+        <label class="section-label">Desktop Icons</label>
+        <div class="icon-size-selector" style="display:flex;gap:6px;">
+          ${opts
+            .map(
+              (o) => `
+            <button class="icon-size-btn ${this.userChoices.desktopIconSize === o.value ? "active" : ""}" data-size="${o.value}" style="flex:1;padding:8px;border-radius:6px;border:1px solid var(--glass-border);background:${this.userChoices.desktopIconSize === o.value ? "var(--brand)" : "var(--glass)"};color:${this.userChoices.desktopIconSize === o.value ? "var(--text-on-brand)" : "var(--text-primary)"};font-size:12px;font-weight:600;cursor:pointer;">
+              ${o.label}
+            </button>
+          `
+            )
+            .join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  buildGuiScaleSelector() {
+    const opts = [
+      { value: 90, label: "90%" },
+      { value: 100, label: "100%" },
+      { value: 125, label: "125%" }
+    ];
+    return `
+      <div class="settings-half">
+        <label class="section-label">Interface Scale</label>
+        <div class="gui-scale-selector" style="display:flex;gap:6px;">
+          ${opts
+            .map(
+              (o) => `
+            <button class="gui-scale-btn ${this.userChoices.guiScale === o.value ? "active" : ""}" data-scale="${o.value}" style="flex:1;padding:8px;border-radius:6px;border:1px solid var(--glass-border);background:${this.userChoices.guiScale === o.value ? "var(--brand)" : "var(--glass)"};color:${this.userChoices.guiScale === o.value ? "var(--text-on-brand)" : "var(--text-primary)"};font-size:12px;font-weight:600;cursor:pointer;">
+              ${o.label}
+            </button>
+          `
+            )
+            .join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  buildAnimationSpeedSelector() {
+    const opts = [
+      { value: "3.0", label: "Slow" },
+      { value: "1.0", label: "Normal" },
+      { value: "0.4", label: "Fast" }
+    ];
+    return `
+      <div class="settings-half">
+        <label class="section-label">Animation Speed</label>
+        <div class="animation-speed-selector" style="display:flex;gap:6px;">
+          ${opts
+            .map(
+              (o) => `
+            <button class="anim-speed-btn ${this.userChoices.windowAnimationSpeed === o.value ? "active" : ""}" data-speed="${o.value}" style="flex:1;padding:8px;border-radius:6px;border:1px solid var(--glass-border);background:${this.userChoices.windowAnimationSpeed === o.value ? "var(--brand)" : "var(--glass)"};color:${this.userChoices.windowAnimationSpeed === o.value ? "var(--text-on-brand)" : "var(--text-primary)"};font-size:12px;font-weight:600;cursor:pointer;">
+              ${o.label}
+            </button>
+          `
+            )
+            .join("")}
+        </div>
+      </div>
+    `;
+  }
+
   buildStep5() {
     return `
       <div class="setup-step" data-step="6">
         <h2 class="step-title">
-          <i class="fas fa-sliders-h"></i> Quick Settings
+          <i class="fas fa-sliders-h"></i> Essentials
         </h2>
-
+        <p style="font-size:13px;color:var(--text-secondary);margin:0 0 12px;">Pick the basics that shape your daily workflow. Everything else stays in Settings.</p>
         <div class="settings-grid">
-          ${this.buildToggle("weather", "fas fa-cloud-sun", "Weather", this.userChoices.weather)}
           ${this.buildToggle("notifications", "fas fa-bell", "Notifications", this.userChoices.notifications)}
           ${this.buildToggle("sound", "fas fa-volume-high", "Sound", this.userChoices.sound)}
-          ${this.buildToggle("achievements", "fas fa-trophy", "Achievements", this.userChoices.achievements)}
-          ${this.buildToggle("analytics", "fas fa-chart-line", "Analytics", this.userChoices.analytics)}
-          ${this.buildToggle("macOsControls", "fab fa-apple", "Mac Window Headers", this.userChoices.macOsControls)}
-          ${this.buildToggle("mikuCursor", "fas fa-mouse-pointer", "Miku Cursor", this.userChoices.mikuCursor)}
-          ${this.buildToggle("clippy", "fas fa-robot", "Clippy", this.userChoices.clippy)}
-          ${this.buildToggle("clipboardManager", "fas fa-paste", "Clipboard Manager", this.userChoices.clipboardManager)}
+          ${this.buildToggle("clipboardManager", "fas fa-paste", "Clipboard History", this.userChoices.clipboardManager)}
         </div>
-
         <div class="settings-row">
+          ${this.buildTaskbarPositionSelector()}
+          ${this.buildTaskbarAlignmentSelector()}
+        </div>
+        <div class="settings-row">
+          ${this.buildIconSizeSelector()}
+          ${this.buildGuiScaleSelector()}
+        </div>
+        <div class="settings-row">
+          ${this.buildAnimationSpeedSelector()}
           ${this.buildPerformanceSelector()}
+        </div>
+        <div class="settings-row">
           ${this.buildTransparencySelector()}
         </div>
       </div>
@@ -595,15 +717,33 @@ export class SetupApp extends BaseApp {
   }
 
   buildStep6() {
+    const preview = [
+      { keys: "Ctrl+K / F1", desc: "Open command palette" },
+      { keys: "Alt+Q", desc: "Switch windows" },
+      { keys: "Alt + Right Drag", desc: "Resize window" },
+      { keys: "Ctrl+Arrows", desc: "Snap window" }
+    ];
     return `
       <div class="setup-step" data-step="7">
         <h2 class="step-title">
-          <i class="fas fa-info-circle"></i> System Info
+          <i class="fas fa-compass"></i> Get Around Faster
         </h2>
-
+        <p style="font-size:13px;color:var(--text-secondary);margin:0 0 12px;">YukiOS stays fast with the keyboard. Start with these four, then explore the rest.</p>
         <div class="personalize-section">
-          <label class="section-label">Keyboard Shortcuts</label>
-          <p class="system-info-copy">Browse all keyboard shortcuts and hotkeys in the Shortcuts app.</p>
+          <label class="section-label">Essential Shortcuts</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            ${preview
+              .map(
+                (s) => `
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--glass-border);border-radius:8px;background:var(--glass);">
+                <span style="font-size:12px;color:var(--text-secondary);">${s.desc}</span>
+                <span style="font-size:11px;font-weight:700;padding:4px 6px;border-radius:4px;background:var(--brand);color:var(--text-on-brand);white-space:nowrap;">${s.keys}</span>
+              </div>
+            `
+              )
+              .join("")}
+          </div>
+          <p style="font-size:12px;color:var(--text-secondary);margin:10px 0 12px;">Open the full list to remap any shortcut. Hover the desktop or Start menu for extra tips.</p>
           <button class="setup-btn setup-btn-primary" id="setup-launch-shortcuts">
             <i class="fas fa-keyboard"></i> Open Keyboard Shortcuts
           </button>
@@ -681,24 +821,12 @@ export class SetupApp extends BaseApp {
             <span>Wallpaper: ${this.userChoices.wallpaper || "Default"}</span>
           </div>
           <div class="summary-item">
-            <i class="fas fa-cloud-sun"></i>
-            <span>Weather: ${this.userChoices.weather ? "On" : "Off"}</span>
-          </div>
-          <div class="summary-item">
             <i class="fas fa-bell"></i>
             <span>Notifications: ${this.userChoices.notifications ? "On" : "Off"}</span>
           </div>
           <div class="summary-item">
             <i class="fas fa-volume-high"></i>
             <span>Sound: ${this.userChoices.sound ? "On" : "Off"}</span>
-          </div>
-          <div class="summary-item">
-            <i class="fas fa-trophy"></i>
-            <span>Achievements: ${this.userChoices.achievements ? "On" : "Off"}</span>
-          </div>
-          <div class="summary-item">
-            <i class="fas fa-chart-line"></i>
-            <span>Analytics: ${this.userChoices.analytics ? "On" : "Off"}</span>
           </div>
           <div class="summary-item">
             <i class="fas fa-tachometer-alt"></i>
@@ -713,16 +841,16 @@ export class SetupApp extends BaseApp {
             <span>Font: ${FONT_LABELS[this.userChoices.fontFamily] || this.userChoices.fontFamily}</span>
           </div>
           <div class="summary-item">
-            <i class="fab fa-apple"></i>
-            <span>Mac Headers: ${this.userChoices.macOsControls ? "On" : "Off"}</span>
+            <i class="fas fa-arrows-alt"></i>
+            <span>Taskbar: ${this.userChoices.taskbarPosition} · ${this.userChoices.taskbarAlignment}</span>
           </div>
           <div class="summary-item">
-            <i class="fas fa-mouse-pointer"></i>
-            <span>Miku Cursor: ${this.userChoices.mikuCursor ? "On" : "Off"}</span>
+            <i class="fas fa-expand"></i>
+            <span>Icons: ${this.userChoices.desktopIconSize}px · Scale ${this.userChoices.guiScale}%</span>
           </div>
           <div class="summary-item">
-            <i class="fas fa-robot"></i>
-            <span>Clippy: ${this.userChoices.clippy ? "On" : "Off"}</span>
+            <i class="fas fa-bolt"></i>
+            <span>Animation: ${this.userChoices.windowAnimationSpeed === "3.0" ? "Slow" : this.userChoices.windowAnimationSpeed === "0.4" ? "Fast" : "Normal"}</span>
           </div>
           <div class="summary-item">
             <i class="fas fa-paste"></i>
@@ -839,6 +967,79 @@ export class SetupApp extends BaseApp {
         this.userChoices.transparency = transparency;
         transparencyBtns.forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
+      });
+    });
+
+    const posBtns = $$(".taskbar-pos-btn", win);
+    posBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const pos = btn.dataset.pos;
+        this.userChoices.taskbarPosition = pos;
+        posBtns.forEach((b) => {
+          const active = b.dataset.pos === pos;
+          b.classList.toggle("active", active);
+          b.style.background = active ? "var(--brand)" : "var(--glass)";
+          b.style.color = active ? "var(--text-on-brand)" : "var(--text-primary)";
+        });
+      });
+    });
+
+    const alignBtns = $$(".taskbar-align-btn", win);
+    alignBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const align = btn.dataset.align;
+        this.userChoices.taskbarAlignment = align;
+        alignBtns.forEach((b) => {
+          const active = b.dataset.align === align;
+          b.classList.toggle("active", active);
+          b.style.background = active ? "var(--brand)" : "var(--glass)";
+          b.style.color = active ? "var(--text-on-brand)" : "var(--text-primary)";
+        });
+      });
+    });
+
+    const iconSizeBtns = $$(".icon-size-btn", win);
+    iconSizeBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const size = Number(btn.dataset.size);
+        this.userChoices.desktopIconSize = size;
+        iconSizeBtns.forEach((b) => {
+          const active = Number(b.dataset.size) === size;
+          b.classList.toggle("active", active);
+          b.style.background = active ? "var(--brand)" : "var(--glass)";
+          b.style.color = active ? "var(--text-on-brand)" : "var(--text-primary)";
+        });
+        applyDesktopIconSize(size);
+      });
+    });
+
+    const guiScaleBtns = $$(".gui-scale-btn", win);
+    guiScaleBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const scale = Number(btn.dataset.scale);
+        this.userChoices.guiScale = scale;
+        guiScaleBtns.forEach((b) => {
+          const active = Number(b.dataset.scale) === scale;
+          b.classList.toggle("active", active);
+          b.style.background = active ? "var(--brand)" : "var(--glass)";
+          b.style.color = active ? "var(--text-on-brand)" : "var(--text-primary)";
+        });
+        applyGuiScale(scale);
+      });
+    });
+
+    const animBtns = $$(".anim-speed-btn", win);
+    animBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const speed = btn.dataset.speed;
+        this.userChoices.windowAnimationSpeed = speed;
+        animBtns.forEach((b) => {
+          const active = b.dataset.speed === speed;
+          b.classList.toggle("active", active);
+          b.style.background = active ? "var(--brand)" : "var(--glass)";
+          b.style.color = active ? "var(--text-on-brand)" : "var(--text-primary)";
+        });
+        os.storage.set(StorageKeys.windowAnimationSpeed, speed);
       });
     });
 
@@ -978,11 +1179,8 @@ export class SetupApp extends BaseApp {
     }
 
     os.storage.set(StorageKeys.theme, this.userChoices.theme);
-    os.storage.set(StorageKeys.weather, this.userChoices.weather.toString());
     os.storage.set(StorageKeys.notificationsEnabled, this.userChoices.notifications.toString());
     os.storage.set(StorageKeys.soundEnabled, this.userChoices.sound.toString());
-    os.storage.set(StorageKeys.achievementsDisabled, (!this.userChoices.achievements).toString());
-    os.storage.set(StorageKeys.analyticsDisabled, (!this.userChoices.analytics).toString());
     os.storage.set(StorageKeys.setupCompleted, "true");
 
     os.storage.set(StorageKeys.performanceMode, this.userChoices.performanceMode);
@@ -990,14 +1188,13 @@ export class SetupApp extends BaseApp {
 
     os.storage.set(StorageKeys.fontFamily, this.userChoices.fontFamily);
     setIconPack(this.userChoices.iconPack || ICON_PACKS.PAPIRUS);
-    if (this.userChoices.macOsControls) {
-      modeManager.enter(MODES.MAC);
-    } else {
-      modeManager.exit(MODES.MAC);
-    }
-    os.storage.set(StorageKeys.dockEnabled, this.userChoices.macOsControls.toString());
-    os.storage.set(StorageKeys.mikuCursor, this.userChoices.mikuCursor.toString());
-    os.storage.set(StorageKeys.clippy, this.userChoices.clippy.toString());
+    os.storage.set(StorageKeys.taskbarPosition, this.userChoices.taskbarPosition);
+    os.storage.set(StorageKeys.taskbarAlignment, this.userChoices.taskbarAlignment);
+    os.storage.set(StorageKeys.desktopIconSize, String(this.userChoices.desktopIconSize));
+    os.storage.set(StorageKeys.guiScale, String(this.userChoices.guiScale));
+    os.storage.set(StorageKeys.windowAnimationSpeed, String(this.userChoices.windowAnimationSpeed));
+    applyGuiScale(this.userChoices.guiScale);
+    applyDesktopIconSize(this.userChoices.desktopIconSize);
     os.storage.set(StorageKeys.clipboardManagerEnabled, this.userChoices.clipboardManager.toString());
 
     this.os.app.triggerAchievement(Achievements.SetupComplete);
@@ -1022,15 +1219,16 @@ export class SetupApp extends BaseApp {
 
 Here's what you picked:
 - Theme: ${this.userChoices.theme}
-- Performance Mode: ${this.userChoices.performanceMode}
-- Transparency: ${this.userChoices.transparency}
-- Weather: ${this.userChoices.weather ? "On" : "Off"}
-- Notifications: ${this.userChoices.notifications ? "On" : "Off"}
+- Taskbar: ${this.userChoices.taskbarPosition} · ${this.userChoices.taskbarAlignment}
+- Icons: ${this.userChoices.desktopIconSize}px · Scale ${this.userChoices.guiScale}%
+- Animation: ${this.userChoices.windowAnimationSpeed === "3.0" ? "Slow" : this.userChoices.windowAnimationSpeed === "0.4" ? "Fast" : "Normal"}
+- Performance: ${this.userChoices.performanceMode} · Transparency: ${this.userChoices.transparency}
+- Notifications: ${this.userChoices.notifications ? "On" : "Off"} · Sound: ${this.userChoices.sound ? "On" : "Off"}
 
 Quick tips to get going:
-• Click the Start Menu to find 90 apps and 3000+ games
-• Right-click the desktop when you need quick options
-• Tweak anything later in the Settings app
+• Press Ctrl+K to launch anything instantly
+• Right-click the desktop, taskbar, or window headers for more
+• Tweak everything later in Settings. Search for any option
 
 Have fun!`;
 
