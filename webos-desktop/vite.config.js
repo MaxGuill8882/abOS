@@ -268,6 +268,10 @@ function staticCdnRewrite() {
     closeBundle() {
       if (isSingleFile || isElectronBuild) return;
       const fp = resolve(outDir, "index.html");
+      if (!existsSync(fp)) {
+        console.warn(`[static-cdn-rewrite] ${fp} not found, skipping rewrite`);
+        return;
+      }
       const html = readFileSync(fp, "utf-8");
       const out = html.replace(
         /(src|href)="(static\/|src\/styles\/)/g,
