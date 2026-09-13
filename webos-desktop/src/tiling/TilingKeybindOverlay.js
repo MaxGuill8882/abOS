@@ -1,5 +1,7 @@
 import { StorageKeys, os, createElement } from "../framework.js";
 import { KeybindManager } from "../keybindManager.js";
+import { resolveIconUrl } from "../shared/assetResolver.js";
+import { getEffectiveIcon } from "../shared/iconPack.js";
 
 const CATEGORY_ORDER = ["navigation", "resize", "swap", "windows", "workspaces", "system"];
 const CATEGORY_LABELS = {
@@ -11,12 +13,12 @@ const CATEGORY_LABELS = {
   system: "System"
 };
 const CATEGORY_ICONS = {
-  navigation: "fas fa-arrows-alt",
-  resize: "fas fa-expand-alt",
-  swap: "fas fa-arrow-right-arrow-left",
-  windows: "fas fa-window-maximize",
-  workspaces: "fas fa-desktop",
-  system: "fas fa-cog"
+  navigation: "papirus:actions/transform-move",
+  resize: "papirus:actions/view-fullscreen",
+  swap: "papirus:actions/swap-panels",
+  windows: "papirus:actions/window-maximize",
+  workspaces: "papirus:devices/computer",
+  system: "papirus:actions/configure"
 };
 
 function esc(str) {
@@ -51,7 +53,11 @@ export function buildTilingKeybindHTML(searchLower) {
     if (!items || items.length === 0) return;
     const filtered = searchLower ? items.filter((k) => k.desc.toLowerCase().includes(searchLower)) : items;
     if (filtered.length === 0) return;
-    html += `<div class="tiling-kb-category"><div class="tiling-kb-cat-title"><i class="${CATEGORY_ICONS[cat]}"></i>${CATEGORY_LABELS[cat]}</div><div class="tiling-kb-items">`;
+    const eff = getEffectiveIcon(CATEGORY_ICONS[cat]);
+    const iconHtml = eff.startsWith("papirus:")
+      ? `<img src="${resolveIconUrl(eff)}" class="papirus-icon papirus-icon--22" alt="" />`
+      : `<i class="${eff}"></i>`;
+    html += `<div class="tiling-kb-category"><div class="tiling-kb-cat-title">${iconHtml}${CATEGORY_LABELS[cat]}</div><div class="tiling-kb-items">`;
     filtered.forEach((k) => {
       const keys = (k.currentKeys || k.defaultKeys || []).join(" + ");
       html += `<div class="tiling-kb-row"><kbd>${esc(keys)}</kbd><span>${esc(k.desc)}</span></div>`;
@@ -107,10 +113,20 @@ export class TilingKeybindOverlay {
   render() {
     if (!this.el) return;
     const bodyHtml = buildTilingKeybindHTML("");
-    this.el.innerHTML = `<div class="tiling-kb-header"><i class="fas fa-keyboard"></i><span>Tiling Keyboard Shortcuts</span></div><div class="tiling-kb-body">${bodyHtml}</div>
+    const headerPapirus = "papirus:devices/input-keyboard";
+    const headerEff = getEffectiveIcon(headerPapirus);
+    const headerHtml = headerEff.startsWith("papirus:")
+      ? `<img src="${resolveIconUrl(headerEff)}" class="papirus-icon papirus-icon--22" alt="" />`
+      : `<i class="${headerEff}"></i>`;
+    const hidePapirus = "papirus:actions/view-hidden";
+    const hideEff = getEffectiveIcon(hidePapirus);
+    const hideHtml = hideEff.startsWith("papirus:")
+      ? `<img src="${resolveIconUrl(hideEff)}" class="papirus-icon papirus-icon--22" alt="" />`
+      : `<i class="${hideEff}"></i>`;
+    this.el.innerHTML = `<div class="tiling-kb-header">${headerHtml}<span>Tiling Keyboard Shortcuts</span></div><div class="tiling-kb-body">${bodyHtml}</div>
       <div class="tiling-kb-footer">
         <button class="tiling-kb-hide-btn" id="tiling-kb-hide-btn">
-          <i class="fas fa-eye-slash"></i> Hide this
+          ${hideHtml} Hide this
         </button>
       </div>`;
 

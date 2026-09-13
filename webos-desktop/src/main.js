@@ -1,3 +1,4 @@
+import "./styles/papirusIcons.css";
 import { ExplorerApp } from "./apps/explorer.js";
 import { WindowManager } from "./windowManager.js";
 import { AppLauncher } from "./appLauncher.js";
@@ -21,7 +22,9 @@ import { registerPWA } from "./pwa/pwa.js";
 import { SessionManager } from "./SessionManager.js";
 import { CommandPalette } from "./commandPalette.js";
 import { ClipboardManager } from "./systemClipboardManager.js";
-import { resolveIconUrl, initializeMirrors, CDN_MIRRORS, getCdnMirror, setCdnMirror } from "./shared/assetResolver.js";
+import { initializeMirrors } from "./shared/assetResolver.js";
+import { applyIconPack, getIconPack } from "./shared/iconPack.js";
+import { initLiveIconRefresh } from "./shared/liveIconRefresh.js";
 import { appMap } from "./games/gamesList.js";
 import { taskbarPositionManager } from "./desktopui/taskbarPositionManager.js";
 import { isMobile, isTouchDevice } from "./shared/platformUtils.js";
@@ -29,7 +32,6 @@ import { batteryPerformanceManager } from "./services/BatteryPerformanceManager.
 import { PortManager } from "./services/PortManager.js";
 import "./styles/batterySaver.css";
 import logoImg from "./assets/logo.png";
-import { showCdnPrompt } from "./shared/dialogs.js";
 import { initializeOSBridge, setDialogExplorerApp } from "./os/index.js";
 import { loadApps } from "./AppLoader.js";
 import { init } from "./cursorEffect.js";
@@ -160,13 +162,29 @@ async function start() {
       });
     });
   }, 2500);
-  const faScript = $('script[src*="font-awesome"], script[src*="fontawesome"]');
-  if (!faScript) {
-    const s = createElement("script");
-    s.src = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js";
-    s.defer = true;
-    s.crossOrigin = "anonymous";
-    document.head.appendChild(s);
+  try {
+    applyIconPack(getIconPack());
+  } catch {}
+  try {
+    initLiveIconRefresh();
+  } catch {}
+  const papirusEnabled = (() => {
+    try {
+      const v = os.storage.get(StorageKeys.papirusEnabled);
+      return v === true || v === "true" || v === "1";
+    } catch {
+      return true;
+    }
+  })();
+  if (!papirusEnabled) {
+    const faScript = $('script[src*="font-awesome"], script[src*="fontawesome"]');
+    if (!faScript) {
+      const s = createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js";
+      s.defer = true;
+      s.crossOrigin = "anonymous";
+      document.head.appendChild(s);
+    }
   }
 
   await clipboardManager.init();
@@ -182,18 +200,6 @@ async function start() {
     applyStartButtonIcon();
   } catch {}
 
-  setTimeout(() => {
-    const testImg = new Image();
-    testImg.onload = () => {};
-    testImg.onerror = async () => {
-      const newMirror = await showCdnPrompt(CDN_MIRRORS, getCdnMirror());
-      if (newMirror) {
-        setCdnMirror(newMirror);
-        window.location.reload();
-      }
-    };
-    testImg.src = resolveIconUrl("static/icons/file.webp");
-  }, 1500);
   setDesktopUI(desktopUI);
   await SystemUtilities.loadWallpaper();
   windowManager.restorePinnedItems();

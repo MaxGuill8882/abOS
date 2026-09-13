@@ -1,5 +1,16 @@
 [
   {
+    "date": "September 13, 2026",
+    "label": "Papirus Icons",
+    "sections": [
+      {
+        "icon": "papirus:apps/com.github.cassidyjames.palette",
+        "title": "Papirus Icon Pack",
+        "items": [["papirus:apps/com.github.cassidyjames.palette", "Papirus Icons Live", "Add Papirus icon pack and changed all web app icons."]]
+      }
+    ]
+  },
+  {
     "date": "September 11, 2026",
     "label": "Cloud Gaming",
     "sections": [

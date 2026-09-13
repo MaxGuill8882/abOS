@@ -4,6 +4,17 @@ import { ROM_EXTS } from "./shared/coreMap.js";
 import { getDefaultApp, isUnassociated } from "./fileAssociations.js";
 import { resolveIconUrl } from "./shared/assetResolver.js";
 import { formatSize } from "./utils/utils.js";
+import { getEffectiveIcon } from "./shared/iconPack.js";
+
+function viewerIcon(papirusIcon, size = 14) {
+  const effective = getEffectiveIcon(papirusIcon);
+  if (typeof effective === "string" && effective.startsWith("papirus:"))
+    return `<img src="${resolveIconUrl(effective)}" style="width:${size}px;height:${size}px;" alt="" />`;
+  let cls = effective;
+  if (typeof cls === "string" && cls.startsWith("fa-") && !cls.includes(" ")) cls = "fas " + cls;
+  return `<i class="${cls}" style="font-size:${size}px;"></i>`;
+}
+
 import {
   getExt,
   fileKindFromName,
@@ -142,12 +153,12 @@ export function resolveFileIcon(name, isFolder = false) {
   if (isExeFile(name)) return resolveIconUrl("static/icons/jsdos.webp");
   if (isOfficeFile(name)) return resolveIconUrl("static/icons/office.webp");
   if (isEbookFile(name)) return resolveIconUrl("static/icons/office.webp");
-  if (isFontFile(name)) return "fas fa-font";
+  if (isFontFile(name)) return getEffectiveIcon("papirus:mimetypes/application-x-font-ttf");
   if (isDiskFile(name)) return resolveIconUrl("static/icons/zip.webp");
   if (isShortcutFile(name)) return resolveIconUrl("static/icons/notepad.webp");
   if (isHtmlFile(name)) return resolveIconUrl("static/icons/firefox.webp");
   if (isJsonFile(name)) return resolveIconUrl("static/icons/json.webp");
-  return "fas fa-file";
+  return getEffectiveIcon("papirus:mimetypes/text-x-generic");
 }
 
 export function readFileAsDataURL(file) {
@@ -179,6 +190,23 @@ export function buildFileIconHTML(
     return `<div style="${s}display:flex;align-items:center;justify-content:center;font-size:50px;color:${color};${bgStyle}"><i class="${iconClass}"></i></div>`;
   }
 
+  function papirusDiv(papirusIcon, { bg = "" } = {}) {
+    const bgStyle = bg ? `background:${bg};` : "";
+    const url = resolveIconUrl(papirusIcon);
+    return `<div style="${s}display:flex;align-items:center;justify-content:center;${bgStyle}"><img src="${url}" style="width:${Math.round(size * 0.62)}px;height:${Math.round(size * 0.62)}px;object-fit:contain;" loading="lazy" alt="" /></div>`;
+  }
+
+  function renderPapirus(papirusIcon, opts = {}) {
+    const effective = getEffectiveIcon(papirusIcon);
+    if (typeof effective === "string" && effective.startsWith("papirus:")) return papirusDiv(effective, opts);
+    let faCandidate = effective;
+    if (typeof faCandidate === "string" && faCandidate.startsWith("fa-") && !faCandidate.includes(" "))
+      faCandidate = "fas " + faCandidate;
+    if (typeof faCandidate === "string" && (faCandidate.startsWith("fa") || faCandidate.includes(" fa-")))
+      return faIconDiv(faCandidate, opts);
+    return papirusDiv(papirusIcon, opts);
+  }
+
   if (isFolder) {
     return `<img src="${resolveIconUrl("static/icons/file.webp")}" style="${s}object-fit:cover;">`;
   }
@@ -186,11 +214,21 @@ export function buildFileIconHTML(
   let iconSource = thumbnailSrc || storedIcon;
 
   if (iconSource && typeof iconSource === "string") {
-    if (iconSource.startsWith("fa-") && !iconSource.includes(" ")) {
-      iconSource = "fas " + iconSource;
+    const effective = getEffectiveIcon(iconSource);
+    if (typeof effective === "string" && effective.startsWith("papirus:")) {
+      return papirusDiv(effective, { bg: "var(--surface-1)" });
     }
-    if (iconSource.startsWith("fa") || iconSource.includes(" fa-")) {
-      return faIconDiv(iconSource);
+    let faCandidate = effective;
+    if (typeof faCandidate === "string" && faCandidate.startsWith("fa-") && !faCandidate.includes(" "))
+      faCandidate = "fas " + faCandidate;
+    if (typeof faCandidate === "string" && (faCandidate.startsWith("fa") || faCandidate.includes(" fa-"))) {
+      return faIconDiv(faCandidate);
+    }
+    if (
+      typeof effective === "string" &&
+      (effective.startsWith("data:") || effective.startsWith("blob:") || effective.startsWith("http"))
+    ) {
+      return `<img src="${effective}" style="${s}object-fit:cover;">`;
     }
   }
 
@@ -198,13 +236,13 @@ export function buildFileIconHTML(
     return `<div style="${s}display:flex;align-items:center;justify-content:center;background:var(--surface-1);"><img src="${resolveIconUrl("static/icons/firefox.webp")}" style="${s}object-fit:cover;"></div>`;
   }
   if (isMarkdownFile(name)) {
-    return faIconDiv("fab fa-markdown", { color: "#6cb6ff", bg: "var(--surface-1)" });
+    return renderPapirus("papirus:mimetypes/text-x-markdown", { bg: "var(--surface-1)" });
   }
   if (isISOFile(name)) {
-    return faIconDiv("fas fa-compact-disc", { color: "#c0cbd8", bg: "var(--surface-1)" });
+    return renderPapirus("papirus:devices/media-optical", { bg: "var(--surface-1)" });
   }
   if (isRomFile(name)) {
-    return faIconDiv("fas fa-gamepad", { color: "#a78bfa" });
+    return renderPapirus("papirus:apps/preferences-desktop-gaming", { bg: "var(--surface-1)" });
   }
   if (isSwfFile(name)) {
     return `<img src="${resolveIconUrl("static/icons/flash.webp")}" style="${s}object-fit:cover;">`;
@@ -222,11 +260,7 @@ export function buildFileIconHTML(
     return `<img src="${resolveIconUrl("static/icons/notepad.webp")}" style="${s}object-fit:cover;">`;
   }
   if (isCodeFile(name)) {
-    const codeColor = CODE_ICON_COLORS[getExt(name)];
-    return faIconDiv(
-      "fas fa-code",
-      codeColor ? { color: codeColor, bg: "var(--surface-1)" } : { bg: "var(--surface-1)" }
-    );
+    return renderPapirus("papirus:mimetypes/text-x-script", { bg: "var(--surface-1)" });
   }
   if (isImageFile(name) && thumbnailSrc && thumbnailSrc !== "@content") {
     return `<img src="${thumbnailSrc}" style="${s}object-fit:cover;">`;
@@ -236,33 +270,42 @@ export function buildFileIconHTML(
       return `<img src="${thumbnailSrc}" style="${s}object-fit:cover;">`;
     }
     if (storedIcon && storedIcon !== "@content" && storedIcon !== "rom") {
-      const resolvedStored = resolveIconUrl(storedIcon);
+      const resolvedStored = resolveIconUrl(getEffectiveIcon(storedIcon));
       if (/\.(webp|png|jpg|jpeg|gif|avif|svg)$/i.test(resolvedStored)) {
         return `<img src="${resolvedStored}" style="${s}object-fit:cover;">`;
       }
     }
-    return faIconDiv("fas fa-film", { color: "#45d0c6", bg: "var(--bg-primary)" });
+    return renderPapirus("papirus:mimetypes/video-x-generic", { bg: "var(--bg-primary)" });
   }
   if (isOfficeFile(name)) {
     return `<img src="${resolveIconUrl("static/icons/office.webp")}" style="${s}object-fit:cover;">`;
   }
   if (isEbookFile(name)) {
-    return faIconDiv("fas fa-book", { color: "var(--error)", bg: "var(--surface-1)" });
+    return renderPapirus("papirus:mimetypes/application-epub+zip", { bg: "var(--surface-1)" });
   }
   if (isFontFile(name)) {
-    return faIconDiv("fas fa-font", { color: "#9d8cff", bg: "var(--surface-1)" });
+    return renderPapirus("papirus:mimetypes/application-x-font-ttf", { bg: "var(--surface-1)" });
   }
   if (isDiskFile(name)) {
-    return faIconDiv("fas fa-hdd", { color: "#8fa3b8", bg: "var(--surface-1)" });
+    return renderPapirus("papirus:devices/drive-harddisk", { bg: "var(--surface-1)" });
   }
   if (storedIcon && storedIcon !== "@content" && storedIcon !== "rom") {
-    return `<img src="${resolveIconUrl(storedIcon)}" style="${s}object-fit:cover;">`;
+    const effectiveStored = getEffectiveIcon(storedIcon);
+    if (typeof effectiveStored === "string" && effectiveStored.startsWith("papirus:")) {
+      return papirusDiv(effectiveStored, { bg: "var(--surface-1)" });
+    }
+    let faStored = effectiveStored;
+    if (typeof faStored === "string" && faStored.startsWith("fa-") && !faStored.includes(" "))
+      faStored = "fas " + faStored;
+    if (typeof faStored === "string" && (faStored.startsWith("fa") || faStored.includes(" fa-"))) {
+      return faIconDiv(faStored, { bg: "var(--surface-1)" });
+    }
+    return `<img src="${resolveIconUrl(effectiveStored)}" style="${s}object-fit:cover;">`;
   }
   if (isShortcutFile(name)) {
-    const isTorrent = getExt(name) === "torrent";
-    return faIconDiv("fas fa-link", { color: isTorrent ? "#6bcb5a" : "#58a6ff", bg: "var(--surface-1)" });
+    return renderPapirus("papirus:actions/link", { bg: "var(--surface-1)" });
   }
-  return faIconDiv("fas fa-file", { bg: "var(--surface-1)" });
+  return renderPapirus("papirus:mimetypes/text-x-generic", { bg: "var(--surface-1)" });
 }
 
 function setupImageViewer(win) {
@@ -433,11 +476,11 @@ export function openMediaViewer(name, src, kind) {
         <div class="img-viewer-container">
           <img src="${src}" style="opacity:0;">
           <div class="img-viewer-controls">
-            <button class="img-zoom-out" title="Zoom Out"><i class="fas fa-search-minus"></i></button>
-            <button class="img-zoom-in" title="Zoom In"><i class="fas fa-search-plus"></i></button>
+            <button class="img-zoom-out" title="Zoom Out">${viewerIcon("papirus:actions/edit-find-out", 14)}</button>
+            <button class="img-zoom-in" title="Zoom In">${viewerIcon("papirus:actions/edit-find-in", 14)}</button>
           </div>
           <div class="img-viewer-fullscreen">
-            <button class="img-fullscreen-btn" title="Fullscreen"><i class="fas fa-arrows-alt"></i></button>
+            <button class="img-fullscreen-btn" title="Fullscreen">${viewerIcon("papirus:actions/view-fullscreen", 14)}</button>
           </div>
         </div>
       </div>
@@ -691,7 +734,9 @@ async function openFontFile(name, path) {
     document.head.appendChild(style);
 
     const winId = `font-preview-${Date.now()}`;
-    const win = os.window.create(winId, name, "550px", "480px", { icon: "fas fa-font" });
+    const win = os.window.create(winId, name, "550px", "480px", {
+      icon: getEffectiveIcon("papirus:mimetypes/application-x-font-ttf")
+    });
 
     const contentEl = win.querySelector(".window-content");
     if (contentEl) {
@@ -741,7 +786,7 @@ export async function openFileWith({ name, path }) {
     if (isISOFile(name)) {
       try {
         const mountPoint = await os.fs.mountISO(path, name);
-        os.notify.send("Disc Image", `Mounted "${name}"`, { icon: "fa-compact-disc" });
+        os.notify.send("Disc Image", `Mounted "${name}"`, { icon: getEffectiveIcon("papirus:devices/media-optical") });
         if (mountPoint) os.events.emit("iso:mounted", { mountPoint, path, name });
       } catch (e) {
         os.notify.send("Disc Image", `Failed to mount "${name}": ${e.message}`, { type: "error" });
@@ -885,11 +930,15 @@ export async function showFileProperties(path, name, isFolder, onRename = null) 
     const displayLabel = isFolder ? name : stripext(name);
     let iconSrc;
     if (isFolder) {
-      iconSrc = "fas fa-folder";
+      iconSrc = getEffectiveIcon("papirus:places/folder-blue");
     } else {
       const domIcon = resolveDesktopIconFromDOM(name);
       iconSrc =
-        domIcon && !domIcon.startsWith("fa") && !domIcon.startsWith("http") && !domIcon.startsWith("data:")
+        domIcon &&
+        !domIcon.startsWith("fa") &&
+        !domIcon.startsWith("papirus:") &&
+        !domIcon.startsWith("http") &&
+        !domIcon.startsWith("data:")
           ? resolveIconUrl(domIcon)
           : domIcon || resolveFileIcon(name);
     }
@@ -975,9 +1024,11 @@ export async function showFileProperties(path, name, isFolder, onRename = null) 
       <div class="window-content" style="padding:20px;">
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
           ${
-            iconSrc.startsWith("fa")
-              ? `<i class="${iconSrc}" style="font-size:34px;color:var(--brand);width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:var(--surface-1);border:1px solid var(--glass-border);border-radius:6px;"></i>`
-              : `<img src="${iconSrc}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;">`
+            iconSrc.startsWith("papirus:")
+              ? `<img src="${resolveIconUrl(iconSrc)}" style="width:48px;height:48px;object-fit:contain;padding:4px;background:var(--surface-1);border:1px solid var(--glass-border);border-radius:6px;">`
+              : iconSrc.startsWith("fa")
+                ? `<i class="${iconSrc}" style="font-size:34px;color:var(--brand);width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:var(--surface-1);border:1px solid var(--glass-border);border-radius:6px;"></i>`
+                : `<img src="${resolveIconUrl(iconSrc)}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;">`
           }
           <div style="flex:1;">
             <input id="props-rename-input" type="text" value="${displayLabel}" style="font-size:18px;font-weight:600;padding:4px;border-radius:6px;border:1px solid var(--glass-border);background:var(--glass);color:inherit;width:100%;">

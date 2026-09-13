@@ -309,5 +309,8 @@ export const StorageKeys = {
   startButtonIcon: "yukiOS_startButtonIcon",
   appCustomIcons: "yukiOS_app_custom_icons",
   appCustomTitles: "yukiOS_app_custom_titles",
-  macPrevTaskbar: "yukiOS_mac_prev_taskbar"
+  macPrevTaskbar: "yukiOS_mac_prev_taskbar",
+  papirusVariant: "yukiOS_papirus_variant",
+  papirusEnabled: "yukiOS_papirus_enabled",
+  iconPack: "yukiOS_icon_pack"
 };

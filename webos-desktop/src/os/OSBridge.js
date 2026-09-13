@@ -68,7 +68,12 @@ export class AppAPI {
    * @returns {import("../ServiceKeys.js").ServiceTypeMap[K] | null}
    */
   getInstance(key) {
+    if (key === "installedAppsApp") key = "systemAppsApp";
     return this.registry.get(key) || null;
+  }
+
+  get(key) {
+    return this.getInstance(key);
   }
 
   /**
@@ -79,6 +84,7 @@ export class AppAPI {
    * @returns {import("../ServiceKeys.js").ServiceTypeMap[K]}
    */
   require(key) {
+    if (key === "installedAppsApp") key = "systemAppsApp";
     const instance = this.registry.get(key);
     if (!instance) {
       throw new Error(`[os.app] No service registered for key "${key}"`);
@@ -117,10 +123,12 @@ export class AppAPI {
   }
 
   getAppInfo(appId) {
+    if (appId === "installedAppsApp") appId = "systemAppsApp";
     return this.launcher?.appMap?.[appId] ?? null;
   }
 
   hasApp(appId) {
+    if (appId === "installedAppsApp") appId = "systemAppsApp";
     return !!this.launcher?.appMap?.[appId];
   }
 

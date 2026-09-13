@@ -146,6 +146,7 @@ const noopApp = {
   hasApp: () => false,
   searchApps: () => [],
   getInstance: () => null,
+  get: () => null,
   require: () => null,
   register: NOOP,
   close: NOOP

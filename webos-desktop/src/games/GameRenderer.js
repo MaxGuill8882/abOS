@@ -4,6 +4,8 @@ import { popularityMap } from "./games.js";
 import { SteamSettings } from "./steamSettings.js";
 import { lazyImg, observeLazyImages } from "./games.js";
 import { resolveIconHtml } from "../shared/iconUtils.js";
+import { resolveIconUrl } from "../shared/assetResolver.js";
+import { getEffectiveIcon } from "../shared/iconPack.js";
 import { fetchGamePlayCounts, getCachedPlayCounts } from "../analytics.js";
 import { $, $$, createElement } from "../shared/domUtils.js";
 import { injectAdsterraAd, injectNativeAd, suppressAdBlocks, ADSTERRA_KEYS } from "../ads.js";
@@ -16,6 +18,14 @@ import {
   buildFriendCards,
   buildAvatarStrip
 } from "./steamOverviewData.js";
+
+function getPapirusHtml(papirus, style) {
+  const eff = getEffectiveIcon(papirus);
+  if (eff.startsWith("papirus:")) return `<img src="${resolveIconUrl(eff)}" style="${style}" alt="" />`;
+  const m = style.match(/width\s*:\s*([^;]+)/);
+  const size = m ? m[1] : "16px";
+  return `<i class="${eff}" style="font-size:${size}"></i>`;
+}
 
 export class GameRenderer {
   constructor(renderer) {
@@ -62,7 +72,7 @@ export class GameRenderer {
           isHighlighted
             ? `
           <div class="steam-reeyuki-badge">
-            <i class="fas fa-bolt"></i>
+            ${getPapirusHtml("papirus:actions/bookmark-new", "width:14px;height:14px;")}
           </div>
         `
             : ""
@@ -149,12 +159,12 @@ export class GameRenderer {
               </button>
 
               <button class="steam-overview-btn" data-action="favorite">
-                <i class="far fa-star"></i>
+                ${getPapirusHtml("papirus:actions/bookmark-new", "width:16px;height:16px;")}
                 <span>Add to Favorites</span>
               </button>
 
               <button class="steam-overview-btn" data-action="saveToCollection">
-                <i class="fas fa-folder-plus"></i>
+                ${getPapirusHtml("papirus:actions/folder-new", "width:16px;height:16px;")}
                 <span>Save to Collection</span>
               </button>
 
@@ -246,10 +256,31 @@ export class GameRenderer {
     if (favoriteBtn) {
       favoriteBtn.onclick = () => {
         SteamDataManager.toggleFavorite(appId);
-        const icon = favoriteBtn.querySelector("i");
         const span = favoriteBtn.querySelector("span");
         const isFavorite = SteamDataManager.isFavorite(appId);
-        icon.className = isFavorite ? "fas fa-star" : "far fa-star";
+        const papirusIcon = isFavorite ? "papirus:actions/bookmarks" : "papirus:actions/bookmark-new";
+        const eff = getEffectiveIcon(papirusIcon);
+        const iconEl = favoriteBtn.querySelector("img, i");
+        if (iconEl) {
+          if (eff.startsWith("papirus:")) {
+            if (iconEl.tagName.toLowerCase() === "img") iconEl.src = resolveIconUrl(eff);
+            else {
+              const newImg = document.createElement("img");
+              newImg.src = resolveIconUrl(eff);
+              newImg.style.width = "16px";
+              newImg.style.height = "16px";
+              iconEl.replaceWith(newImg);
+            }
+          } else {
+            if (iconEl.tagName.toLowerCase() === "i") iconEl.className = eff;
+            else {
+              const newI = document.createElement("i");
+              newI.className = eff;
+              newI.style.fontSize = "16px";
+              iconEl.replaceWith(newI);
+            }
+          }
+        }
         span.textContent = isFavorite ? "In Favorites" : "Add to Favorites";
       };
     }
@@ -325,18 +356,18 @@ export class GameRenderer {
             ${
               thumb
                 ? `<img src="${thumb}" style="width: 200px; height: 280px; object-fit: cover; border-radius: 4px; box-shadow: 0 10px 30px var(--overlay-bg);" />`
-                : `<div style="width:200px;height:280px;background:var(--bg-secondary);border-radius:4px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-gamepad" style="font-size:60px;color:var(--text-secondary);"></i></div>`
+                : `<div style="width:200px;height:280px;background:var(--bg-secondary);border-radius:4px;display:flex;align-items:center;justify-content:center;">${getPapirusHtml("papirus:apps/preferences-desktop-gaming", "width:60px;height:60px;opacity:0.6;")}</div>`
             }
             <div class="banner-info" style="flex: 1;">
               <h1 style="font-size: 48px; margin: 0 0 10px 0; color: var(--text-primary); text-shadow: 0 2px 10px var(--overlay-bg); font-family: 'Motiva Sans', Sans-serif;">${archiveGame.title}</h1>
               <div class="play-bar">
                 <button class="steam-play-btn">Play</button>
                 <button class="steam-overview-btn" data-action="favorite">
-                  <i class="far fa-star"></i>
+                  ${getPapirusHtml("papirus:actions/bookmark-new", "width:16px;height:16px;")}
                   <span>Add to Favorites</span>
                 </button>
                 <button class="steam-overview-btn" data-action="saveToCollection">
-                  <i class="fas fa-folder-plus"></i>
+                  ${getPapirusHtml("papirus:actions/folder-new", "width:16px;height:16px;")}
                   <span>Save to Collection</span>
                 </button>
                 <div class="overview-stats">
@@ -414,10 +445,31 @@ export class GameRenderer {
     if (favoriteBtn) {
       favoriteBtn.onclick = () => {
         SteamDataManager.toggleFavorite(archiveGame.appId);
-        const icon = favoriteBtn.querySelector("i");
         const span = favoriteBtn.querySelector("span");
         const isFavorite = SteamDataManager.isFavorite(archiveGame.appId);
-        icon.className = isFavorite ? "fas fa-star" : "far fa-star";
+        const papirusIcon = isFavorite ? "papirus:actions/bookmarks" : "papirus:actions/bookmark-new";
+        const eff = getEffectiveIcon(papirusIcon);
+        const iconEl = favoriteBtn.querySelector("img, i");
+        if (iconEl) {
+          if (eff.startsWith("papirus:")) {
+            if (iconEl.tagName.toLowerCase() === "img") iconEl.src = resolveIconUrl(eff);
+            else {
+              const newImg = document.createElement("img");
+              newImg.src = resolveIconUrl(eff);
+              newImg.style.width = "16px";
+              newImg.style.height = "16px";
+              iconEl.replaceWith(newImg);
+            }
+          } else {
+            if (iconEl.tagName.toLowerCase() === "i") iconEl.className = eff;
+            else {
+              const newI = document.createElement("i");
+              newI.className = eff;
+              newI.style.fontSize = "16px";
+              iconEl.replaceWith(newI);
+            }
+          }
+        }
         span.textContent = isFavorite ? "In Favorites" : "Add to Favorites";
       };
     }

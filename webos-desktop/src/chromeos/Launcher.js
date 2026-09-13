@@ -271,9 +271,12 @@ export class Launcher {
     const item = createElement("div", { className: "launcher-app-item" });
     item.dataset.appId = appId;
 
-    const iconValue = resolveIconUrl(appData.icon || "fas fa-star");
+    const rawIcon = appData.icon || "papirus:actions/bookmark-new";
+    const iconValue = resolveIconUrl(rawIcon);
     const iconEl = createElement("div", { className: "launcher-app-icon" });
-    if (iconValue.startsWith("fa")) {
+    if (rawIcon.startsWith("papirus:")) {
+      iconEl.innerHTML = `<img src="${iconValue}" class="papirus-icon papirus-icon--32" alt="${appData.title}" />`;
+    } else if (iconValue.startsWith("fa")) {
       iconEl.innerHTML = `<i class="${iconValue}"></i>`;
     } else {
       const img = createElement("img", { attributes: { src: iconValue, alt: appData.title } });
@@ -304,14 +307,17 @@ export class Launcher {
       const isPinned = this.shelf && this.shelf.isPinned(appId);
       const isProtected = appRegistry.isProtected(appId);
 
-      const items = [{ id: "ctx-open", label: "Open", action: "open", icon: "fa-play" }, "hr"];
+      const items = [
+        { id: "ctx-open", label: "Open", action: "open", icon: "papirus:actions/media-playback-start" },
+        "hr"
+      ];
 
       if (!isSettings && this.shelf) {
         items.push({
           id: "ctx-pin",
           label: isPinned ? "Unpin from taskbar" : "Pin to taskbar",
           action: "togglePin",
-          icon: isPinned ? "fa-thumbtack" : "fa-plus"
+          icon: isPinned ? "papirus:actions/window-pin" : "papirus:actions/list-add"
         });
         items.push("hr");
       }
@@ -320,7 +326,7 @@ export class Launcher {
         id: "ctx-rename",
         label: "Rename",
         action: "rename",
-        icon: "fa-pen"
+        icon: "papirus:actions/edit"
       });
 
       if (!isSettings && !isProtected) {
@@ -328,7 +334,7 @@ export class Launcher {
           id: "ctx-delete",
           label: "Delete",
           action: "delete",
-          icon: "fa-trash"
+          icon: "papirus:actions/entry-delete"
         });
       }
 
@@ -348,7 +354,7 @@ export class Launcher {
           if (isPinned) {
             this.shelf.unpinApp(appId);
           } else {
-            this.shelf.pinApp(appId, appData.title || appId, appData.icon || "fas fa-star");
+            this.shelf.pinApp(appId, appData.title || appId, appData.icon || "papirus:actions/bookmark-new");
           }
         },
         rename: async () => {

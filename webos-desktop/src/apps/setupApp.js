@@ -1,5 +1,6 @@
 import "../styles/setup.css";
-import { resolveWallpaperUrl } from "../shared/assetResolver.js";
+import { resolveWallpaperUrl, resolveIconUrl, resolvePapirusUrl } from "../shared/assetResolver.js";
+import { ICON_PACKS, SAMPLE_ICONS, getIconPack, setIconPack } from "../shared/iconPack.js";
 import { isImageFile } from "../shared/fileKindDetector.js";
 import { SystemUtilities } from "../system.js";
 import { Achievements } from "../achievements.js";
@@ -251,7 +252,8 @@ export class SetupApp extends BaseApp {
       dockEnabled: false,
       mikuCursor: true,
       clippy: false,
-      clipboardManager: true
+      clipboardManager: true,
+      iconPack: getIconPack()
     };
     this.wallpapers = [];
     this.customWallpapers = [];
@@ -396,6 +398,32 @@ export class SetupApp extends BaseApp {
     return `<div class="setup-step" data-step="4">${this.buildFeatureGrid(FEATURE_DATA.step3b, "More Features", "fas fa-plus-circle")}</div>`;
   }
 
+  buildIconPackSection() {
+    const isPapirus = this.userChoices.iconPack !== ICON_PACKS.FA;
+    const papirusIcons = SAMPLE_ICONS.map(
+      (s) => `<img src="${resolvePapirusUrl(s.papirus, 22)}" class="papirus-icon papirus-icon--22" alt="" />`
+    ).join("");
+    const faIcons = SAMPLE_ICONS.map((s) => `<i class="${s.fa}" style="font-size:18px;"></i>`).join("");
+    return `
+      <div class="personalize-section">
+        <label class="section-label">Icon Style</label>
+        <p style="font-size:12px;color:var(--text-secondary);margin:4px 0 8px;">Same preview as Settings — click to switch, Papirus is default</p>
+        <div class="icon-pack-chooser" id="setup-iconpack-chooser" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;">
+          <button class="icon-pack-option ${isPapirus ? "active" : ""}" data-icon-pack="papirus" style="display:flex;flex-direction:column;align-items:center;padding:10px;border:1.5px solid ${isPapirus ? "var(--brand)" : "var(--glass-border)"};border-radius:8px;background:${isPapirus ? "color-mix(in srgb, var(--brand) 12%, transparent)" : "var(--glass)"};cursor:pointer;gap:6px;">
+            <span style="font-weight:600;font-size:13px;"><i class="fas fa-palette" style="margin-right:6px;"></i>Papirus</span>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;padding:8px;background:var(--bg-secondary,rgba(0,0,0,0.15));border-radius:6px;margin:4px 0;min-height:38px;align-items:center;">${papirusIcons}</div>
+            <span style="font-size:11px;color:var(--text-secondary)">Colorful detailed</span>
+          </button>
+          <button class="icon-pack-option ${!isPapirus ? "active" : ""}" data-icon-pack="fontawesome" style="display:flex;flex-direction:column;align-items:center;padding:10px;border:1.5px solid ${!isPapirus ? "var(--brand)" : "var(--glass-border)"};border-radius:8px;background:${!isPapirus ? "color-mix(in srgb, var(--brand) 12%, transparent)" : "var(--glass)"};cursor:pointer;gap:6px;">
+            <span style="font-weight:600;font-size:13px;"><i class="fas fa-font" style="margin-right:6px;"></i>Font Awesome</span>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:8px;background:var(--bg-secondary,rgba(0,0,0,0.15));border-radius:6px;margin:4px 0;min-height:38px;align-items:center;">${faIcons}</div>
+            <span style="font-size:11px;color:var(--text-secondary)">Monochrome vector</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
   buildStep4() {
     const themes = getAllThemes();
 
@@ -445,6 +473,8 @@ export class SetupApp extends BaseApp {
             </button>
           </div>
         </div>
+
+        ${this.buildIconPackSection()}
 
         <div class="personalize-section">
           <label class="section-label">Select Wallpaper</label>
@@ -755,6 +785,20 @@ export class SetupApp extends BaseApp {
       });
     });
 
+    const iconPackOptions = $$(".icon-pack-option", win);
+    iconPackOptions.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const pack = btn.dataset.iconPack === "fontawesome" ? ICON_PACKS.FA : ICON_PACKS.PAPIRUS;
+        this.userChoices.iconPack = pack;
+        iconPackOptions.forEach((b) => {
+          const isActive = b.dataset.iconPack === pack;
+          b.classList.toggle("active", isActive);
+          b.style.borderColor = isActive ? "var(--brand)" : "var(--glass-border)";
+          b.style.background = isActive ? "color-mix(in srgb, var(--brand) 12%, transparent)" : "var(--glass)";
+        });
+      });
+    });
+
     const wallpaperThumbs = $$(".wallpaper-thumb", win);
     wallpaperThumbs.forEach((thumb) => {
       thumb.addEventListener("click", () => {
@@ -945,6 +989,7 @@ export class SetupApp extends BaseApp {
     os.storage.set(StorageKeys.transparency, this.userChoices.transparency);
 
     os.storage.set(StorageKeys.fontFamily, this.userChoices.fontFamily);
+    setIconPack(this.userChoices.iconPack || ICON_PACKS.PAPIRUS);
     if (this.userChoices.macOsControls) {
       modeManager.enter(MODES.MAC);
     } else {

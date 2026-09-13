@@ -485,5 +485,152 @@ export const descriptionMap = {
   subwaySurferswinterholiday:
     "Subway Surfers: Winter Holiday is a seasonal expansion with snow-covered tracks, festive decorations, holiday-themed obstacles, and winter wonderland visuals.",
   subwaySurferszurich:
-    "Subway Surfers: Zurich brings the endless runner to Switzerland's largest city, featuring Alpine scenery, European architecture, and clean urban design throughout the course."
+    "Subway Surfers: Zurich brings the endless runner to Switzerland's largest city, featuring Alpine scenery, European architecture, and clean urban design throughout the course.",
+  angryBirds2:
+    "Angry Birds 2 is a 2015 sequel by Rovio Entertainment. Players slingshot birds with spell cards and multi-stage levels to topple increasingly fortified pig structures across vibrant worlds.",
+  deltaruneCh5:
+    "Deltarune Chapters 1-5 is the episodic RPG by Toby Fox. Players guide Kris, Susie, and Ralsei through Dark Worlds blending bullet-hell combat, whimsical humor, and branching choices.",
+  howToFish:
+    "How To Fish is a quirky physics fishing game. Players cast, reel, and wrestle absurd catches with intentionally awkward controls that turn every bite into slapstick chaos.",
+  paintTheTownRed:
+    "Paint the Town Red is a chaotic voxel brawler by South East Games. Players fight through destructible arenas packed with enemies, using fists, blades, and environmental kills in sandbox carnage.",
+  howToDateASleepParalysisDemon:
+    "How to Date a Sleep Paralysis Demon is a 2025 horror dating sim by Sfour. Players navigate unsettling late-night encounters where flirtation blurs with psychological dread and surreal bedroom horror.",
+  howToDateAnEntity:
+    "How to Date an Entity is a companion horror visual novel by Sfour. Players form a tense relationship with an unknowable presence, balancing affection and fear through branching dialogue.",
+  thkill:
+    "UltraKill Webport is a browser port of Arsi Hakita Patala's 2020 ultraviolent FPS. Players descend through Hell as a blood-fueled machine, chaining stylish kills, parries, and movement tech for rank.",
+  slenderina:
+    "Slenderina: The Cellar is a 2016 horror game by DVloper. Players hunt for hidden objects in a creepy cellar while evading Slenderina, whose jumpscares punish hesitation and wandering.",
+  sixSeconds:
+    "60 Seconds! is a 2015 dark comedy survival game by Robot Gentleman. Players scavenge supplies in 60 seconds before the blast, then manage a bunker family's hunger, sanity, and random events.",
+  aDifficultGameAboutClimbing:
+    "A Difficult Game About Climbing is a 2024 physics climber by Pontypants. Players cling, swing, and drag a climber up a sheer rock face where precise grabs and one slip can erase minutes of progress.",
+  adofai:
+    "A Dance of Fire and Ice is a 2019 rhythm game by 7th Beat Games. Players keep two orbiting planets on a winding path, pressing in perfect time to the beat across deceptively simple one-button levels.",
+  agesOfConflict:
+    "Ages of Conflict is a minimalist strategy sandbox by JoySpark Games. Players watch AI nations expand and war across history, intervening to fund, betray, or reshape borders on a living world map.",
+  amandaTheAdventurer:
+    "Amanda the Adventurer is a 2023 horror adventure by MANGLEDmaw Games. Players watch eerie children's tapes starring Amanda and Wooly, solving puzzles as a friendly cartoon façade turns sinister.",
+  antonblast:
+    "Antonblast is a 2024 explosive platformer by Summitsphere. Players rampage as Dynamite Anton with destructive hammer swings, screen-shattering bosses, and chaotic, cartoon-fueled momentum.",
+  antonblast64:
+    "Antonblast 64 is a fan-made N64-style reimagining of Antonblast. Players blast through low-poly stages with retro platforming, chunky visuals, and the same hammer-wrecking chaos.",
+  baldisBasicsBirthdayBash:
+    "Baldi's Basics Birthday Bash is a 2019 party-themed remaster by Micah McGonigal. Players explore a birthday-decorated school collecting gifts while avoiding Baldi and his friends with new surprises.",
+  beatblock:
+    "Beatblock is a 2023 rhythm-platformer by Lapo. Players dash and attack to the beat, unlocking abilities and remixed tracks in a story-driven world synced to the soundtrack.",
+  bendyAndTheInkMachine:
+    "Bendy and the Ink Machine is a 2017 episodic horror by Joey Drew Studios. Players unravel an abandoned 1930s cartoon studio, sneaking past ink-corrupted creatures and solving environmental puzzles.",
+  bitlife:
+    "BitLife is a 2018 life simulation by Candywriter. Players live a full virtual life from birth to death, making choices about school, jobs, relationships, and crime that branch into wild outcomes.",
+  blockBlast:
+    "Block Blast is a 2022 block puzzle by Hungry Studio. Players drag colorful polyominoes onto a 10x10 grid to clear lines and combos in a satisfying, endlessly replayable high-score chase.",
+  bloodmoney:
+    "Bloodmoney is a dark clicker horror game. Players trade clicks for cash from a desperate character, where each upgrade reveals a more unsettling price behind the cheerful storefront.",
+  boilNoodlesAtNight:
+    "Boil Noodles at Night is a short horror walking sim. Players cook noodles alone in a quiet apartment as subtle dread builds through small, unnerving late-night details.",
+  brotatoPawsNClaws:
+    "Brotato: Paws & Claws is a 2024 content expansion for Brotato. Players pick new feline warriors, weapons, and mutating builds to survive escalating alien waves with chaotic auto-fire combat.",
+  canary:
+    "Canary is a narrative horror adventure. Players investigate an eerie mining town under a singing canary's warning, uncovering environmental storytelling and creeping atmospheric dread.",
+  cheeseRolling:
+    "Cheese Rolling is a physics racing party game. Players tumble down absurd hills chasing a rolling cheese wheel, bouncing off obstacles in hilarious, momentum-driven sprints.",
+  classOf09:
+    "Class of '09 is a 2021 visual novel by SBN3. Players navigate the cynical senior year of a high school outcast through acerbic dialogue choices and bleakly comic branching paths.",
+  classOf09Flipside:
+    "Class of '09: The Flipside is a 2023 spin-off by SBN3. Players see the story from new perspectives with additional routes, characters, and the series' signature deadpan, nihilistic humor.",
+  classOf09ReUp:
+    "Class of '09: The Re-Up is the 2023 remake and expansion by SBN3. Players revisit the anti-social high school saga with rewritten scenes, new endings, and expanded voice acting.",
+  cookieClicker:
+    "Cookie Clicker is a 2013 incremental game by Julien Orteil Thiennot. Players bake cookies by clicking and buying cursors, grandmas, and factories that endlessly multiply production into absurd scale.",
+  cs: "CS is a browser port of Counter-Strike. Players join terrorists or counter-terrorists in tactical round-based shootouts, buying weapons and holding angles on classic maps.",
+  cutTheRopeTimeTravel:
+    "Cut the Rope: Time Travel is a 2013 physics puzzle by ZeptoLab. Players feed Om Nom across time periods, pairing two monsters' mouths with mirrored rope cuts and historical gadgets.",
+  cutTheRopeHolidayGift:
+    "Cut the Rope: Holiday Gift is a 2013 festive spin-off by ZeptoLab. Players slice ropes and pop bubbles to deliver candy through wintery, gift-wrapped puzzle boxes.",
+  diceAMillion:
+    "Dice A Million is a dice-driven roguelike. Players roll, reroll, and combine dice faces to build devastating combos against escalating odds and bosses.",
+  driftHunters:
+    "Drift Hunters is a 2021 drift racing game by Horsepower Games. Players tune cars and chain drifts across technical tracks, earning cash to upgrade engines and suspension.",
+  fridayNightFunkin:
+    "Friday Night Funkin' is a 2020 rhythm game by Ninjamuffin99. Players hit arrows in time to battle rivals for their girlfriend's approval across catchy, community-expanded weeks.",
+  granny2:
+    "Granny 2 is a 2019 horror sequel by DVloper. Players escape a larger, trap-filled house alongside Grandpa, solving puzzles while avoiding two keen-eared hunters over five days.",
+  granny3:
+    "Granny 3 is a 2021 horror entry by DVloper. Players infiltrate a locked mansion with Granny and Grandpa guarding twisting passages, secret rooms, and a moat-walled escape.",
+  gta3: "Grand Theft Auto III is a 2001 open-world action game by Rockstar Games. Players rise through Liberty City's criminal underworld across a landmark 3D city that defined modern sandbox games.",
+  justShapesAndBeats:
+    "Just Shapes & Beats is a 2018 bullet-hell rhythm game by Berzerk Studio. Players dodge rhythmic barrages as a small shape, surviving set pieces choreographed to an energetic electronic soundtrack.",
+  karlson:
+    "Karlson is a parkour shooter by Dani. Players vault, wallrun, and dive through time-slowing arenas, blasting milk-obsessed enemies with fluid, physics-driven movement.",
+  motoX3M:
+    "Moto X3M is a 2016 physics platform racer by MadPuffers. Players race dirt bikes through obstacle courses, flipping and timing jumps while avoiding deadly traps.",
+  oneShotWorldMachineEdition:
+    "OneShot: World Machine Edition is the 2024 re-release by Future Cat. Players guide Niko to restore a dying sun in a meta puzzle adventure that reacts to the player's own desktop.",
+  ovo: "OvO is a 2020 stickman platformer by Dedra Games. Players wall-jump, slide, and slam through tight trials with buttery movement and millisecond-precision time attacks.",
+  ovo2: "OvO 2 is the sequel to the minimalist platformer. Players master expanded movesets and new hazards across larger, deviously designed speedrun gauntlets.",
+  ovoDimensions:
+    "OvO Dimensions is an expanded entry in the OvO series. Players warp across dimension-themed levels with new mechanics that remix the core parkour formula.",
+  peakPort:
+    "PEAK is a co-op climbing adventure by Landcrab. Players cooperate to scale a mysterious mountain together, managing stamina, routes, and rescues in a communicative ascent.",
+  peoplePlayground:
+    "People Playground is a 2019 ragdoll sandbox by mestiez. Players experiment with physics toys, contraptions, and weapons in a darkly comedic open-ended destruction lab.",
+  pizzaTower:
+    "Pizza Tower is a 2023 fast-paced platformer by Tour De Pizza. Players dash as Peppino Spaghetti through chaotic, Wario Land-inspired levels chaining combos and frantic escapes.",
+  polyTrack:
+    "PolyTrack is a low-poly racing game by Kodub. Players carve tight tracks, drift through minimalist mountains, and chase ghosts in a snappy, retro-styled time trial.",
+  redBall4Vol2:
+    "Red Ball 4 Vol. 2 is a level expansion by FDG Entertainment. Players guide the bouncy hero through new factories and caverns, squashing square foes with precision platforming.",
+  redBall4Vol3:
+    "Red Ball 4 Vol. 3 is the final volume by FDG Entertainment. Players tackle the toughest chapters in the Red Ball saga, mastering bosses and trap-filled gauntlets.",
+  retroBowl:
+    "Retro Bowl is a 2020 retro football game by New Star Games. Players coach and quarterback a Jaguar-esque team, managing rosters, drafts, and pixel-art playbooks.",
+  runescape:
+    "RuneScape is a long-running MMORPG by Jagex, first released in 2001. Players grind skills, quest, and trade in Gielinor's vast fantasy world now playable directly in the browser.",
+  sprunki:
+    "Sprunki is a music-creation drag-and-drop game inspired by Incredibox. Players layer vocal loops and beats to compose catchy tracks topped with playful horror-themed surprises.",
+  srb22:
+    "Sonic Robo Blast 2 v2.2 is a fan-made 3D Sonic platformer by STJr. Players sprint through retro-inspired zones with faithful Sonic momentum, mod support, and multiplayer races.",
+  srb2Kart:
+    "Sonic Robo Blast 2 Kart is a 2018 kart racer by STJr. Players drift through Sonic-themed circuits with classic kart combat, items, and a massive community track library.",
+  theAdventuresOfSirKicksalot:
+    "The Adventures of Sir Kicksalot is a retro action-platformer. Players kick foes and stomp through knightly dungeons with precise jumps and upgradeable boots.",
+  theManFromTheWindow2:
+    "The Man from the Window 2 is a horror sequel by Zed_Technician. Players hide from the looming window man by memorizing paths, checking hiding spots, and reacting under time pressure.",
+  transmorpher2:
+    "Transmorpher 2 is a puzzle-platformer by Enagames. Players morph a gelatinous alien through magnets, lasers, and switches to solve physics puzzles across labyrinthine levels.",
+  transmorpher3:
+    "Transmorpher 3 is the 2018 follow-up by Enagames. Players conquer larger biomes with new forms, tighter puzzles, and expanded sci-fi lab challenges.",
+  untitledGooseGame:
+    "Untitled Goose Game is a 2019 slapstick stealth game by House House. Players honk, steal, and prank a peaceful village as a horrible goose on a meticulously crafted to-do list.",
+  vex: "Vex is a 2014 stickman platformer by Amazing Adam. Players wall-jump, climb, and dash through nine acts of brutal, checkpoint-driven obstacle courses.",
+  vex2: "Vex 2 is the 2015 sequel by Amazing Adam. Players tackle deadlier acts with new traps, tighter routing, and the same ultra-responsive parkour precision.",
+  vex3: "Vex 3 is the 2016 third entry by Amazing Adam. Players unlock skins and negotiate razor-filled labs with running, sliding, and ziplining challenges.",
+  vex3Xmas:
+    "Vex 3 Xmas is a festive reskin of Vex 3. Players conquer winter-themed acts with snow, lights, and seasonal traps over the classic hardcore platforming.",
+  vex4: "Vex 4 is a 2018 entry by Amazing Adam. Players race through nine expanded acts with checkpoints, hard modes, and fresh movement puzzles.",
+  vex5: "Vex 5 is a 2019 chapter by Amazing Adam. Players navigate industrial labs with grappling hooks, boost pads, and the series' punishing precision.",
+  vex6: "Vex 6 is a 2020 sequel by Amazing Adam. Players wall-run and swim through nine acts with blood trails, ghosts, and daily challenges.",
+  vex7: "Vex 7 is a 2021 installment by Amazing Adam. Players conquer tower-themed acts with zip-lines, warps, and sharply tuned parkour tech.",
+  vex8: "Vex 8 is the 2023 latest entry by Amazing Adam. Players scale the tallest tower yet with new mechanics, community levels, and relentless checkpoint gauntlets.",
+  vexChallenges:
+    "Vex Challenges is a challenge-mode spin-off. Players chase medals on curated hard levels with time attacks and no-checkpoint runs.",
+  vexX3m:
+    "Vex X3M is a motorbike adaptation by Amazing Adam. Players ride and flip through Vex-style gauntlets with bike physics layered onto brutal platforming.",
+  vexX3m2:
+    "Vex X3M 2 is the sequel motorbike platformer. Players stunt through larger, deadlier tracks with new bikes, tricks, and stage mechanics.",
+  webFishing:
+    "WebFishing is a 2024 cozy multiplayer fishing game by lamedeveloper. Players fish, explore, and idle with friends on a charming island filled with props and cats.",
+  whileTrueLearn:
+    "while True: learn() is a 2018 puzzle sim by Luden.io. Players code visual machine-learning pipelines to solve cat-recognition tasks while juggling startup life.",
+  wizardHult:
+    "Wizard Hult is a short dungeon action game. Players cast spells and cleave through monster-filled rooms as a wandering wizard clearing cursed halls.",
+  worldBox:
+    "WorldBox is a 2012 god sandbox by Maxim Karpenko. Players spawn kingdoms, disasters, and creatures on a pixel world and watch civilizations rise or burn.",
+  yourOnlyMoveIsHustle:
+    "Your Only Move Is HUSTLE is a 2023 turn-based fighter by Ivy Sly. Players choreograph seconds-long brawls frame by frame, then execute flawlessly timed super-powered strings.",
+  zuma: "Zuma is a 2003 ball-matching puzzler by PopCap Games. Players fire colored spheres from a stone frog to clear spiraling chains before they reach the skull.",
+  miside:
+    "MiSide is a 2024 horror adventure by AIHASTO. Players are pulled into a sweet life sim with the clingy Mita, where cozy routines curdle into reality-bending, meta horror."
 };

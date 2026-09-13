@@ -210,7 +210,7 @@ export class JsDosApp extends BaseApp {
 
     try {
       setLog(log, "Downloading game…");
-      const gameUrl = `https://cdn.jsdelivr.net/gh/Reeyuki/yukios@main/static/apps/jsdos/${fileName}`;
+      const gameUrl = `https://cdn.jsdelivr.net/gh/NaoTomori1/yukios@main/static/apps/jsdos/${fileName}`;
 
       const response = await fetch(gameUrl);
       if (!response.ok) {

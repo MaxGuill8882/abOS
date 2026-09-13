@@ -282,3 +282,14 @@ html[data-theme] .terminal-content ::selection {
 .ansi-escape {
   display: none;
 }
+
+::highlight(terminal-preserved) {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+.terminal-content.preserve-selection ::selection,
+html[data-theme] .terminal-content.preserve-selection ::selection {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}

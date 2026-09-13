@@ -4,7 +4,7 @@ import { appMap } from "./games/gamesList.js";
 import { audioMixer, SystemAudio } from "./audioMixer.js";
 import { $, createElement, setHTML, toggleClass, addClass, removeClass } from "./shared/domUtils.js";
 import { getSetting, parseBool, timeAgo, escapeHtml } from "./utils/utils.js";
-
+import { resolveIconUrl } from "./shared/assetResolver.js";
 import { APP_MANIFESTS, StorageKeys, os } from "./framework.js";
 
 const APP_SOURCE_TO_APP_MAP_KEY = APP_MANIFESTS.reduce(
@@ -104,11 +104,16 @@ export class NotificationCenter {
 
     if (hasItems) {
       if (!os.tray.isRegistered(this.notificationWinId)) {
-        os.tray.register(this.notificationWinId, "fas fa-bell", "Notifications", {
-          showInTray: true,
-          alwaysVisible: true,
-          onClick: () => this.toggleCenter()
-        });
+        os.tray.register(
+          this.notificationWinId,
+          "papirus:apps/preferences-desktop-notification-bell",
+          "Notifications",
+          {
+            showInTray: true,
+            alwaysVisible: true,
+            onClick: () => this.toggleCenter()
+          }
+        );
         this.updateTrayIcon();
       }
     } else {
@@ -127,7 +132,9 @@ export class NotificationCenter {
 
   updateTrayIcon() {
     if (os.tray.isRegistered(this.notificationWinId)) {
-      const icon = this.doNotDisturb ? "fas fa-bell-slash" : "fas fa-bell";
+      const icon = this.doNotDisturb
+        ? "papirus:status/audio-volume-muted"
+        : "papirus:apps/preferences-desktop-notification-bell";
       os.tray.updateIcon(this.notificationWinId, icon);
     }
   }
@@ -331,12 +338,20 @@ export class NotificationCenter {
 
   buildNotificationIconHtml(notif, imgClass, iconClass) {
     if (notif.icon) {
+      if (typeof notif.icon === "string" && notif.icon.startsWith("papirus:")) {
+        const url = resolveIconUrl(notif.icon);
+        return `<img src="${escapeHtml(url)}" class="${imgClass}" alt="" />`;
+      }
       const isImagePath = isImageFile(notif.icon);
       const isDataUrl = typeof notif.icon === "string" && notif.icon.startsWith("data:");
 
       if (isImagePath || isDataUrl) {
         return `<img src="${escapeHtml(notif.icon)}" class="${imgClass}" />`;
       } else if (typeof notif.icon === "string" && notif.icon.trim().length > 0) {
+        if (notif.icon.startsWith("papirus:")) {
+          const url = resolveIconUrl(notif.icon);
+          return `<img src="${escapeHtml(url)}" class="${imgClass}" alt="" />`;
+        }
         let cls = notif.icon;
         if (cls.startsWith("fa-") && !cls.startsWith("fas ") && !cls.startsWith("far ") && !cls.startsWith("fab ")) {
           cls = `fas ${cls}`;
@@ -347,12 +362,14 @@ export class NotificationCenter {
       }
     } else {
       const iconMap = {
-        info: "fas fa-info-circle",
-        success: "fas fa-check-circle",
-        warning: "fas fa-exclamation-circle",
-        error: "fas fa-times-circle"
+        info: "papirus:actions/help-about",
+        success: "papirus:actions/object-select",
+        warning: "papirus:actions/dialog-warning",
+        error: "papirus:actions/dialog-error"
       };
-      return `<i class="${iconMap[notif.type] ?? "fas fa-info-circle"} ${iconClass}"></i>`;
+      const papirusIcon = iconMap[notif.type] ?? "papirus:actions/help-about";
+      const url = resolveIconUrl(papirusIcon);
+      return `<img src="${escapeHtml(url)}" class="${imgClass}" alt="" />`;
     }
     return "";
   }

@@ -1,10 +1,17 @@
 import { ICON_REGISTRY } from "../generated/iconRegistry.js";
-import { resolveIconUrl, resolveYukiAsset } from "./assetResolver.js";
+import { resolveIconUrl, resolveYukiAsset, resolvePapirusUrl } from "./assetResolver.js";
 import { createElement, $ } from "./domUtils.js";
 
 function resolveImageUrl(value) {
   if (!value) return "";
-  if (value.startsWith("data:") || value.startsWith("blob:") || value.startsWith("http://") || value.startsWith("https://")) return value;
+  if (value.startsWith("papirus:")) return resolveIconUrl(value);
+  if (
+    value.startsWith("data:") ||
+    value.startsWith("blob:") ||
+    value.startsWith("http://") ||
+    value.startsWith("https://")
+  )
+    return value;
   if (value.startsWith("static/") || value.startsWith("/static/")) return resolveIconUrl(value);
   if (!value.includes("/")) return resolveYukiAsset(`static/icons/${value}`);
   return value;
@@ -33,7 +40,7 @@ export function showIconPicker(options = {}) {
 
   const header = createElement("div");
   header.className = "start-picker-header";
-  header.innerHTML = `<span class="start-picker-title">${title}</span><button class="start-picker-close" aria-label="Close"><i class="fas fa-times"></i></button>`;
+  header.innerHTML = `<span class="start-picker-title">${title}</span><button class="start-picker-close" aria-label="Close"><img src="${resolveIconUrl("papirus:actions/window-close")}" style="width:14px;height:14px;" alt="" /></button>`;
   dialog.appendChild(header);
   const closeBtn = $(".start-picker-close", header);
   closeBtn.addEventListener("click", () => overlay.remove());
@@ -85,7 +92,7 @@ export function showIconPicker(options = {}) {
   uploadPanel.dataset.panel = "upload";
   const dropZone = createElement("div");
   dropZone.className = "start-picker-upload-zone";
-  dropZone.innerHTML = `<i class="fas fa-cloud-upload-alt"></i><span>Click or drop image here</span><span class="start-picker-upload-hint">Supports PNG, JPG, WEBP, GIF</span>`;
+  dropZone.innerHTML = `<img src="${resolveIconUrl("papirus:actions/document-export")}" style="width:28px;height:28px;" alt="" /><span>Click or drop image here</span><span class="start-picker-upload-hint">Supports PNG, JPG, WEBP, GIF</span>`;
   const fileInput = createElement("input");
   fileInput.type = "file";
   fileInput.accept = "image/*";

@@ -1,5 +1,6 @@
 import { toggleStartMenu, isStartMenuBlocked } from "../desktopui/startMenu.js";
 import { resolveIconUrl } from "../shared/assetResolver.js";
+import { getEffectiveIcon } from "../shared/iconPack.js";
 import { KeybindManager } from "../keybindManager.js";
 import { SystemUtilities } from "../system.js";
 import { WALLPAPER_NAME_URL_PAIRS } from "../wallpaperConfig.js";
@@ -509,6 +510,7 @@ export class InputHandler {
   }
 
   buildSwitcherIcon(iconValue, title, color, isActive) {
+    iconValue = getEffectiveIcon(iconValue);
     iconValue = resolveIconUrl(iconValue);
 
     const isImage =
@@ -536,9 +538,24 @@ export class InputHandler {
     const icon = createElement("i");
 
     if (typeof iconValue === "string" && iconValue.length > 0) {
-      icon.className = `${iconValue.startsWith("fa") ? iconValue : `fa ${iconValue}`} ws-icon ${isActive ? "active" : ""}`;
+      const effective = getEffectiveIcon(iconValue);
+      if (typeof effective === "string" && effective.startsWith("papirus:")) {
+        const img = createElement("img");
+        img.src = resolveIconUrl(effective);
+        img.className = `papirus-icon papirus-icon--22 ws-icon ${isActive ? "active" : ""}`;
+        return img;
+      }
+      icon.className = `${effective.startsWith("fa") ? effective : `fa ${effective}`} ws-icon ${isActive ? "active" : ""}`;
     } else {
-      icon.className = "fas fa-window-maximize ws-icon fallback";
+      const fallbackEff = getEffectiveIcon("papirus:apps/application-default-icon");
+      if (typeof fallbackEff === "string" && fallbackEff.startsWith("papirus:")) {
+        const img = createElement("img");
+        img.src = resolveIconUrl(fallbackEff);
+        img.className = "papirus-icon papirus-icon--22 ws-icon fallback";
+        return img;
+      }
+      icon.className = `${fallbackEff} ws-icon fallback`;
+      return icon;
     }
 
     return icon;

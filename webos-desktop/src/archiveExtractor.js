@@ -179,7 +179,7 @@ export class ArchiveExtractor {
           `Could not read "${itemName}" - was it uploaded as a binary file?`,
           "error",
           5000,
-          "fas fa-exclamation-triangle",
+          "papirus:status/dialog-warning",
           this.appSource
         );
         return;
@@ -243,7 +243,7 @@ export class ArchiveExtractor {
         `Failed to extract "${itemName}": ${err.message || err}`,
         "error",
         5000,
-        "fas fa-times-circle",
+        "papirus:status/dialog-error",
         this.appSource
       );
     }
@@ -260,7 +260,7 @@ export class ArchiveExtractor {
         blob = await os.fs.read([...currentPath, itemName]);
       }
       if (!blob) {
-        this.notify(`Could not read "${itemName}"`, "error", 5000, "fas fa-exclamation-triangle", this.appSource);
+        this.notify(`Could not read "${itemName}"`, "error", 5000, "papirus:status/dialog-warning", this.appSource);
         return;
       }
       const arrayBuffer = await blob.arrayBuffer();
@@ -275,7 +275,7 @@ export class ArchiveExtractor {
         `Failed to extract "${itemName}": ${err.message || err}`,
         "error",
         5000,
-        "fas fa-times-circle",
+        "papirus:status/dialog-error",
         this.appSource
       );
     }
@@ -888,7 +888,7 @@ export class ArchiveExtractor {
         `Password-protected ZIP creation not fully supported: ${e.message}. Falling back to standard ZIP.`,
         "info",
         5000,
-        "fas fa-info-circle",
+        "papirus:actions/help-about",
         this.appSource
       );
       return zipSync(filesMap, { level: compressionLevel });
@@ -904,7 +904,7 @@ export class ArchiveExtractor {
       `Streaming extraction not yet implemented. Falling back to full extraction.`,
       "info",
       5000,
-      "fas fa-info-circle",
+      "papirus:actions/help-about",
       this.appSource
     );
     return this.extract(itemName, currentPath, onComplete);

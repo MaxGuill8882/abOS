@@ -23,6 +23,17 @@ import { StorageKeys, os, MODES } from "./framework.js";
 import { $, createElement } from "./shared/domUtils.js";
 import { isMobile } from "./shared/platformUtils.js";
 
+if (typeof Element !== "undefined" && !Element.prototype._yukiosRemovePatched) {
+  const origRemove = Element.prototype.remove;
+  Element.prototype.remove = function () {
+    try {
+      this.dispatchEvent(new Event("remove"));
+    } catch {}
+    return origRemove.call(this);
+  };
+  Element.prototype._yukiosRemovePatched = true;
+}
+
 export class WindowManager {
   constructor(notificationCenter = null) {
     this.openWindows = new Map();

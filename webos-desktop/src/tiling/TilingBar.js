@@ -8,12 +8,21 @@ import { BusEvents } from "../core/EventBus.js";
 import { audioMixer } from "../audioMixer.js";
 import { performanceManager } from "../shared/performanceManager.js";
 import { subscribeTimeTick } from "../services/timeWorker.js";
+import { resolveIconUrl } from "../shared/assetResolver.js";
+import { getEffectiveIcon } from "../shared/iconPack.js";
 
 const CLOCK_INTERVAL = 10000;
 const VOLUME_POLL = 500;
 const NOW_PLAYING_POLL = 1000;
 const SYS_MONITOR_POLL = 3000;
 const TURBO_MODES = ["performance", "balanced", "high"];
+
+function getIconHtml(papirusIcon, className, style) {
+  const eff = getEffectiveIcon(papirusIcon);
+  if (eff.startsWith("papirus:"))
+    return `<img src="${resolveIconUrl(eff)}" class="${className}"${style ? ` style="${style}"` : ""} alt="" />`;
+  return `<i class="${eff}"${style ? ` style="${style}"` : ""}></i>`;
+}
 
 export class TilingBar {
   constructor(tilingManager) {
@@ -58,11 +67,11 @@ export class TilingBar {
     this.el.innerHTML = `
       <div class="tiling-bar-section tiling-bar-left">
         <button class="tiling-rofi-trigger" id="tiling-rofi-trigger" title="Search (Alt+D, Tab to switch modes)">
-          <i class="fas fa-search"></i>
+          ${getIconHtml("papirus:actions/edit-find", "papirus-icon papirus-icon--16")}
         </button>
         <div class="tiling-ws-pills" id="tiling-ws-pills"></div>
         <button class="tiling-keybind-hint" id="tiling-keybind-hint" title="Tiling keyboard shortcuts">
-          <i class="fas fa-question"></i>
+          ${getIconHtml("papirus:actions/help-about", "papirus-icon papirus-icon--16")}
         </button>
       </div>
       <div class="tiling-bar-section tiling-bar-right">
@@ -383,9 +392,9 @@ export class TilingBar {
 
     this.calendarPopup.innerHTML = `
       <div class="tiling-cal-header">
-        <button class="tiling-cal-nav" data-action="prev"><i class="fas fa-chevron-left"></i></button>
+        <button class="tiling-cal-nav" data-action="prev">${getIconHtml("papirus:actions/go-previous", "papirus-icon papirus-icon--16")}</button>
         <span class="tiling-cal-title">${monthNames[month]} ${year}</span>
-        <button class="tiling-cal-nav" data-action="next"><i class="fas fa-chevron-right"></i></button>
+        <button class="tiling-cal-nav" data-action="next">${getIconHtml("papirus:actions/go-next", "papirus-icon papirus-icon--16")}</button>
       </div>
       <div class="tiling-cal-weekdays">
         <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
@@ -452,9 +461,26 @@ export class TilingBar {
     else if (level > 10) icon = "fa-battery-quarter";
     else icon = "fa-battery-empty";
 
-    el.innerHTML = `<i class="fas fa-bolt charging-icon" style="font-size:10px;display:${charging ? "inline" : "none"}"></i>
-      <i class="fas ${icon}" style="font-size:12px"></i>
-      <span style="margin-left:3px;font-size:11px;font-weight:500">${level}%</span>`;
+    const papirusBattery =
+      level > 90
+        ? "papirus:status/battery-100"
+        : level > 65
+          ? "papirus:status/battery-070"
+          : level > 35
+            ? "papirus:status/battery-050"
+            : level > 10
+              ? "papirus:status/battery-020"
+              : "papirus:status/battery-000";
+    const batteryEff = getEffectiveIcon(papirusBattery);
+    const batteryHtml = batteryEff.startsWith("papirus:")
+      ? `<img src="${resolveIconUrl(batteryEff)}" class="papirus-icon papirus-icon--16" alt="" style="font-size:12px" />`
+      : `<i class="${batteryEff}" style="font-size:12px"></i>`;
+    const chargingPapirus = "papirus:status/battery-100-charging";
+    const chargingEff = getEffectiveIcon(chargingPapirus);
+    const chargingHtml = chargingEff.startsWith("papirus:")
+      ? `<img src="${resolveIconUrl(chargingEff)}" class="papirus-icon papirus-icon--16 charging-icon" alt="" style="font-size:10px" />`
+      : `<i class="${chargingEff} charging-icon" style="font-size:10px"></i>`;
+    el.innerHTML = `${batteryHtml}<span style="margin-left:3px;font-size:11px;font-weight:500">${level}%</span>${charging ? chargingHtml : ""}`;
 
     el.className = "tiling-tray-dedicated power";
     if (charging) el.classList.add("charging");
@@ -485,12 +511,16 @@ export class TilingBar {
     const vol = mx.muted ? 0 : Math.round(mx.masterVolume * 100);
 
     let icon;
-    if (mx.muted || vol === 0) icon = "fa-volume-xmark";
-    else if (vol < 33) icon = "fa-volume-off";
-    else if (vol < 66) icon = "fa-volume-low";
-    else icon = "fa-volume-high";
+    if (mx.muted || vol === 0) icon = "papirus:status/audio-volume-muted";
+    else if (vol < 33) icon = "papirus:status/audio-volume-low";
+    else if (vol < 66) icon = "papirus:status/audio-volume-medium";
+    else icon = "papirus:status/audio-volume-high";
 
-    el.innerHTML = `<i class="fas ${icon}" style="font-size:12px"></i>
+    const volEff = getEffectiveIcon(icon);
+    const volHtml = volEff.startsWith("papirus:")
+      ? `<img src="${resolveIconUrl(volEff)}" class="papirus-icon papirus-icon--16" alt="" style="font-size:12px" />`
+      : `<i class="${volEff}" style="font-size:12px"></i>`;
+    el.innerHTML = `${volHtml}
       <span style="margin-left:3px;font-size:11px;font-weight:500">${mx.muted ? "M" : vol + "%"}</span>`;
 
     el.className = "tiling-tray-dedicated audio";
@@ -511,7 +541,13 @@ export class TilingBar {
     const el = this.el?.querySelector("#tiling-tray-network");
     if (!el) return;
     const online = navigator.onLine;
-    el.innerHTML = `<i class="fas ${online ? "fa-wifi" : "fa-wifi-slash"}" style="font-size:12px"></i>`;
+    const netPapirus = online
+      ? "papirus:status/network-wireless-connected-100"
+      : "papirus:status/network-wireless-disconnected";
+    const netEff = getEffectiveIcon(netPapirus);
+    el.innerHTML = netEff.startsWith("papirus:")
+      ? `<img src="${resolveIconUrl(netEff)}" class="papirus-icon papirus-icon--16" alt="" style="font-size:12px" />`
+      : `<i class="${netEff}" style="font-size:12px"></i>`;
     el.className = "tiling-tray-dedicated network";
     if (!online) el.classList.add("disconnected");
     el.title = online ? "Network: Online" : "Network: Offline";
@@ -576,7 +612,11 @@ export class TilingBar {
 
     this.systemEl.style.display = "flex";
     const mode = this.sysMode;
-    let html = `<i class="fas fa-microchip" style="font-size:11px"></i>`;
+    const cpuPapirus = "papirus:devices/cpu";
+    const cpuEff = getEffectiveIcon(cpuPapirus);
+    let html = cpuEff.startsWith("papirus:")
+      ? `<img src="${resolveIconUrl(cpuEff)}" class="papirus-icon papirus-icon--16" alt="" style="font-size:11px" />`
+      : `<i class="${cpuEff}" style="font-size:11px"></i>`;
     const titleParts = [];
     const showCpu = mode === "both" || mode === "cpu";
     const showRam = mode === "both" || mode === "ram";
@@ -588,7 +628,12 @@ export class TilingBar {
     if (showRam && mem) {
       const used = (mem.usedJSHeapSize / 1024 / 1024 / 1024).toFixed(1);
       const total = (mem.jsHeapSizeLimit / 1024 / 1024 / 1024).toFixed(1);
-      html += `<i class="fas fa-memory" style="font-size:11px;margin-left:5px"></i><span style="font-size:11px;font-weight:500;margin-left:3px">${used}G</span>`;
+      const memPapirus = "papirus:devices/gnome-dev-memory";
+      const memEff = getEffectiveIcon(memPapirus);
+      const memHtml = memEff.startsWith("papirus:")
+        ? `<img src="${resolveIconUrl(memEff)}" class="papirus-icon papirus-icon--16" alt="" style="font-size:11px;margin-left:5px" />`
+        : `<i class="${memEff}" style="font-size:11px;margin-left:5px"></i>`;
+      html += `${memHtml}<span style="font-size:11px;font-weight:500;margin-left:3px">${used}G</span>`;
       titleParts.push(`RAM: ${used}G / ${total}G`);
     }
     this.systemEl.innerHTML = html;

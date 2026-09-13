@@ -1,6 +1,6 @@
 import { BusEvents } from "./core/EventBusConstants.js";
 import { parseBool } from "./utils/utils.js";
-
+import { resolveIconUrl } from "./shared/assetResolver.js";
 import { StorageKeys, os } from "./framework.js";
 import { createElement } from "./shared/domUtils.js";
 let container = null;
@@ -13,7 +13,7 @@ const X_OFFSET = 35;
 const Y_OFFSET = 55;
 const FALLBACK_DELAY = 3000;
 const MIN_VISIBLE = 600;
-const DEFAULT_ICON = "fa-solid fa-cube";
+const DEFAULT_ICON = "papirus:apps/kjumpingcube";
 
 function getEnabled() {
   return parseBool(os.storage.get(StorageKeys.cursorEffectEnabled), true);
@@ -21,6 +21,10 @@ function getEnabled() {
 
 function isFontAwesome(icon) {
   return /^(fa[sbordl]?|fa-)/.test(icon);
+}
+
+function isPapirus(icon) {
+  return typeof icon === "string" && icon.startsWith("papirus:");
 }
 
 function applySettings() {
@@ -99,7 +103,12 @@ export function trigger(icon) {
   container.innerHTML = "";
   const iconClass = icon || DEFAULT_ICON;
   let el;
-  if (isFontAwesome(iconClass)) {
+  if (isPapirus(iconClass)) {
+    el = createElement("img");
+    el.className = "effect-icon";
+    el.src = resolveIconUrl(iconClass);
+    el.draggable = false;
+  } else if (isFontAwesome(iconClass)) {
     el = createElement("i");
     el.className = "effect-icon " + iconClass;
   } else {

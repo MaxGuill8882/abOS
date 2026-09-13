@@ -3,11 +3,11 @@ import { SYSTEM_LIBRARY_FILES } from "../generated/systemLibraryManifest.js";
 
 export const SYSTEM_FOLDER = "System";
 
-const LIBRARY_RAW_BASE = "https://cdn.jsdelivr.net/gh/Reeyuki/YukiOS@main/webos-desktop/src";
+const LIBRARY_RAW_BASE = "https://cdn.jsdelivr.net/gh/NaoTomori1/yukios@main/webos-desktop/src";
 const LIBRARY_FA_ICONS = {
-  ".js": "fab fa-js",
-  ".mjs": "fab fa-js",
-  ".css": "fab fa-css3-alt"
+  ".js": "papirus:mimetypes/application-x-javascript",
+  ".mjs": "papirus:mimetypes/application-x-javascript",
+  ".css": "papirus:mimetypes/text-css"
 };
 
 let manifestIndex = null;
@@ -164,7 +164,8 @@ export async function fetchSystemFileContent(relPath) {
 
 export function requireLibraryEntry(fullPath, root) {
   const relPath = toSystemRelPath(fullPath, root);
-  if (!relPath || !isLibraryFile(relPath)) {
+  if (relPath === null) return;
+  if (!isLibraryFile(relPath)) {
     throw new Error("Cannot create files inside System libraries");
   }
 }
@@ -237,9 +238,7 @@ export async function removeSystemOverride(fsFacade, fullPath) {
   if (!relPath) return false;
   if (!(await fsFacade.exists(fullPath))) return false;
   await fsFacade.p("unlink", fullPath).catch(() => {});
-  await fsFacade.metadata
-    .removeMeta(fsFacade.dirname(fullPath), fsFacade.basename(fullPath))
-    .catch(() => {});
+  await fsFacade.metadata.removeMeta(fsFacade.dirname(fullPath), fsFacade.basename(fullPath)).catch(() => {});
   if (!fsFacade.isElectron) {
     await fsFacade.blobs.deleteBlobByFullPath(fullPath).catch(() => {});
   }

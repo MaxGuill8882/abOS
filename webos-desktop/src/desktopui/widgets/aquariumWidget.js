@@ -2,8 +2,12 @@ import { WidgetBase } from "../widgetManager.js";
 import { FISH_DATA, getFishById, getAllFish } from "../../apps/aquarium/fishCatalog.js";
 import { drawSeaFish } from "../../apps/aquarium/fishRender.js";
 
-function randomBetween(a, b) { return a + Math.random() * (b - a); }
-function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function randomBetween(a, b) {
+  return a + Math.random() * (b - a);
+}
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
 
 export class AquariumWidget extends WidgetBase {
   constructor(manager, id) {
@@ -37,7 +41,7 @@ export class AquariumWidget extends WidgetBase {
         <div class="widget-aquarium-glass" style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg, rgba(125,211,252,0.12) 0%, transparent 24%, transparent 80%, rgba(56,189,248,0.08) 100%);border-left:1px solid rgba(125,211,252,0.12);"></div>
       </div>
       <div class="widget-aquarium-bar" style="display:flex;align-items:center;justify-content:space-between;padding:5px 8px;background:rgba(12,72,130,0.28);border-top:1px solid rgba(125,211,252,0.18);backdrop-filter:blur(10px);font-size:11px;color:#bae6fd;">
-        <span class="widget-aquarium-count"><i class="fas fa-fish"></i> <span>${this.fishes.length}</span> fish</span>
+        <span class="widget-aquarium-count"><img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/apps/fish.svg" class="papirus-icon papirus-icon--22" alt="" /> <span>${this.fishes.length}</span> fish</span>
         <button class="widget-aquarium-add" style="appearance:none;border:1px solid rgba(125,211,252,0.28);background:rgba(14,95,160,0.32);color:#e0f2fe;padding:3px 8px;border-radius:10px;font-size:11px;cursor:pointer;">Add</button>
       </div>
     `;
@@ -61,11 +65,16 @@ export class AquariumWidget extends WidgetBase {
   bindWidgetEvents(contentEl) {
     const addBtn = contentEl.querySelector(".widget-aquarium-add");
     const stage = contentEl.querySelector(".widget-aquarium-stage");
-    if (addBtn) addBtn.addEventListener("click", (e) => { e.stopPropagation(); this.addFish(); });
-    if (stage) stage.addEventListener("click", (e) => {
-      if (e.target.closest(".widget-aquarium-add")) return;
-      this.addFish();
-    });
+    if (addBtn)
+      addBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.addFish();
+      });
+    if (stage)
+      stage.addEventListener("click", (e) => {
+        if (e.target.closest(".widget-aquarium-add")) return;
+        this.addFish();
+      });
   }
 
   setupCanvas() {
@@ -111,7 +120,8 @@ export class AquariumWidget extends WidgetBase {
     const size = overrides.size ?? Math.round(base + randomBetween(-4, 6));
     const dir = Math.random() > 0.5 ? 1 : -1;
     return {
-      fd, id: fd.id,
+      fd,
+      id: fd.id,
       x: overrides.x ?? randomBetween(size, Math.max(size + 10, this.width - size)),
       y: overrides.y ?? randomBetween(20, Math.max(20, this.height - 20)),
       vx: dir * randomBetween(0.6, 1.4),
@@ -192,10 +202,22 @@ export class AquariumWidget extends WidgetBase {
       f.x += f.vx * dt;
       f.y += f.vy * dt + Math.sin(f.phase) * 0.18 * dt;
       const m = f.size * 0.5;
-      if (f.x < m) { f.x = m; f.vx = Math.abs(f.vx); }
-      if (f.x > this.width - m) { f.x = this.width - m; f.vx = -Math.abs(f.vx); }
-      if (f.y < 12) { f.y = 12; f.vy = Math.abs(f.vy) * 0.5; }
-      if (f.y > this.height - 12) { f.y = this.height - 12; f.vy = -Math.abs(f.vy) * 0.5; }
+      if (f.x < m) {
+        f.x = m;
+        f.vx = Math.abs(f.vx);
+      }
+      if (f.x > this.width - m) {
+        f.x = this.width - m;
+        f.vx = -Math.abs(f.vx);
+      }
+      if (f.y < 12) {
+        f.y = 12;
+        f.vy = Math.abs(f.vy) * 0.5;
+      }
+      if (f.y > this.height - 12) {
+        f.y = this.height - 12;
+        f.vy = -Math.abs(f.vy) * 0.5;
+      }
       const targetFlip = f.vx > 0.1 ? 1 : f.vx < -0.1 ? -1 : f.flip;
       f.flip += (targetFlip - f.flip) * 0.12 * dt;
       f.vy += (Math.random() - 0.5) * 0.01 * dt;
@@ -205,13 +227,18 @@ export class AquariumWidget extends WidgetBase {
       b.y -= b.speed * dt;
       b.x += Math.sin(b.y * 0.02 + b.phase) * 0.3 * dt;
       b.phase += 0.03 * dt;
-      if (b.y < -6) { b.y = this.height + randomBetween(6, 12); b.x = randomBetween(10, this.width - 10); }
+      if (b.y < -6) {
+        b.y = this.height + randomBetween(6, 12);
+        b.x = randomBetween(10, this.width - 10);
+      }
     }
     for (const s of this.seaweeds) s.phase += 0.02 * s.sway * dt;
   }
 
   draw() {
-    const ctx = this.ctx, w = this.width, h = this.height;
+    const ctx = this.ctx,
+      w = this.width,
+      h = this.height;
     ctx.clearRect(0, 0, w, h);
     const grad = ctx.createLinearGradient(0, 0, 0, h);
     grad.addColorStop(0, "rgba(56,189,248,0.28)");
@@ -243,8 +270,12 @@ export class AquariumWidget extends WidgetBase {
     ctx.fill();
     ctx.globalAlpha = 0.32;
     for (const peb of this.gravelPebbles) {
-      const x = peb.xRatio * w, y = h - peb.yOff;
-      ctx.beginPath(); ctx.arc(x, y, peb.r, 0, Math.PI * 2); ctx.fillStyle = peb.c; ctx.fill();
+      const x = peb.xRatio * w,
+        y = h - peb.yOff;
+      ctx.beginPath();
+      ctx.arc(x, y, peb.r, 0, Math.PI * 2);
+      ctx.fillStyle = peb.c;
+      ctx.fill();
     }
     ctx.globalAlpha = 1;
     for (const s of this.seaweeds) {
@@ -263,8 +294,13 @@ export class AquariumWidget extends WidgetBase {
     for (const b of this.bubbles) {
       ctx.save();
       ctx.globalAlpha = b.opacity;
-      ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fillStyle = "rgba(255,255,255,0.88)"; ctx.fill();
-      ctx.strokeStyle = "rgba(255,255,255,0.5)"; ctx.lineWidth = 1; ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255,255,255,0.88)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.5)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
       ctx.restore();
     }
     const sorted = [...this.fishes].sort((a, b) => a.y - b.y);
@@ -276,14 +312,22 @@ export class AquariumWidget extends WidgetBase {
       ctx.translate(fish.x, fish.y);
       ctx.rotate(Math.atan2(fish.vy, fish.vx) * 0.12);
       ctx.scale(scaleX, 1);
-      try { drawSeaFish(ctx, fish, wag, false, tSec); } catch {}
+      try {
+        drawSeaFish(ctx, fish, wag, false, tSec);
+      } catch {}
       ctx.restore();
     }
   }
 
   getData() {
     return {
-      fishes: this.fishes.map((f) => ({ id: f.fd.id, x: Math.round(f.x), y: Math.round(f.y), vx: Number(f.vx.toFixed(2)), size: Math.round(f.size) }))
+      fishes: this.fishes.map((f) => ({
+        id: f.fd.id,
+        x: Math.round(f.x),
+        y: Math.round(f.y),
+        vx: Number(f.vx.toFixed(2)),
+        size: Math.round(f.size)
+      }))
     };
   }
 
@@ -292,7 +336,8 @@ export class AquariumWidget extends WidgetBase {
     this.fishes = data.fishes.slice(0, 12).map((f) => {
       const fd = getFishById(f.id) || pick(FISH_DATA);
       return {
-        fd, id: fd.id,
+        fd,
+        id: fd.id,
         x: f.x ?? randomBetween(30, this.width - 30),
         y: f.y ?? randomBetween(20, this.height - 20),
         vx: f.vx ?? (Math.random() > 0.5 ? 1 : -1) * randomBetween(0.6, 1.2),
@@ -309,7 +354,10 @@ export class AquariumWidget extends WidgetBase {
   destroy() {
     if (this.rafId) cancelAnimationFrame(this.rafId);
     this.rafId = null;
-    if (this.resizeObserver) { this.resizeObserver.disconnect(); this.resizeObserver = null; }
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
     super.destroy();
   }
 }

@@ -3,6 +3,7 @@ import { SystemUtilities } from "./system.js";
 import { BusEvents, $, $$, createElement } from "./framework.js";
 import { openFileWith } from "./fileDisplay.js";
 import { resolveIconUrl } from "./shared/assetResolver.js";
+import { getEffectiveIcon } from "./shared/iconPack.js";
 import { AppSource } from "./AppSource.js";
 import { WALLPAPER_NAME_URL_PAIRS } from "./wallpaperConfig.js";
 import { KeybindManager } from "./keybindManager.js";
@@ -58,10 +59,14 @@ export class CommandPalette {
     const parent = $("#session-overlay") || document.body;
     parent.appendChild(overlay);
 
+    const headerEff = getEffectiveIcon("papirus:actions/edit-find");
+    const headerHtml = headerEff.startsWith("papirus:")
+      ? `<img src="${resolveIconUrl(headerEff)}" class="command-palette-header-icon" style="width:16px;height:16px;" alt="" />`
+      : `<i class="${headerEff} command-palette-header-icon" style="width:16px;height:16px;font-size:16px"></i>`;
     overlay.innerHTML = `
       <div class="command-palette-root">
         <div class="command-palette-header">
-          <i class="fas fa-search command-palette-header-icon"></i>
+          ${headerHtml}
           <input type="text" class="command-palette-input" id="command-palette-input" placeholder="Type a command, app, or file name..." autocomplete="off">
           <div class="command-palette-kbd">ESC</div>
         </div>
@@ -230,7 +235,7 @@ export class CommandPalette {
         title: "Change Wallpaper",
         subtitle: "Select a custom or default background image",
         tag: "action",
-        icon: "fas fa-image",
+        icon: "papirus:mimetypes/image-x-generic",
         execute: () => {
           this.currentSubpalette = "wallpaper";
           this.inputElement.value = "";
@@ -242,84 +247,84 @@ export class CommandPalette {
         title: "Theme: Dark Mode",
         subtitle: "Switch to sleek dark UI appearance",
         tag: "theme",
-        icon: "fas fa-moon",
+        icon: "papirus:status/weather-clear-night",
         execute: () => this.setSystemTheme("dark")
       },
       {
         title: "Theme: Light Mode",
         subtitle: "Switch to bright light UI appearance",
         tag: "theme",
-        icon: "fas fa-sun",
+        icon: "papirus:status/weather-clear",
         execute: () => this.setSystemTheme("light")
       },
       {
         title: "Theme: Auto Mode",
         subtitle: "Follow system preference dark/light settings",
         tag: "theme",
-        icon: "fas fa-circle-half-stroke",
+        icon: "papirus:actions/contrast",
         execute: () => this.setSystemTheme("auto")
       },
       {
         title: "Mute Sounds",
         subtitle: "Disable overall system audio notifications",
         tag: "audio",
-        icon: "fas fa-volume-mute",
+        icon: "papirus:status/audio-volume-muted",
         execute: () => this.toggleSound(false)
       },
       {
         title: "Unmute Sounds",
         subtitle: "Enable standard system audio notifications",
         tag: "audio",
-        icon: "fas fa-volume-up",
+        icon: "papirus:status/audio-volume-high",
         execute: () => this.toggleSound(true)
       },
       {
         title: "Do Not Disturb: On",
         subtitle: "Silence all toast banner notifications",
         tag: "dnd",
-        icon: "fas fa-bell-slash",
+        icon: "papirus:status/audio-volume-muted",
         execute: () => this.toggleDND(true)
       },
       {
         title: "Do Not Disturb: Off",
         subtitle: "Display all standard desktop notifications",
         tag: "dnd",
-        icon: "fas fa-bell",
+        icon: "papirus:apps/preferences-desktop-notification-bell",
         execute: () => this.toggleDND(false)
       },
       {
         title: "Close All Windows",
         subtitle: "Close all open application windows",
         tag: "action",
-        icon: "fas fa-window-close",
+        icon: "papirus:actions/window-close",
         execute: () => this.closeAllWindows()
       },
       {
         title: "Minimize All Windows",
         subtitle: "Minimize every open window to the taskbar",
         tag: "action",
-        icon: "fas fa-minus",
+        icon: "papirus:actions/list-remove",
         execute: () => this.minimizeAllWindows()
       },
       {
         title: "Toggle Fullscreen",
         subtitle: "Toggle the active window in and out of fullscreen",
         tag: "action",
-        icon: "fas fa-expand",
+        icon: "papirus:actions/view-fullscreen",
         execute: () => this.toggleFullscreen()
       },
       {
         title: "Lock Session",
         subtitle: "Lock the current session and show the lock screen",
         tag: "session",
-        icon: "fas fa-lock",
+        icon: "papirus:actions/object-locked",
         execute: () => this.os.app.lockSession()
       },
       {
         title: "Logout",
         subtitle: "Sign out and return to the login screen",
         tag: "session",
-        icon: "fas fa-right-from-bracket",
+        icon: "papirus:actions/system-log-out",
         execute: async () => {
           if (await os.dialog.confirm("Logout", "Sign out and return to the login screen?")) {
             await this.os.app.lockToLoginScreen();
@@ -330,7 +335,7 @@ export class CommandPalette {
         title: "Shutdown",
         subtitle: "Close everything and shut down",
         tag: "session",
-        icon: "fas fa-power-off",
+        icon: "papirus:actions/system-shutdown",
         execute: async () => {
           if (await os.dialog.confirm("Shutdown", "Close everything and shut down?")) {
             await this.os.app.lockToLoginScreen();
@@ -341,49 +346,49 @@ export class CommandPalette {
         title: "Show Workspace Overview",
         subtitle: "Display the workspace overview switcher",
         tag: "workspace",
-        icon: "fas fa-th-large",
+        icon: "papirus:actions/view-grid",
         execute: () => this.toggleWorkspaceOverview()
       },
       {
         title: "Switch to Workspace 1",
         subtitle: "Jump to the first workspace",
         tag: "workspace",
-        icon: "fas fa-1",
+        icon: "papirus:actions/go-first",
         execute: () => this.switchWorkspace(0)
       },
       {
         title: "Switch to Workspace 2",
         subtitle: "Jump to the second workspace",
         tag: "workspace",
-        icon: "fas fa-2",
+        icon: "papirus:actions/go-next",
         execute: () => this.switchWorkspace(1)
       },
       {
         title: "Switch to Workspace 3",
         subtitle: "Jump to the third workspace",
         tag: "workspace",
-        icon: "fas fa-3",
+        icon: "papirus:actions/go-last",
         execute: () => this.switchWorkspace(2)
       },
       {
         title: "Switch to Workspace 4",
         subtitle: "Jump to the fourth workspace",
         tag: "workspace",
-        icon: "fas fa-4",
+        icon: "papirus:actions/go-jump",
         execute: () => this.switchWorkspace(3)
       },
       {
         title: "Switch to Workspace 5",
         subtitle: "Jump to the fifth workspace",
         tag: "workspace",
-        icon: "fas fa-5",
+        icon: "papirus:actions/go-jump",
         execute: () => this.switchWorkspace(4)
       },
       {
         title: "Search Files",
         subtitle: "Find files across the entire filesystem",
         tag: "action",
-        icon: "fas fa-magnifying-glass",
+        icon: "papirus:actions/edit-find",
         execute: () => {
           this.currentSubpalette = "filesearch";
           this.inputElement.value = "";
@@ -395,7 +400,7 @@ export class CommandPalette {
         title: "Take Screenshot",
         subtitle: "Capture full screen and save to Pictures",
         tag: "screenshot",
-        icon: "fas fa-camera",
+        icon: "papirus:apps/accessories-camera",
         execute: () => {
           const app = os.app.getInstance(ServiceKeys.SCREENSHOT);
           if (app) {
@@ -408,7 +413,7 @@ export class CommandPalette {
         title: "Start Screen Recording",
         subtitle: "Begin recording your screen",
         tag: "screenshot",
-        icon: "fas fa-video",
+        icon: "papirus:devices/camera-video",
         execute: () => {
           const app = os.app.getInstance(ServiceKeys.SCREENSHOT);
           if (app && !app.recording) {
@@ -421,7 +426,7 @@ export class CommandPalette {
         title: "Stop Screen Recording",
         subtitle: "Stop the active screen recording",
         tag: "screenshot",
-        icon: "fas fa-stop",
+        icon: "papirus:actions/media-playback-startback-stop",
         execute: () => {
           const app = os.app.getInstance(ServiceKeys.SCREENSHOT);
           if (app && app.recording) {
@@ -433,7 +438,7 @@ export class CommandPalette {
         title: "Area Screenshot",
         subtitle: "Capture a selected region of the screen",
         tag: "screenshot",
-        icon: "fas fa-crop-alt",
+        icon: "papirus:actions/transform-crop",
         execute: () => {
           const app = os.app.getInstance(ServiceKeys.SCREENSHOT);
           if (app) {
@@ -446,7 +451,7 @@ export class CommandPalette {
         title: "Empty Trash",
         subtitle: "Permanently delete all trashed files",
         tag: "action",
-        icon: "fas fa-trash",
+        icon: "papirus:places/user-trash",
         execute: async () => {
           if (
             await os.dialog.confirm("Empty Trash", "Are you sure you want to permanently delete all trashed files?")
@@ -455,7 +460,7 @@ export class CommandPalette {
             os.notify.send("Trash emptied", "", {
               type: "success",
               duration: 2500,
-              icon: "fas fa-trash",
+              icon: "papirus:places/user-trash",
               appSource: AppSource.COMMAND_PALETTE
             });
           }
@@ -465,7 +470,7 @@ export class CommandPalette {
         title: "Toggle Transparent UI",
         subtitle: "Switch between glass and solid window backgrounds",
         tag: "action",
-        icon: "fas fa-glass-whiskey",
+        icon: "papirus:apps/wine",
         execute: () => {
           const next = os.storage.get(StorageKeys.transparentUI) !== "true";
           os.storage.set(StorageKeys.transparentUI, String(next));
@@ -473,7 +478,7 @@ export class CommandPalette {
           os.notify.send("Transparent UI", next ? "Enabled" : "Disabled", {
             type: "success",
             duration: 3000,
-            icon: "fas fa-glass-whiskey",
+            icon: "papirus:apps/wine",
             appSource: AppSource.COMMAND_PALETTE
           });
         }
@@ -490,7 +495,7 @@ export class CommandPalette {
           title: `Run command: ${cleanCmd}`,
           subtitle: "Launch Terminal app and run command immediately",
           tag: "terminal",
-          icon: "fas fa-terminal",
+          icon: "papirus:apps/utilities-terminal",
           execute: () => {
             const termApp = os.app.getInstance(ServiceKeys.TERMINAL);
             if (termApp) {
@@ -523,7 +528,7 @@ export class CommandPalette {
             title: appTitle,
             subtitle: app.type === "system" ? "Built-in System App" : `Game: ${app.type}`,
             tag: app.type === "system" ? "app" : "game",
-            icon: app.icon || "fas fa-window-maximize",
+            icon: app.icon || "papirus:actions/window-maximize",
             execute: () => os.app.launch(key)
           });
         }
@@ -571,13 +576,23 @@ export class CommandPalette {
 
       let iconHtml = "";
       if (typeof item.icon === "string") {
-        if (item.icon.startsWith("fa")) {
-          iconHtml = `<i class="${item.icon}"></i>`;
+        const eff = getEffectiveIcon(item.icon);
+        if (typeof eff === "string" && eff.startsWith("papirus:")) {
+          iconHtml = `<img src="${resolveIconUrl(eff)}" alt="">`;
+        } else if (
+          typeof eff === "string" &&
+          (eff.startsWith("fa") || eff.startsWith("fas ") || eff.startsWith("fab ") || eff.startsWith("far "))
+        ) {
+          iconHtml = `<i class="${eff}"></i>`;
+        } else if (typeof eff === "string" && eff.startsWith("http")) {
+          iconHtml = `<img src="${eff}" alt="">`;
         } else {
-          iconHtml = `<img src="${resolveIconUrl(item.icon)}" alt="">`;
+          iconHtml = `<img src="${resolveIconUrl(eff)}" alt="">`;
         }
       } else {
-        iconHtml = `<i class="fas fa-file"></i>`;
+        const fallbackEff = getEffectiveIcon("papirus:mimetypes/text-x-generic");
+        if (fallbackEff.startsWith("papirus:")) iconHtml = `<img src="${resolveIconUrl(fallbackEff)}" alt="">`;
+        else iconHtml = `<i class="${fallbackEff}"></i>`;
       }
 
       el.innerHTML = `
@@ -624,7 +639,7 @@ export class CommandPalette {
         title: ".. Back to Main Menu",
         subtitle: "Return to the main command palette search list",
         tag: "nav",
-        icon: "fas fa-arrow-left",
+        icon: "papirus:actions/go-previous",
         execute: () => {
           this.currentSubpalette = null;
           this.inputElement.value = "";
@@ -639,13 +654,13 @@ export class CommandPalette {
         title: `Set wallpaper: ${w.name}`,
         subtitle: `Apply ${w.name} as the current desktop background`,
         tag: "wallpaper",
-        icon: "fas fa-image",
+        icon: "papirus:mimetypes/image-x-generic",
         execute: () => {
           SystemUtilities.setWallpaper(w.url);
           os.notify.send("Wallpaper Changed", `Background updated to ${w.name}`, {
             type: "success",
             duration: 5000,
-            icon: "fas fa-image",
+            icon: "papirus:mimetypes/image-x-generic",
             appSource: AppSource.COMMAND_PALETTE
           });
         }
@@ -662,7 +677,7 @@ export class CommandPalette {
         title: ".. Back to Main Menu",
         subtitle: "Return to the main command palette search list",
         tag: "nav",
-        icon: "fas fa-arrow-left",
+        icon: "papirus:actions/go-previous",
         execute: () => {
           this.currentSubpalette = null;
           this.inputElement.value = "";
@@ -678,7 +693,7 @@ export class CommandPalette {
         title: `${count} file${count !== 1 ? "s" : ""} indexed`,
         subtitle: "Type a filename to search across the filesystem",
         tag: "info",
-        icon: "fas fa-info-circle",
+        icon: "papirus:actions/help-about",
         execute: () => {}
       });
     } else {
@@ -702,7 +717,7 @@ export class CommandPalette {
         title: "No matching files found",
         subtitle: "Try a different search term",
         tag: "info",
-        icon: "fas fa-circle-exclamation",
+        icon: "papirus:actions/dialog-warning",
         execute: () => {}
       });
     }
@@ -726,119 +741,119 @@ export class CommandPalette {
         title: "Settings: Performance Mode",
         subtitle: "Switch between Quality, Balanced, and Performance",
         tag: "settings",
-        icon: "fas fa-tachometer-alt",
+        icon: "papirus:apps/application-default-icon-monitor",
         execute: () => go("pane-general", "sc-general")
       },
       {
         title: "Settings: Skip Boot Screen",
         subtitle: "Bypass login screen on startup",
         tag: "settings",
-        icon: "fas fa-forward",
+        icon: "papirus:actions/go-next",
         execute: () => go("pane-system", "sc-boot")
       },
       {
         title: "Settings: Notifications",
         subtitle: "DND, position, duration, animation",
         tag: "settings",
-        icon: "fas fa-bell",
+        icon: "papirus:apps/preferences-desktop-notification-bell",
         execute: () => go("pane-notifications", "settingsDND")
       },
       {
         title: "Settings: Taskbar Position",
         subtitle: "Dock taskbar to bottom, top, left, or right",
         tag: "settings",
-        icon: "fas fa-arrows-alt",
+        icon: "papirus:actions/transform-move",
         execute: () => go("pane-desktop", "sc-layout")
       },
       {
         title: "Settings: Desktop Icon Size",
         subtitle: "Adjust desktop icon dimensions",
         tag: "settings",
-        icon: "fas fa-expand",
+        icon: "papirus:actions/view-fullscreen",
         execute: () => go("pane-desktop", "settingsDesktopIconSize")
       },
       {
         title: "Settings: Start Menu Size",
         subtitle: "Adjust start menu width and height",
         tag: "settings",
-        icon: "fas fa-bars",
+        icon: "papirus:actions/view-list",
         execute: () => go("pane-desktop", "settingsStartMenuWidth")
       },
       {
         title: "Settings: Show Workspaces",
         subtitle: "Toggle workspace area in taskbar",
         tag: "settings",
-        icon: "fas fa-th-large",
+        icon: "papirus:actions/view-grid",
         execute: () => go("pane-desktop", "settingsShowWorkspace")
       },
       {
         title: "Settings: GUI Scale",
         subtitle: "Scale the entire interface",
         tag: "settings",
-        icon: "fas fa-expand-arrows-alt",
+        icon: "papirus:actions/view-fullscreen",
         execute: () => go("pane-appearance", "settingsGuiScale")
       },
       {
         title: "Settings: Font Size",
         subtitle: "Adjust base font size",
         tag: "settings",
-        icon: "fas fa-font",
+        icon: "papirus:mimetypes/application-x-font-ttf",
         execute: () => go("pane-appearance", "settingsFontSize")
       },
       {
         title: "Settings: Font Family",
         subtitle: "Choose Open Sans, Inter, Rubik, or more",
         tag: "settings",
-        icon: "fas fa-text-height",
+        icon: "papirus:actions/dialog-xml-editor",
         execute: () => go("pane-appearance", "sc-style")
       },
       {
         title: "Settings: Window Animations",
         subtitle: "Open, close, minimize effects and speed",
         tag: "settings",
-        icon: "fas fa-film",
+        icon: "papirus:mimetypes/video-x-generic",
         execute: () => go("pane-appearance", "settingsOpenAnimation")
       },
       {
         title: "Settings: Custom Cursor",
         subtitle: "Upload or clear a custom cursor",
         tag: "settings",
-        icon: "fas fa-mouse-pointer",
+        icon: "papirus:devices/input-mouse",
         execute: () => go("pane-appearance", "settingsCursorUploadBtn")
       },
       {
         title: "Settings: Wallpaper",
         subtitle: "Cycle on start, upload custom wallpaper",
         tag: "settings",
-        icon: "fas fa-image",
+        icon: "papirus:mimetypes/image-x-generic",
         execute: () => go("pane-appearance", "settings-wallpaper-card")
       },
       {
         title: "Settings: CDN Mirror",
         subtitle: "Choose a mirror for fetching game assets",
         tag: "settings",
-        icon: "fas fa-server",
+        icon: "papirus:devices/network-server",
         execute: () => go("pane-network", "settingsCdnMirror")
       },
       {
         title: "Settings: WISP Server",
         subtitle: "Configure Scramjet proxy server",
         tag: "settings",
-        icon: "fas fa-shield-alt",
+        icon: "papirus:actions/object-locked",
         execute: () => go("pane-network", "settingsWispServer")
       },
       {
         title: "Settings: Master Volume",
         subtitle: "Adjust global volume level",
         tag: "settings",
-        icon: "fas fa-volume-up",
+        icon: "papirus:status/audio-volume-high",
         execute: () => go("pane-audio", "settingsMasterVolume")
       },
       {
         title: "Settings: Export Data",
         subtitle: "Backup system settings and files",
         tag: "settings",
-        icon: "fas fa-file-export",
+        icon: "papirus:actions/document-export",
         execute: () => go("pane-data", "btnExportData")
       }
     );
@@ -888,7 +903,7 @@ export class CommandPalette {
         title: `= ${Number.isInteger(result) ? result : parseFloat(result.toFixed(6))}`,
         subtitle: `Result of ${search}`,
         tag: "calc",
-        icon: "fas fa-calculator",
+        icon: "papirus:apps/accessories-calculator",
         execute: () => {
           var text = result.toString();
           os.app.setClipboardContent(text);
@@ -1078,7 +1093,7 @@ export class CommandPalette {
       title: label,
       subtitle: "Unit conversion result. Click to copy",
       tag: "conv",
-      icon: "fas fa-arrows-left-right",
+      icon: "papirus:actions/swap-panels",
       execute: () => {
         var text = result.toString();
         os.app.setClipboardContent(text);
@@ -1098,7 +1113,7 @@ export class CommandPalette {
     os.notify.send("Theme Changed", `Theme: ${val}`, {
       type: "success",
       duration: 3000,
-      icon: "fas fa-palette",
+      icon: "papirus:apps/com.github.cassidyjames.palette",
       appSource: AppSource.COMMAND_PALETTE
     });
   }
@@ -1109,7 +1124,7 @@ export class CommandPalette {
     os.notify.send("Sound", val ? "On" : "Off", {
       type: "info",
       duration: 2500,
-      icon: "fas fa-volume-up"
+      icon: "papirus:status/audio-volume-high"
     });
   }
 
@@ -1118,7 +1133,7 @@ export class CommandPalette {
     os.notify.send("Do Not Disturb", val ? "On" : "Off", {
       type: "info",
       duration: 2500,
-      icon: "fas fa-bell-slash",
+      icon: "papirus:status/audio-volume-muted",
       appSource: AppSource.COMMAND_PALETTE
     });
   }
@@ -1128,7 +1143,7 @@ export class CommandPalette {
     os.notify.send("Close Windows", "All windows closed", {
       type: "success",
       duration: 3000,
-      icon: "fas fa-window-close",
+      icon: "papirus:actions/window-close",
       appSource: AppSource.COMMAND_PALETTE
     });
   }

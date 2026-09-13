@@ -382,6 +382,15 @@ html.is-mobile .start-cat i {
   width: 16px;
 }
 
+html.is-mobile .start-cat img,
+html.is-mobile .start-cat .papirus-icon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin: 0 1px;
+}
+
 html.is-mobile .start-content {
   flex: 1;
   padding: 8px;
@@ -487,6 +496,15 @@ html.is-mobile .app-grid {
   .start-cat i {
     font-size: 13px;
     width: 16px;
+  }
+
+  .start-cat img,
+  .start-cat .papirus-icon {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    flex-shrink: 0;
+    margin: 0 1px;
   }
 
   .start-content {

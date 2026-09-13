@@ -4,6 +4,7 @@ import { getAppRegistry } from "../appRegistry.js";
 import { showContextMenu } from "../shared/contextMenu.js";
 import { $, toggleClass } from "../shared/domUtils.js";
 import { isFontAwesomeIcon, resolveIconHtml } from "../shared/iconUtils.js";
+import { getIconPack, ICON_PACKS } from "../shared/iconPack.js";
 import {
   isAppPinnedToTaskbar,
   toggleTaskbarPin,
@@ -17,10 +18,16 @@ export class SystemAppsApp extends BaseApp {
     super(services);
   }
 
-  open() {
+  open(opts = {}) {
     const existingWin = $("#system-apps-win");
     if (existingWin) {
       os.window.focus("system-apps-win");
+      if (opts.searchQuery) {
+        this.query = opts.searchQuery;
+        const searchInput = existingWin.querySelector("#system-apps-search");
+        if (searchInput) searchInput.value = opts.searchQuery;
+        this.renderGrid(this.query);
+      }
       return existingWin;
     }
     const win = os.window.create("system-apps-win", "Apps", "800px", "600px", {
@@ -56,6 +63,12 @@ export class SystemAppsApp extends BaseApp {
     this.collapsedSections = os.storage.get(StorageKeys.systemAppsCollapsed) || {};
     this.bindSectionToggles(win);
     this.renderApps(win);
+    if (opts.searchQuery) {
+      this.query = opts.searchQuery;
+      const searchInput = win.querySelector("#system-apps-search");
+      if (searchInput) searchInput.value = opts.searchQuery;
+      this.renderGrid(this.query);
+    }
     return win;
   }
 
@@ -101,15 +114,27 @@ export class SystemAppsApp extends BaseApp {
       }));
 
     const sortByIcon = (arr) => {
+      if (getIconPack() === ICON_PACKS.PAPIRUS) {
+        const nonActions = [];
+        const actions = [];
+        for (const a of arr) {
+          const icon = String(a.icon || "").toLowerCase();
+          if (icon.includes("actions")) actions.push(a);
+          else nonActions.push(a);
+        }
+        nonActions.sort((a, b) => a.title.localeCompare(b.title));
+        actions.sort((a, b) => a.title.localeCompare(b.title));
+        return [...nonActions, ...actions];
+      }
       return [...arr.filter((a) => !isFontAwesomeIcon(a.icon)), ...arr.filter((a) => isFontAwesomeIcon(a.icon))];
     };
 
-    const installed = sortByIcon(allApps.filter((a) => !a.uninstalled));
-    const uninstalled = sortByIcon(allApps.filter((a) => a.uninstalled));
+    const installedAll = allApps.filter((a) => !a.uninstalled);
+    const uninstalledAll = allApps.filter((a) => a.uninstalled);
 
-    this.nativeApps = installed.filter((a) => !a.targetUrl || a.id === "discordApp");
-    this.webApps = installed.filter((a) => a.targetUrl && a.id !== "discordApp");
-    this.uninstalledApps = uninstalled;
+    this.nativeApps = sortByIcon(installedAll.filter((a) => !a.targetUrl || a.id === "discordApp"));
+    this.webApps = sortByIcon(installedAll.filter((a) => a.targetUrl && a.id !== "discordApp"));
+    this.uninstalledApps = sortByIcon(uninstalledAll);
     this.query = "";
     this.renderGrid(this.query);
 

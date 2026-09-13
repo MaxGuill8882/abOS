@@ -147,11 +147,11 @@ export class ChromeOsQuickSettings {
   }
 
   getBatteryIcon(level) {
-    if (level > 90) return "fas fa-battery-full";
-    if (level > 65) return "fas fa-battery-three-quarters";
-    if (level > 35) return "fas fa-battery-half";
-    if (level > 10) return "fas fa-battery-quarter";
-    return "fas fa-battery-empty";
+    if (level > 90) return "papirus:status/battery-100";
+    if (level > 65) return "papirus:status/battery-070";
+    if (level > 35) return "papirus:status/battery-050";
+    if (level > 10) return "papirus:status/battery-020";
+    return "papirus:status/battery-000";
   }
 
   updateStatusIcons() {
@@ -159,7 +159,7 @@ export class ChromeOsQuickSettings {
     const pct = Math.round(this.batteryInfo.level * 100);
     const batteryIcon = this.getBatteryIcon(pct);
     this.iconsEl.innerHTML = `
-      <i class="fas fa-wifi"></i>
+      <img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/32x32/status/network-wireless-connected-100.svg" class="papirus-icon papirus-icon--22" alt="" />
       <span class="shelf-status-battery">
         <i class="${batteryIcon}"></i>
       </span>
@@ -249,17 +249,17 @@ export class ChromeOsQuickSettings {
     const userAvatar = await resolveAvatarUrl(avatarRef, PREDEFINED_AVATARS[0]);
 
     const bootActions = [
-      { id: "lock", icon: "fas fa-lock", label: "Lock" },
-      { id: "signout", icon: "fas fa-right-from-bracket", label: "Sign out" },
-      { id: "settings", icon: "fas fa-gear", label: "Settings" },
-      { id: "shutdown", icon: "fas fa-power-off", label: "Shut down" }
+      { id: "lock", icon: "papirus:actions/object-locked", label: "Lock" },
+      { id: "signout", icon: "papirus:actions/system-log-out", label: "Sign out" },
+      { id: "settings", icon: "papirus:actions/configure", label: "Settings" },
+      { id: "shutdown", icon: "papirus:actions/system-shutdown", label: "Shut down" }
     ];
 
     const toggles = [
-      { id: "wifi", icon: "fas fa-wifi", label: "Wi-Fi", on: true },
-      { id: "dark", icon: "fas fa-moon", label: "Dark", on: isDark },
-      { id: "dnd", icon: "fas fa-bell-slash", label: "Do Not Disturb", on: dnd },
-      { id: "network", icon: "fas fa-network-wired", label: "Network", on: false }
+      { id: "wifi", icon: "papirus:status/network-wireless-connected-100", label: "Wi-Fi", on: true },
+      { id: "dark", icon: "papirus:status/weather-clear-night", label: "Dark", on: isDark },
+      { id: "dnd", icon: "papirus:status/notification-disabled", label: "Do Not Disturb", on: dnd },
+      { id: "network", icon: "papirus:devices/network-wired", label: "Network", on: false }
     ];
 
     const trayItems = this.getTrayItems();
@@ -280,7 +280,7 @@ export class ChromeOsQuickSettings {
             .map(
               (a) => `
           <button class="chromeos-qs-boot-btn" data-power="${a.id}" title="${a.label}">
-            <i class="${a.icon}"></i>
+            ${a.icon.startsWith("papirus:") ? `<img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/${a.icon.slice(8)}.svg" class="papirus-icon papirus-icon--22" alt="" />` : `<i class="${a.icon}"></i>`}
           </button>
           `
             )
@@ -292,7 +292,7 @@ export class ChromeOsQuickSettings {
             .map(
               (t) => `
           <button class="chromeos-qs-tile${t.on ? " on" : ""}" data-tile="${t.id}">
-            <span class="chromeos-qs-tile-icon"><i class="${t.icon}"></i></span>
+            <span class="chromeos-qs-tile-icon">${t.icon.startsWith("papirus:") ? `<img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/${t.icon.slice(8)}.svg" class="papirus-icon papirus-icon--22" alt="" />` : `<i class="${t.icon}"></i>`}</span>
             <span>${t.label}</span>
           </button>
           `
@@ -300,7 +300,7 @@ export class ChromeOsQuickSettings {
             .join("")}
 
           <button class="chromeos-qs-tile${performance ? " on" : ""}" data-mode="performance">
-            <span class="chromeos-qs-tile-icon"><i class="fas fa-gauge-high"></i></span>
+            <span class="chromeos-qs-tile-icon"><img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/apps/utilities-system-monitor.svg" class="papirus-icon papirus-icon--22" alt="" /></span>
             <span>Performance</span>
           </button>
 
@@ -316,11 +316,11 @@ export class ChromeOsQuickSettings {
             .join("")}
 
           <span class="chromeos-qs-grid-span chromeos-qs-row">
-            <span class="chromeos-qs-icon-circle"><i class="fas fa-volume-high"></i></span>
+            <span class="chromeos-qs-icon-circle"><img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/32x32/status/audio-volume-high.svg" class="papirus-icon papirus-icon--22" alt="" /></span>
             ${renderRangeSlider("qsVolume", 0, 100, 5, volume)}
           </span>
           <span class="chromeos-qs-grid-span chromeos-qs-row">
-            <span class="chromeos-qs-icon-circle"><i class="fas fa-sun"></i></span>
+            <span class="chromeos-qs-icon-circle"><img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/48x48/status/weather-clear.svg" class="papirus-icon papirus-icon--22" alt="" /></span>
             ${renderRangeSlider("qsBrightness", 0, 100, 5, brightness)}
           </span>
 
@@ -340,6 +340,11 @@ export class ChromeOsQuickSettings {
   trayIconHtml(icon, label) {
     if (!icon) return `<span class="chromeos-qs-tray-glyph">${(label || "?").charAt(0)}</span>`;
     const s = String(icon);
+    const isPapirus = s.startsWith("papirus:");
+    if (isPapirus) {
+      const url = `https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/${s.slice(8)}.svg`;
+      return `<img src="${url}" class="papirus-icon papirus-icon--22" alt="" />`;
+    }
     const isUrl =
       s.startsWith("http") || s.startsWith("data:") || s.startsWith("/") || /\.(webp|png|jpg|jpeg|gif|svg)$/.test(s);
     if (isUrl) {

@@ -8,18 +8,19 @@ import { getSetting } from "../../utils/utils.js";
 import { showStartStyleMenu } from "../../shared/contextMenu.js";
 import { StorageKeys } from "../../StorageKeys.js";
 import { KeybindManager } from "../../keybindManager.js";
+import { getEffectiveIcon } from "../../shared/iconPack.js";
 
 const DEFAULT_DOCK_APPS = [
-  { appId: "launchpadApp", title: "Launchpad", icon: "fas fa-th", color: "#888" },
-  { appId: "commandPalette", title: "Finder", icon: "fas fa-folder", color: "#6ea8fe", isFinder: true },
+  { appId: "launchpadApp", title: "Launchpad", icon: "papirus:actions/view-grid", color: "#888" },
+  { appId: "commandPalette", title: "Finder", icon: "papirus:places/folder-blue", color: "#6ea8fe", isFinder: true },
   { appId: "explorerApp", title: "Explorer", icon: `static/icons/file.webp`, color: "#fff" },
   { appId: "browserApp", title: "Yuki Browser", icon: "static/icons/firefox.webp", color: "#fff" },
   { appId: "terminalApp", title: "Terminal", icon: `static/icons/terminal.webp`, color: "#fff" },
-  { appId: "settingsApp", title: "Settings", icon: "fa fa-cog", color: "#adb5bd" },
-  { appId: "calculatorApp", title: "Calculator", icon: "fas fa-calculator", color: "#20c997" },
+  { appId: "settingsApp", title: "Settings", icon: "papirus:actions/configure", color: "#adb5bd" },
+  { appId: "calculatorApp", title: "Calculator", icon: "papirus:apps/accessories-calculator", color: "#20c997" },
   { appId: "notepadApp", title: "Notes", icon: "static/icons/notepad.webp", color: "#ffc107" },
-  { appId: "discordApp", title: "Discord", icon: "fab fa-discord", color: "#5865f2" },
-  { appId: "trashApp", title: "Trash", icon: "fas fa-trash", color: "#888", isTrash: true }
+  { appId: "discordApp", title: "Discord", icon: "papirus:apps/discord", color: "#5865f2" },
+  { appId: "trashApp", title: "Trash", icon: "papirus:places/user-trash", color: "#888", isTrash: true }
 ];
 
 export class MacDock {
@@ -156,12 +157,12 @@ export class MacDock {
     if (pinned) {
       pinned.winId = winId;
       pinned.el.classList.add("active");
-      const dot = pinned.el.querySelector(".dock-running-dot");
       this.runningItems.set(winId, { isPinned: true, pinnedRef: pinned });
       return;
     }
 
-    iconValue = resolveIconUrl(iconValue);
+    const effective = getEffectiveIcon(iconValue);
+    iconValue = effective.startsWith("papirus:") ? effective : resolveIconUrl(effective);
     const iconEl = this.buildIcon(iconValue, title, color);
     const dot = createElement("span", { className: "dock-running-dot" });
     const iconWrap = createElement("div", { className: "dock-icon-wrap" });
@@ -252,7 +253,8 @@ export class MacDock {
 
   renderPinnedItems() {
     this.pinnedItems.forEach((app, index) => {
-      const iconValue = resolveIconUrl(app.icon);
+      const effective = getEffectiveIcon(app.icon);
+      const iconValue = effective.startsWith("papirus:") ? effective : resolveIconUrl(effective);
       const iconEl = this.buildIcon(iconValue, app.title, app.color);
       const dot = createElement("span", { className: "dock-running-dot" });
       const iconWrap = createElement("div", { className: "dock-icon-wrap" });
@@ -288,7 +290,7 @@ export class MacDock {
             showStartStyleMenu(e, (addMenuItem, addSeparator) => {
               this.manager.buildContextMenuItems(addMenuItem, addSeparator, targetWin);
               addSeparator();
-              addMenuItem("Unpin from Dock", () => this.unpinItem(app.appId), "fa-thumbtack");
+              addMenuItem("Unpin from Dock", () => this.unpinItem(app.appId), "papirus:actions/window-pin");
             });
             return;
           }
@@ -302,10 +304,10 @@ export class MacDock {
               else if (app.isTrash) os.app.getInstance(ServiceKeys.EXPLORER)?.openTrash();
               else os.app.launch(app.appId);
             },
-            "fa-play"
+            "papirus:actions/media-playback-start"
           );
           addSeparator();
-          addMenuItem("Unpin from Dock", () => this.unpinItem(app.appId), "fa-thumbtack");
+          addMenuItem("Unpin from Dock", () => this.unpinItem(app.appId), "papirus:actions/window-pin");
         });
       });
 
@@ -316,21 +318,72 @@ export class MacDock {
   }
 
   buildIcon(iconValue, title, color) {
+    const effective = getEffectiveIcon(iconValue);
     const inner = createElement("div", { className: "dock-icon-inner" });
-    const { isImage, isDataUrl } = this.manager.resolveIconType(iconValue);
-    if (isImage || isDataUrl) {
-      const img = createElement("img", { attributes: { src: iconValue, alt: title } });
+    const isPapirusRaw = typeof effective === "string" && effective.startsWith("papirus:");
+    if (isPapirusRaw) {
+      const src = resolveIconUrl(effective);
+      const img = createElement("img", { attributes: { src, alt: title } });
+      img.className = "papirus-icon papirus-icon--32";
       img.onerror = () => {
-        const fallback = createElement("i", { className: "fas fa-window-maximize" });
-        fallback.style.color = color ?? "var(--brand)";
-        img.replaceWith(fallback);
+        const fallbackEffective = getEffectiveIcon("papirus:apps/application-default-icon");
+        const fallbackSrc = fallbackEffective.startsWith("papirus:")
+          ? resolveIconUrl(fallbackEffective)
+          : fallbackEffective;
+        if (fallbackSrc.startsWith("papirus:") || fallbackSrc.startsWith("http") || fallbackSrc.startsWith("data:")) {
+          const fallback = createElement("img", {
+            attributes: {
+              src: fallbackSrc.startsWith("papirus:") ? resolveIconUrl(fallbackSrc) : fallbackSrc,
+              alt: title
+            }
+          });
+          fallback.className = "papirus-icon papirus-icon--32";
+          img.replaceWith(fallback);
+        } else {
+          const fallback = createElement("i", { attributes: { alt: title } });
+          fallback.className = fallbackSrc;
+          img.replaceWith(fallback);
+        }
+      };
+      inner.appendChild(img);
+      return inner;
+    }
+    const resolved = resolveIconUrl(effective);
+    const { isImage, isDataUrl } = this.manager.resolveIconType(resolved);
+    if (isImage || isDataUrl) {
+      const img = createElement("img", { attributes: { src: resolved, alt: title } });
+      img.onerror = () => {
+        const fallbackEffective = getEffectiveIcon("papirus:apps/application-default-icon");
+        const fallbackSrc = fallbackEffective.startsWith("papirus:")
+          ? resolveIconUrl(fallbackEffective)
+          : fallbackEffective;
+        if (fallbackSrc.startsWith("http") || fallbackSrc.startsWith("data:") || fallbackSrc.startsWith("papirus:")) {
+          const fallback = createElement("img", {
+            attributes: {
+              src: fallbackSrc.startsWith("papirus:") ? resolveIconUrl(fallbackSrc) : fallbackSrc,
+              alt: title
+            }
+          });
+          fallback.className = "papirus-icon papirus-icon--32";
+          img.replaceWith(fallback);
+        } else {
+          const fallback = createElement("i", { attributes: { alt: title } });
+          fallback.className = fallbackSrc;
+          img.replaceWith(fallback);
+        }
       };
       inner.appendChild(img);
     } else {
-      const icon = createElement("i", { attributes: { alt: title } });
-      icon.className = typeof iconValue === "string" && iconValue.startsWith("fa") ? iconValue : `fa ${iconValue}`;
-      icon.style.color = color ?? "var(--text-primary)";
-      inner.appendChild(icon);
+      if (typeof effective === "string" && effective.startsWith("papirus:")) {
+        const img = createElement("img", { attributes: { src: resolveIconUrl(effective), alt: title } });
+        img.className = "papirus-icon papirus-icon--32";
+        inner.appendChild(img);
+      } else {
+        const icon = createElement("i", { attributes: { alt: title } });
+        icon.className = typeof effective === "string" && effective.startsWith("fa") ? effective : `fa ${effective}`;
+        icon.style.color = color ?? "var(--text-primary)";
+        inner.appendChild(icon);
+      }
     }
     return inner;
   }

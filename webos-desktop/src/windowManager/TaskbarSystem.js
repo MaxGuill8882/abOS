@@ -1,4 +1,5 @@
 import { resolveIconUrl } from "../shared/assetResolver.js";
+import { getEffectiveIcon } from "../shared/iconPack.js";
 import { BusEvents } from "../core/EventBus.js";
 import { WindowRecord } from "../core/WindowRecord.js";
 import { audioMixer } from "../audioMixer.js";
@@ -37,6 +38,21 @@ export class TaskbarSystem {
       this.syncPinnedStates();
     });
     this.audioIndicatorTimer = setInterval(() => this.updateAudioIndicators(), 600);
+    os.events.on("icon-pack-changed", () => {
+      this.renderPinnedItems?.();
+      for (const [winId, entry] of this.manager?.openWindows || this.openWindows || new Map()) {
+        const raw = entry.rawIcon || entry.iconValue;
+        const eff = getEffectiveIcon(raw);
+        const taskEl = $(`#taskbar-${winId} img, #taskbar-${winId} i, #taskbar-${winId} svg`);
+        if (taskEl) {
+          const parent = taskEl.parentElement;
+          taskEl.remove();
+          const isPapirus = eff.startsWith("papirus:");
+          if (isPapirus) parent.prepend(createElement("img", { attributes: { src: resolveIconUrl(eff) } }));
+          else parent.prepend(createElement("i", { className: eff }));
+        }
+      }
+    });
   }
 
   initScrollHandling() {
@@ -131,15 +147,48 @@ export class TaskbarSystem {
   }
 
   buildTaskbarIcon(iconValue, title, color) {
+    iconValue = getEffectiveIcon(iconValue);
+    const isPapirusRaw = typeof iconValue === "string" && iconValue.startsWith("papirus:");
+    if (isPapirusRaw) {
+      const src = resolveIconUrl(iconValue);
+      const icon = createElement("img", { attributes: { src } });
+      icon.className = "papirus-icon papirus-icon--16";
+      icon.onerror = () => {
+        const fallbackEffective = getEffectiveIcon("papirus:apps/application-default-icon");
+        if (typeof fallbackEffective === "string" && fallbackEffective.startsWith("papirus:")) {
+          const fallback = createElement("img", {
+            attributes: { src: resolveIconUrl(fallbackEffective) }
+          });
+          fallback.className = "papirus-icon papirus-icon--16";
+          icon.replaceWith(fallback);
+        } else {
+          const fallback = createElement("i");
+          fallback.className = fallbackEffective;
+          fallback.style.color = color ?? "var(--text-primary)";
+          icon.replaceWith(fallback);
+        }
+      };
+      return icon;
+    }
     iconValue = resolveIconUrl(iconValue);
     const { isImage, isDataUrl } = this.manager.resolveIconType(iconValue);
 
     if (isImage || isDataUrl) {
       const icon = createElement("img", { attributes: { src: iconValue } });
       icon.onerror = () => {
-        const fallback = createElement("i", { className: "fas fa-window-maximize" });
-        fallback.style.color = color ?? "var(--brand)";
-        icon.replaceWith(fallback);
+        const fallbackEffective = getEffectiveIcon("papirus:apps/application-default-icon");
+        if (typeof fallbackEffective === "string" && fallbackEffective.startsWith("papirus:")) {
+          const fallback = createElement("img", {
+            attributes: { src: resolveIconUrl(fallbackEffective) }
+          });
+          fallback.className = "papirus-icon papirus-icon--16";
+          icon.replaceWith(fallback);
+        } else {
+          const fallback = createElement("i");
+          fallback.className = fallbackEffective;
+          fallback.style.color = color ?? "var(--text-primary)";
+          icon.replaceWith(fallback);
+        }
       };
       return icon;
     }
@@ -147,11 +196,25 @@ export class TaskbarSystem {
     const icon = createElement("i", { attributes: { alt: title } });
 
     if (typeof iconValue === "string" && iconValue.length > 0) {
+      if (iconValue.startsWith("papirus:")) {
+        const img = createElement("img", { attributes: { src: resolveIconUrl(iconValue) } });
+        img.className = "papirus-icon papirus-icon--16";
+        return img;
+      }
       icon.className = iconValue.startsWith("fa") ? iconValue : `fa ${iconValue}`;
       icon.style.color = color ?? "var(--text-primary)";
     } else {
-      icon.className = "fas fa-window-maximize";
-      icon.style.color = "var(--brand)";
+      const fallbackEffective = getEffectiveIcon("papirus:apps/application-default-icon");
+      if (typeof fallbackEffective === "string" && fallbackEffective.startsWith("papirus:")) {
+        const img = createElement("img", {
+          attributes: { src: resolveIconUrl(fallbackEffective) }
+        });
+        img.className = "papirus-icon papirus-icon--16";
+        return img;
+      }
+      icon.className = fallbackEffective;
+      icon.style.color = color ?? "var(--text-primary)";
+      return icon;
     }
 
     return icon;
@@ -160,8 +223,10 @@ export class TaskbarSystem {
   addToTaskbar(winId, title, iconValue, color = null) {
     this.manager.triggerSessionSave();
     if ($(`#taskbar-${winId}`)) return;
-    if (iconValue === "fas fa-video") color = "var(--brand)";
+    if (iconValue === "fas fa-video" || iconValue === "papirus:devices/camera-video") color = "var(--brand)";
+    const rawIcon = iconValue;
 
+    iconValue = getEffectiveIcon(iconValue);
     iconValue = resolveIconUrl(iconValue);
 
     const taskbarItem = createElement("div", {
@@ -188,7 +253,11 @@ export class TaskbarSystem {
       taskbarItem.appendChild(label);
     }
     const speakerIndicator = createElement("span", { className: "taskbar-speaker-indicator" });
-    speakerIndicator.innerHTML = '<i class="fas fa-volume-up"></i>';
+    const speakerEffective = getEffectiveIcon("papirus:status/audio-volume-high");
+    speakerIndicator.innerHTML =
+      typeof speakerEffective === "string" && speakerEffective.startsWith("papirus:")
+        ? `<img src="${resolveIconUrl(speakerEffective)}" class="papirus-icon papirus-icon--16" alt="" />`
+        : `<i class="${speakerEffective}"></i>`;
     speakerIndicator.addEventListener("click", (e) => {
       e.stopPropagation();
       audioMixer().toggleChannelMute(winId);
@@ -248,7 +317,7 @@ export class TaskbarSystem {
     }
 
     const record = new WindowRecord(winId, title, { ...geometry, iconValue, color });
-    this.manager.registerWindow(winId, { taskbarItem, title, iconValue, color, record });
+    this.manager.registerWindow(winId, { taskbarItem, title, iconValue, rawIcon, color, record });
 
     if (win) {
       const headerSpan = $(".window-header > span", win);
@@ -522,28 +591,28 @@ export class TaskbarSystem {
           winId: "discord-pinned",
           appId: "discordApp",
           title: "Discord",
-          iconValue: "fab fa-discord",
+          iconValue: "papirus:apps/discord",
           color: null
         },
         {
           winId: "movies-pinned",
           appId: "moviesApp",
           title: "Movies",
-          iconValue: "fas fa-film",
+          iconValue: "papirus:mimetypes/video-x-generic",
           color: null
         },
         {
           winId: "aniwatch-pinned",
           appId: "aniwatchApp",
           title: "Aniwatch Anime",
-          iconValue: "fas fa-play-circle",
+          iconValue: "papirus:actions/media-playback-start",
           color: null
         },
         {
           winId: "launchpad-pinned",
           appId: "launchpadApp",
           title: "Launchpad",
-          iconValue: "fas fa-th",
+          iconValue: "papirus:actions/view-grid",
           color: null
         }
       ];
@@ -551,65 +620,9 @@ export class TaskbarSystem {
       const existingAppIds = pinnedData.map((item) => item.appId);
       const missingDefaults = defaultApps.filter((app) => !existingAppIds.includes(app.appId));
 
-      if (missingDefaults.length > 0) {
-        let updatedPinnedItems;
-        if (pinnedData.length === 0) {
-          updatedPinnedItems = [...defaultApps];
-        } else {
-          updatedPinnedItems = [...pinnedData];
-          missingDefaults.forEach((app) => {
-            const defaultIdx = defaultApps.findIndex((d) => d.appId === app.appId);
-            let insertPos = updatedPinnedItems.length;
-            for (let i = defaultIdx - 1; i >= 0; i--) {
-              const predIdx = updatedPinnedItems.findIndex((item) => item.appId === defaultApps[i].appId);
-              if (predIdx !== -1) {
-                insertPos = predIdx + 1;
-                break;
-              }
-            }
-            if (insertPos === updatedPinnedItems.length) {
-              for (let i = defaultIdx + 1; i < defaultApps.length; i++) {
-                const succIdx = updatedPinnedItems.findIndex((item) => item.appId === defaultApps[i].appId);
-                if (succIdx !== -1) {
-                  insertPos = succIdx;
-                  break;
-                }
-              }
-            }
-            updatedPinnedItems.splice(insertPos, 0, app);
-          });
-        }
+      if (missingDefaults.length > 0 && pinnedData.length === 0) {
+        const updatedPinnedItems = [...defaultApps];
         os.storage.set(StorageKeys.pinnedTaskbarItems, updatedPinnedItems);
-        try {
-          const order = os.storage.get(StorageKeys.taskbarOrder) || [];
-          if (order.length > 0) {
-            let orderChanged = false;
-            missingDefaults.forEach((app) => {
-              if (order.includes(app.appId)) return;
-              const defaultIdx = defaultApps.findIndex((d) => d.appId === app.appId);
-              let insertPos = order.length;
-              for (let i = defaultIdx - 1; i >= 0; i--) {
-                const predIdx = order.indexOf(defaultApps[i].appId);
-                if (predIdx !== -1) {
-                  insertPos = predIdx + 1;
-                  break;
-                }
-              }
-              if (insertPos === order.length) {
-                for (let i = defaultIdx + 1; i < defaultApps.length; i++) {
-                  const succIdx = order.indexOf(defaultApps[i].appId);
-                  if (succIdx !== -1) {
-                    insertPos = succIdx;
-                    break;
-                  }
-                }
-              }
-              order.splice(insertPos, 0, app.appId);
-              orderChanged = true;
-            });
-            if (orderChanged) os.storage.set(StorageKeys.taskbarOrder, order);
-          }
-        } catch {}
         if (!os.storage.get(migrationKey)) os.storage.set(migrationKey, "true");
         return updatedPinnedItems;
       }
@@ -658,7 +671,11 @@ export class TaskbarSystem {
 
   unpinFromTaskbar(winId) {
     const win = $(`#${winId}`);
-    const appId = win?.dataset?.appId || this.manager.guessAppIdFromWinId(winId);
+    let appId = win?.dataset?.appId || null;
+    if (!appId && typeof winId === "string" && winId.endsWith("-pinned")) {
+      appId = winId.slice(0, -7);
+    }
+    if (!appId) appId = this.manager.guessAppIdFromWinId(winId);
     const pinnedItems = this.getPinnedItems();
     const target = pinnedItems.find((item) => item.appId === appId) || pinnedItems.find((item) => item.winId === winId);
     if (!target) return;

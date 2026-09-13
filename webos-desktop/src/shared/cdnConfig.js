@@ -3,16 +3,16 @@ export const CDN_CONFIG = {
   repos: {
     get games() {
       return {
-        base: resolveGhUrl("https://cdn.jsdelivr.net/gh/Reeyuki/yukios-games@main"),
+        base: resolveGhUrl("https://cdn.jsdelivr.net/gh/NaoTomori1/yukios-games@main"),
         archiveBase: resolveGhUrl(
-          "https://cdn.jsdelivr.net/gh/Reeyuki/yukios-games@1a4843dd9c0eb267d802625234e54fd6f9a6c9b7"
+          "https://cdn.jsdelivr.net/gh/NaoTomori1/yukios-games@1a4843dd9c0eb267d802625234e54fd6f9a6c9b7"
         ),
         ref: "main"
       };
     },
     get main() {
       return {
-        base: resolveGhUrl("https://cdn.jsdelivr.net/gh/Reeyuki/yukios@main"),
+        base: resolveGhUrl("https://cdn.jsdelivr.net/gh/NaoTomori1/yukios@main"),
         ref: "main"
       };
     },

@@ -35,6 +35,7 @@ import {
 } from "../utils/utils.js";
 import { resolveDesktopIcon } from "../shared/iconUtils.js";
 import { resolveIconUrl } from "../shared/assetResolver.js";
+import { getEffectiveIcon } from "../shared/iconPack.js";
 import { trigger as triggerCursorEffect } from "../cursorEffect.js";
 import { AppSource } from "../AppSource.js";
 import { showDynamicContextMenu } from "../shared/contextMenu.js";
@@ -51,6 +52,22 @@ import { handleFileUpload, uploadSingleFile, saveToWallpapers } from "./explorer
 import { showTrashView, renderTrashView } from "./explorer/trash.js";
 import { startInlineRename, spawnInlineItem } from "./explorer/inlineRename.js";
 import { pasteToPath, copyItem, downloadItems, createArchiveFromItems } from "./explorer/transfer.js";
+
+function explorerIcon(papirusIcon, size = 14, extraStyle = "", extraClass = "", extraId = "", extraTitle = "") {
+  const effective = getEffectiveIcon(papirusIcon);
+  const idAttr = extraId ? ` id="${extraId}"` : "";
+  const titleAttr = extraTitle ? ` title="${extraTitle}"` : "";
+  if (typeof effective === "string" && effective.startsWith("papirus:")) {
+    const cls = extraClass ? ` class="${extraClass}"` : "";
+    return `<img src="${resolveIconUrl(effective)}" style="width:${size}px;height:${size}px;${extraStyle}"${cls}${idAttr}${titleAttr} alt="" />`;
+  }
+  let cls = effective;
+  if (typeof cls === "string" && cls.startsWith("fa-") && !cls.includes(" ")) cls = "fas " + cls;
+  const faExtra = extraStyle.replace(/width:[^;]*;?/g, "").replace(/height:[^;]*;?/g, "");
+  const style = `font-size:${size}px;${faExtra}`;
+  const combined = extraClass ? `${cls} ${extraClass}` : cls;
+  return `<i class="${combined}" style="${style}"${idAttr}${titleAttr}></i>`;
+}
 
 const sharedDragState = {
   active: false,
@@ -174,16 +191,44 @@ export class ExplorerApp extends BaseApp {
     const pcCollapsed = collapsed.pc ? "collapsed" : "";
 
     const quickItems = [
-      { path: "", icon: '<i class="fas fa-home"></i>', label: "Home" },
-      { path: "Desktop", icon: '<i class="fas fa-desktop"></i>', label: "Desktop" },
-      { path: "Downloads", icon: '<i class="fas fa-download"></i>', label: "Downloads" },
-      { path: "Documents", icon: '<i class="fas fa-file-lines"></i>', label: "Documents" },
-      { path: "Pictures", icon: '<i class="fas fa-image"></i>', label: "Pictures" }
+      {
+        path: "",
+        icon: explorerIcon("papirus:places/user-blue-home", 14),
+        label: "Home"
+      },
+      {
+        path: "Desktop",
+        icon: explorerIcon("papirus:devices/computer", 14),
+        label: "Desktop"
+      },
+      {
+        path: "Downloads",
+        icon: explorerIcon("papirus:actions/edit-download", 14),
+        label: "Downloads"
+      },
+      {
+        path: "Documents",
+        icon: explorerIcon("papirus:mimetypes/text-x-generic", 14),
+        label: "Documents"
+      },
+      {
+        path: "Pictures",
+        icon: explorerIcon("papirus:mimetypes/image-x-generic", 14),
+        label: "Pictures"
+      }
     ];
     if (variant !== "directory") {
       quickItems.push(
-        { path: "Music", icon: '<i class="fas fa-music"></i>', label: "Music" },
-        { path: "Videos", icon: '<i class="fas fa-video"></i>', label: "Videos" }
+        {
+          path: "Music",
+          icon: explorerIcon("papirus:mimetypes/audio-x-generic", 14),
+          label: "Music"
+        },
+        {
+          path: "Videos",
+          icon: explorerIcon("papirus:mimetypes/video-x-generic", 14),
+          label: "Videos"
+        }
       );
     }
 
@@ -191,7 +236,7 @@ export class ExplorerApp extends BaseApp {
 
     html += `<div class="sidebar-section ${quickCollapsed}">`;
     html += '<div class="sidebar-section-header" data-section="quick">';
-    html += '<i class="fas fa-chevron-down sidebar-chevron"></i>';
+    html += explorerIcon("papirus:actions/go-down", 10, "", "sidebar-chevron");
     html += "<span>Quick Access</span></div>";
     html += '<div class="sidebar-section-body">';
     const qaHidden = new Set(os.storage.get(StorageKeys.explorerQuickAccessHidden) || []);
@@ -202,27 +247,24 @@ export class ExplorerApp extends BaseApp {
     const pinned = os.storage.get(StorageKeys.explorerQuickAccess) || [];
     for (const p of pinned) {
       if (!quickItems.some((q) => q.path === p.path)) {
-        html += `<div class="nav-item nav-item--pinned" data-path="${p.path}"><i class="fas fa-thumbtack"></i><span>${p.label}</span></div>`;
+        html += `<div class="nav-item nav-item--pinned" data-path="${p.path}">${explorerIcon("papirus:actions/window-pin", 14)}<span>${p.label}</span></div>`;
       }
     }
     html += "</div></div>";
 
     html += `<div class="sidebar-section ${pcCollapsed}">`;
     html += '<div class="sidebar-section-header" data-section="pc">';
-    html += '<i class="fas fa-chevron-down sidebar-chevron"></i>';
+    html += explorerIcon("papirus:actions/go-down", 10, "", "sidebar-chevron");
     html += "<span>This PC</span></div>";
     html += '<div class="sidebar-section-body">';
-    html +=
-      '<div class="nav-item nav-item--disk" data-path="__disk__"><i class="fas fa-hdd"></i><span>Local Disk (C:)</span></div>';
-    html +=
-      '<div class="nav-item nav-item--system" data-path="System"><i class="fas fa-folder-tree"></i><span>System</span></div>';
+    html += `<div class="nav-item nav-item--disk" data-path="__disk__">${explorerIcon("papirus:devices/drive-harddisk", 14)}<span>Local Disk (C:)</span></div>`;
+    html += `<div class="nav-item nav-item--system" data-path="System">${explorerIcon("papirus:places/folder-blue", 14)}<span>System</span></div>`;
     html += '<div class="explorer-storage-mounts"></div>';
     html += '<div class="explorer-iso-mounts"></div>';
     html += "</div></div>";
 
     html += '<div class="sidebar-section sidebar-section--trash">';
-    html +=
-      '<div class="nav-item nav-item--trash" data-path="__trash__"><i class="fas fa-trash"></i><span>Trash</span></div>';
+    html += `<div class="nav-item nav-item--trash" data-path="__trash__">${explorerIcon("papirus:places/user-trash", 14)}<span>Trash</span></div>`;
     html += "</div>";
 
     html += "</div>";
@@ -360,7 +402,7 @@ export class ExplorerApp extends BaseApp {
       container.innerHTML = storageMounts
         .map(
           (m) =>
-            `<div class="nav-item" data-mount="${m.mountPoint}" data-label="${m.label}"><i class="fas fa-hdd" style="width:14px;text-align:center;font-size:11px;color:var(--brand);opacity:0.7;flex-shrink:0;"></i><span>${m.label}</span></div>`
+            `<div class="nav-item" data-mount="${m.mountPoint}" data-label="${m.label}">${explorerIcon("papirus:devices/drive-harddisk", 14, "opacity:0.7;flex-shrink:0;")}<span>${m.label}</span></div>`
         )
         .join("");
     }
@@ -379,7 +421,7 @@ export class ExplorerApp extends BaseApp {
     container.innerHTML = isoMounts
       .map(
         (m) =>
-          `<div class="nav-item" data-mount="${m.mountPoint}" data-label="${m.label}"><i class="fas fa-compact-disc" style="width:14px;text-align:center;font-size:12px;color:var(--brand);opacity:0.7;flex-shrink:0;"></i><span>${m.label}</span></div>`
+          `<div class="nav-item" data-mount="${m.mountPoint}" data-label="${m.label}">${explorerIcon("papirus:devices/media-optical", 14, "opacity:0.7;flex-shrink:0;")}<span>${m.label}</span></div>`
       )
       .join("");
   }
@@ -429,9 +471,9 @@ export class ExplorerApp extends BaseApp {
 
     win.innerHTML = `
       <div class="explorer-nav">
-        <div class="back-btn" id="${winId}-back" title="Back"><i class="fas fa-chevron-left"></i></div>
-        <div class="back-btn" id="${winId}-next" title="Next"><i class="fas fa-chevron-right"></i></div>
-        <div class="back-btn" id="${winId}-up" title="Up"><i class="fas fa-arrow-up"></i></div>
+        <div class="back-btn" id="${winId}-back" title="Back">${explorerIcon("papirus:actions/go-previous", 12)}</div>
+        <div class="back-btn" id="${winId}-next" title="Next">${explorerIcon("papirus:actions/go-next", 12)}</div>
+        <div class="back-btn" id="${winId}-up" title="Up">${explorerIcon("papirus:actions/go-up", 12)}</div>
         <div class="explorer-path-wrap">
           <input
             type="text"
@@ -439,7 +481,7 @@ export class ExplorerApp extends BaseApp {
             id="${winId}-path"
             spellcheck="false"
           >
-          <i class="fas fa-sync-alt explorer-reload-icon" id="${winId}-reload"></i>
+          ${explorerIcon("papirus:actions/view-refresh", 12, "", "explorer-reload-icon", winId + "-reload")}
         </div>
         <div class="explorer-search-wrap">
           <input
@@ -449,7 +491,7 @@ export class ExplorerApp extends BaseApp {
             placeholder="Search..."
             spellcheck="false"
           >
-          <i class="fas fa-search explorer-search-icon"></i>
+          ${explorerIcon("papirus:actions/edit-find", 12, "", "explorer-search-icon")}
         </div>
       </div>
       <div class="explorer-container">
@@ -468,8 +510,8 @@ export class ExplorerApp extends BaseApp {
         <span id="${winId}-status-items"></span>
         <span class="explorer-status-selected" id="${winId}-status-selected"></span>
         <div class="explorer-view-toggle" id="${winId}-view-toggle">
-          <i class="fas fa-th explorer-view-btn" id="${winId}-view-grid" title="Grid view"></i>
-          <i class="fas fa-list explorer-view-btn" id="${winId}-view-list" title="List view"></i>
+          ${explorerIcon("papirus:actions/view-grid", 14, "", "explorer-view-btn", winId + "-view-grid", "Grid view")}
+          ${explorerIcon("papirus:actions/view-list", 14, "", "explorer-view-btn", winId + "-view-list", "List view")}
         </div>
       </div>
       <div class="explorer-upload-progress" id="${winId}-upload-progress">
@@ -490,22 +532,22 @@ export class ExplorerApp extends BaseApp {
     const winId = `explorer-trash-${Date.now()}`;
     const inst = this.createInstance(winId, null, null, "browse");
     const win = os.window.create(winId, "Trash", "700px", "500px", {
-      icon: "fas fa-trash"
+      icon: getEffectiveIcon("papirus:places/user-trash")
     });
     addClass(win, "explorer-window");
 
     win.innerHTML = `
       <div class="explorer-nav">
-        <div class="back-btn" id="${winId}-back" title="Back"><i class="fas fa-chevron-left"></i></div>
-        <div class="back-btn" id="${winId}-next" title="Next"><i class="fas fa-chevron-right"></i></div>
-        <div class="back-btn" id="${winId}-up" title="Up"><i class="fas fa-arrow-up"></i></div>
+        <div class="back-btn" id="${winId}-back" title="Back">${explorerIcon("papirus:actions/go-previous", 12)}</div>
+        <div class="back-btn" id="${winId}-next" title="Next">${explorerIcon("papirus:actions/go-next", 12)}</div>
+        <div class="back-btn" id="${winId}-up" title="Up">${explorerIcon("papirus:actions/go-up", 12)}</div>
         <div class="explorer-path-wrap">
           <input type="text" class="explorer-win-path" id="${winId}-path" spellcheck="false" value="/Trash">
-          <i class="fas fa-sync-alt explorer-reload-icon" id="${winId}-reload"></i>
+          ${explorerIcon("papirus:actions/view-refresh", 12, "", "explorer-reload-icon", winId + "-reload")}
         </div>
         <div class="explorer-search-wrap">
           <input type="text" id="${winId}-search" class="explorer-search-input" placeholder="Search..." spellcheck="false">
-          <i class="fas fa-search explorer-search-icon"></i>
+          ${explorerIcon("papirus:actions/edit-find", 12, "", "explorer-search-icon")}
         </div>
       </div>
       <div class="explorer-container">
@@ -516,8 +558,8 @@ export class ExplorerApp extends BaseApp {
         <span id="${winId}-status-items"></span>
         <span class="explorer-status-selected" id="${winId}-status-selected"></span>
         <div class="explorer-view-toggle" id="${winId}-view-toggle">
-          <i class="fas fa-th explorer-view-btn" id="${winId}-view-grid" title="Grid view"></i>
-          <i class="fas fa-list explorer-view-btn" id="${winId}-view-list" title="List view"></i>
+          ${explorerIcon("papirus:actions/view-grid", 14, "", "explorer-view-btn", winId + "-view-grid", "Grid view")}
+          ${explorerIcon("papirus:actions/view-list", 14, "", "explorer-view-btn", winId + "-view-list", "List view")}
         </div>
       </div>
       <div class="explorer-upload-progress" id="${winId}-upload-progress">Uploading...</div>
@@ -541,7 +583,7 @@ export class ExplorerApp extends BaseApp {
 
     win.innerHTML = `
       <div class="explorer-nav">
-        <div class="back-btn" id="${winId}-back" title="Back"><i class="fas fa-chevron-left"></i></div>
+        <div class="back-btn" id="${winId}-back" title="Back">${explorerIcon("papirus:actions/go-previous", 12)}</div>
         <input
           type="text"
           class="explorer-win-path"
@@ -621,7 +663,7 @@ export class ExplorerApp extends BaseApp {
 
     win.innerHTML = `
       <div class="explorer-nav">
-        <div class="back-btn" id="${winId}-back" title="Back"><i class="fas fa-chevron-left"></i></div>
+        <div class="back-btn" id="${winId}-back" title="Back">${explorerIcon("papirus:actions/go-previous", 12)}</div>
         <input
           type="text"
           class="explorer-win-path"
@@ -1121,9 +1163,26 @@ export class ExplorerApp extends BaseApp {
       span.textContent = col.label;
       if (inst.sortBy === col.key) {
         span.classList.add("list-h-active");
-        const arrow = createElement("i");
-        arrow.className = `fas fa-sort-${inst.sortDir === "asc" ? "up" : "down"}`;
-        span.appendChild(arrow);
+        const sortEffective = getEffectiveIcon(
+          `papirus:actions/view-sort${inst.sortDir === "asc" ? "ascending" : "descending"}`
+        );
+        if (typeof sortEffective === "string" && sortEffective.startsWith("papirus:")) {
+          const arrow = createElement("img");
+          arrow.src = resolveIconUrl(sortEffective);
+          arrow.style.width = "10px";
+          arrow.style.height = "10px";
+          arrow.style.marginLeft = "4px";
+          arrow.alt = "";
+          span.appendChild(arrow);
+        } else {
+          const arrow = createElement("i");
+          let cls = sortEffective;
+          if (typeof cls === "string" && cls.startsWith("fa-") && !cls.includes(" ")) cls = "fas " + cls;
+          arrow.className = cls;
+          arrow.style.fontSize = "10px";
+          arrow.style.marginLeft = "4px";
+          span.appendChild(arrow);
+        }
       }
       span.onclick = () => {
         if (inst.sortBy === col.key) {
@@ -1598,13 +1657,13 @@ export class ExplorerApp extends BaseApp {
         const raw = await os.fs.read(inst.currentPath.concat(name));
         const content = JSON.parse(raw);
         if (content && content.app) {
-          triggerCursorEffect(content.icon || "fa-solid fa-cube");
+          triggerCursorEffect(getEffectiveIcon(content.icon || "papirus:apps/kjumpingcube"));
           os.storage.set(StorageKeys.launchTimePrefix + content.app, Date.now());
           const extra = content.steamGameId ? { steamGameId: content.steamGameId } : null;
           os.app.launch(content.app, false, extra);
           return;
         } else if (content && content.type === "youtube-embed") {
-          triggerCursorEffect("fa-brands fa-youtube");
+          triggerCursorEffect(getEffectiveIcon("papirus:apps/youtube"));
           this.openYouTubeEmbedDesktop(content);
           return;
         }
@@ -1616,16 +1675,16 @@ export class ExplorerApp extends BaseApp {
     }
 
     if (name.toLowerCase().endsWith(".img")) {
-      triggerCursorEffect("fa-microchip");
+      triggerCursorEffect(getEffectiveIcon("papirus:apps/cpu-x"));
       this.v86app.launchImage(name, [...inst.currentPath]);
       return;
     }
 
     if (isISOFile(name)) {
-      triggerCursorEffect("fa-compact-disc");
+      triggerCursorEffect(getEffectiveIcon("papirus:devices/media-optical"));
       try {
         const mountPoint = await os.fs.mountISO(inst.currentPath, name);
-        os.notify.send("Disc Image", `Mounted "${name}"`, { icon: "fa-compact-disc" });
+        os.notify.send("Disc Image", `Mounted "${name}"`, { icon: getEffectiveIcon("papirus:devices/media-optical") });
         if (mountPoint) {
           const win = $(`#${inst.winId}`);
           if (win) this.sidebarRebuild(win, inst);

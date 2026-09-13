@@ -10,6 +10,7 @@ import { FileKind } from "../shared/fileKindDetector.js";
 
 import { resolveIconUrl } from "../shared/assetResolver.js";
 import { resolveDesktopIcon } from "../shared/iconUtils.js";
+import { getEffectiveIcon } from "../shared/iconPack.js";
 import { decodeFileContent } from "../utils/utils.js";
 import { scheduleFileTooltip, scheduleAppTooltip, hideFileTooltip } from "../shared/fileTooltip.js";
 import { BusEvents } from "../core/EventBus.js";
@@ -21,15 +22,15 @@ import { StorageKeys, os, MODES } from "../framework.js";
 
 const HARDCODED_DESKTOP_ICONS = [
   { app: "explorerApp", name: "Files", icon: "static/icons/file.webp" },
-  { app: "steamApp", name: "Yuki Steam", icon: "fab fa-steam", isFa: true },
-  { app: "discordApp", name: "Discord", icon: "fab fa-discord", isFa: true },
+  { app: "systemAppsApp", name: "System Apps", icon: "papirus:apps/utilities-tweak-tool" },
   { app: "browserApp", name: "Browser", icon: resolveIconUrl("static/icons/firefox.webp") },
-  { app: "systemAppsApp", name: "System Apps", icon: "fas fa-tools", isFa: true },
   { app: "notepadApp", name: "Notepad", icon: "static/icons/notepad.webp" },
-  { app: "shittifyApp", name: "Evil Spotify", icon: "static/icons/shittify.webp" },
   { app: "room3dApp", name: "3D Room", icon: "static/icons/3dyukios.webp" },
-  { app: "craxgptApp", name: "CraxGPT", icon: "fas fa-robot", isFa: true },
-  { app: "geometryTodayApp", name: "Cloud Gaming (Geometry Today)", icon: "fas fa-gamepad", isFa: true }
+  { app: "craxgptApp", name: "CraxGPT", icon: "papirus:apps/gnome-robots" },
+  { app: "shittifyApp", name: "Evil Spotify", icon: "static/icons/shittify.webp" },
+  { app: "steamApp", name: "Yuki Steam", icon: "papirus:apps/steam" },
+  { app: "discordApp", name: "Discord", icon: "papirus:apps/discord" },
+  { app: "geometryTodayApp", name: "Cloud Gaming (Geometry Today)", icon: "papirus:apps/preferences-desktop-gaming" }
 ];
 
 export class IconManager {
@@ -174,6 +175,7 @@ export class IconManager {
       if ($(`.folder-icon[data-folder-name="${CSS.escape(folderName)}"]`)) return;
       const folderIcon = createElement("div", { className: "icon selectable folder-icon" });
       folderIcon.dataset.folderName = folderName;
+      folderIcon.dataset.rawIcon = "static/icons/file.webp";
       setHTML(
         folderIcon,
         `<img src="${resolveIconUrl("static/icons/file.webp")}"><div title="${folderName.replace(/"/g, "&quot;")}">${folderName}</div>`
@@ -217,6 +219,8 @@ export class IconManager {
           icon.dataset.filePath = "Desktop";
           if (parsed && parsed.app) icon.dataset.app = parsed.app;
           if (parsed && parsed.steamGameId) icon.dataset.steamGameId = parsed.steamGameId;
+          if (iconSrc) icon.dataset.rawIcon = iconSrc;
+          else if (parsed && parsed.path) icon.dataset.rawIcon = parsed.path;
           setHTML(icon, `${iconHTML}<div title="${displayName.replace(/"/g, "&quot;")}">${displayName}</div>`);
           const saved = this.positionStore.load();
           const key = this.positionStore.getKey(icon);
@@ -266,6 +270,7 @@ export class IconManager {
       const icon = createElement("div", { className: "icon selectable desktop-file-icon" });
       icon.dataset.fileName = fileName;
       icon.dataset.filePath = "Desktop";
+      if (storedIconValue) icon.dataset.rawIcon = storedIconValue;
       setHTML(icon, `${iconHTML}<div title="${displayName.replace(/"/g, "&quot;")}">${displayName}</div>`);
 
       const saved = this.positionStore.load();
@@ -389,12 +394,17 @@ export class IconManager {
     for (const def of HARDCODED_DESKTOP_ICONS) {
       const icon = createElement("div", { className: "icon selectable" });
       icon.dataset.app = def.app;
-
-      if (def.isFa) {
-        const i = createElement("i", { className: def.icon });
+      icon.dataset.rawIcon = def.icon;
+      const effective = getEffectiveIcon(def.icon);
+      if (typeof effective === "string" && effective.startsWith("papirus:")) {
+        const img = createElement("img", { attributes: { src: resolveIconUrl(effective) } });
+        img.className = "papirus-icon papirus-icon--48";
+        icon.appendChild(img);
+      } else if (typeof effective === "string" && effective.startsWith("fa")) {
+        const i = createElement("i", { className: effective });
         icon.appendChild(i);
       } else {
-        const img = createElement("img", { attributes: { src: resolveIconUrl(def.icon) } });
+        const img = createElement("img", { attributes: { src: resolveIconUrl(effective) } });
         icon.appendChild(img);
       }
 
@@ -456,3 +466,41 @@ export class IconManager {
     }
   }
 }
+
+os.events.on("icon-pack-changed", () => {
+  $$(".icon.selectable").forEach((el) => {
+    if (el.classList.contains("desktop-file-icon")) {
+      const raw = el.dataset.rawIcon;
+      if (!raw) return;
+      const fileName = el.dataset.fileName;
+      if (!fileName) return;
+      const label = el.querySelector("div:last-child");
+      if (!label) return;
+      const newHTML = buildFileIconHTML(fileName, { storedIcon: raw, size: 64, radius: 12 });
+      Array.from(el.children).forEach((c) => {
+        if (c !== label) c.remove();
+      });
+      const temp = createElement("div");
+      temp.innerHTML = newHTML;
+      while (temp.firstChild) el.insertBefore(temp.firstChild, label);
+      return;
+    }
+    const raw =
+      el.dataset.rawIcon || (el.dataset.app && HARDCODED_DESKTOP_ICONS.find((d) => d.app === el.dataset.app)?.icon);
+    if (!raw) return;
+    const effective = getEffectiveIcon(raw);
+    const existing = el.querySelector("img, i, svg");
+    if (existing) existing.remove();
+    const isPapirus = typeof effective === "string" && effective.startsWith("papirus:");
+    let newIcon;
+    if (isPapirus) {
+      newIcon = createElement("img", { attributes: { src: resolveIconUrl(effective) } });
+      newIcon.className = "papirus-icon papirus-icon--48";
+    } else if (typeof effective === "string" && effective.startsWith("fa")) {
+      newIcon = createElement("i", { className: effective });
+    } else {
+      newIcon = createElement("img", { attributes: { src: resolveIconUrl(effective) } });
+    }
+    el.prepend(newIcon);
+  });
+});

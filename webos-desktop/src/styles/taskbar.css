@@ -312,7 +312,7 @@
   width: 50px;
   height: 40px;
   flex-shrink: 0;
-  background: var(--start-logo-url, url("https://cdn.jsdelivr.net/gh/Reeyuki/yukios@main/static/icons/logo.png"))
+  background: var(--start-logo-url, url("https://cdn.jsdelivr.net/gh/NaoTomori1/yukios@main/static/icons/logo.png"))
     no-repeat center / 48px;
   cursor: pointer;
   transition: filter var(--transition-base);
@@ -436,7 +436,10 @@
   color: var(--text-primary);
   white-space: nowrap;
 }
-
+.taskbar-speaker-indicator img {
+  width: 30px;
+  height: 30px;
+}
 .taskbar-speaker-indicator {
   position: absolute;
   top: 14px;

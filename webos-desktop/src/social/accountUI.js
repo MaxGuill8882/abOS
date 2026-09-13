@@ -11,15 +11,15 @@ export function buildAccountStatusHtml() {
     return `
       <div class="yukios-account-meta">Signed in as <strong>${escapeHtml(account.nickname)}</strong></div>
       <div class="yukios-account-actions">
-        <button type="button" class="yukios-account-btn" data-account-action="signout"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+        <button type="button" class="yukios-account-btn" data-account-action="signout"><img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/system-log-out.svg" class="papirus-icon papirus-icon--22" alt="" /> Sign Out</button>
       </div>
     `;
   }
   return `
     <p class="yukios-account-note">Sign in or convert your local account to a cloud account to keep your profile, achievements and playtime across devices. No email needed.</p>
     <div class="yukios-account-actions">
-      <button type="button" class="yukios-account-btn" data-account-action="signin"><i class="fas fa-sign-in-alt"></i> Sign In</button>
-      <button type="button" class="yukios-account-btn yukios-account-btn--primary" data-account-action="register"><i class="fa-solid fa-cloud-arrow-up"></i> Sync with Cloud</button>
+      <button type="button" class="yukios-account-btn" data-account-action="signin"><img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/system-log-out.svg" class="papirus-icon papirus-icon--22" alt="" /> Sign In</button>
+      <button type="button" class="yukios-account-btn yukios-account-btn--primary" data-account-action="register"><img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/cloud-upload.svg" class="papirus-icon papirus-icon--22" alt="" /> Sync with Cloud</button>
     </div>
   `;
 }
@@ -28,9 +28,9 @@ export function buildAccountBlockHtml(startView, options = {}) {
   if (options.socialDisabled) {
     return `
       <div class="yukios-account-body">
-        <p class="yukios-account-note"><i class="fas fa-user-slash"></i> Social features are disabled.</p>
+        <p class="yukios-account-note"><img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/im-user-offline.svg" class="papirus-icon papirus-icon--22" alt="" /> Social features are disabled.</p>
         <div class="yukios-account-actions">
-          <button type="button" class="yukios-account-btn" data-account-action="enable-social"><i class="fas fa-toggle-on"></i> Enable in Settings</button>
+          <button type="button" class="yukios-account-btn" data-account-action="enable-social"><img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/object-select.svg" class="papirus-icon papirus-icon--22" alt="" /> Enable in Settings</button>
         </div>
       </div>
     `;
@@ -57,8 +57,8 @@ export function buildAccountBlockHtml(startView, options = {}) {
       <input type="password" class="yukios-account-input yukios-account-input--signin-pass" placeholder="Password" autocomplete="current-password" />
       <div class="yukios-account-error hidden"></div>
       <div class="yukios-account-actions">
-        <button type="button" class="yukios-account-btn yukios-account-btn--primary" data-account-action="signin-submit"><i class="fas fa-sign-in-alt"></i> Sign In</button>
-        <button type="button" class="yukios-account-btn" data-account-action="switch-register"><i class="fas fa-user-plus"></i> Sync with Cloud</button>
+        <button type="button" class="yukios-account-btn yukios-account-btn--primary" data-account-action="signin-submit"><img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/system-log-out.svg" class="papirus-icon papirus-icon--22" alt="" /> Sign In</button>
+        <button type="button" class="yukios-account-btn" data-account-action="switch-register"><img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/list-add.svg" class="papirus-icon papirus-icon--22" alt="" /> Sync with Cloud</button>
       </div>
     </div>
     <div class="yukios-account-form yukios-account-form--register${registerHidden}">
@@ -69,8 +69,8 @@ export function buildAccountBlockHtml(startView, options = {}) {
       <input type="password" class="yukios-account-input yukios-account-input--register-pass" placeholder="Password (6+ characters)" autocomplete="new-password" />
       <div class="yukios-account-error hidden"></div>
       <div class="yukios-account-actions">
-        <button type="button" class="yukios-account-btn yukios-account-btn--primary" data-account-action="register-submit"><i class="fa-solid fa-cloud-arrow-up"></i> Sync with Cloud</button>
-        <button type="button" class="yukios-account-btn" data-account-action="switch-login"><i class="fas fa-sign-in-alt"></i> Switch to Login</button>
+        <button type="button" class="yukios-account-btn yukios-account-btn--primary" data-account-action="register-submit"><img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/cloud-upload.svg" class="papirus-icon papirus-icon--22" alt="" /> Sync with Cloud</button>
+        <button type="button" class="yukios-account-btn" data-account-action="switch-login"><img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/system-log-out.svg" class="papirus-icon papirus-icon--22" alt="" /> Switch to Login</button>
       </div>
     </div>
   `;

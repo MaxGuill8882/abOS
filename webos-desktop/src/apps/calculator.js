@@ -4,6 +4,8 @@ import { KeybindManager } from "../keybindManager.js";
 import { BaseApp, os } from "../framework.js";
 
 export class CalculatorApp extends BaseApp {
+  singletonWindowIds = ["calculator-window"];
+
   constructor(services) {
     super(services);
     this.reset();

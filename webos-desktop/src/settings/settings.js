@@ -96,6 +96,7 @@ import {
   applyDockScale,
   applyDockAnimationSpeed
 } from "./settingsApply.js";
+import { getIconPack, applyIconPack } from "../shared/iconPack.js";
 import {
   bindNavigation,
   bindSystemCategory,
@@ -212,9 +213,11 @@ export class SettingsApp extends BaseApp {
         dockMagnifyRange: Number(os.storage.get(StorageKeys.dockMagnifyRange)) || 3,
         dockIconSize: Number(os.storage.get(StorageKeys.dockIconSize)) || 43,
         dockScale: Number(os.storage.get(StorageKeys.dockScale)) || 100,
-        dockAnimationSpeed: Number(os.storage.get(StorageKeys.dockAnimationSpeed)) || 0.2
+        dockAnimationSpeed: Number(os.storage.get(StorageKeys.dockAnimationSpeed)) || 0.2,
+        iconPack: getIconPack()
       };
 
+      applyIconPack(this.settings.iconPack);
       applyCursor(this.settings.cursorDataUrl);
       applyMikuCursor(this.settings.mikuCursor);
       applyDesktopStretchScrollDisabled(this.settings.disableDesktopStretchScroll);

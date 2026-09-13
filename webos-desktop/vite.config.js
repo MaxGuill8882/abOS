@@ -3,6 +3,7 @@ import { nodePolyfills } from "vite-plugin-node-polyfills";
 import { viteSingleFile } from "vite-plugin-singlefile";
 import { systemLibraryPlugin } from "./plugins/systemLibraryPlugin.js";
 import { iconRegistryPlugin } from "./plugins/iconRegistryPlugin.js";
+import { papirusDataPlugin } from "./plugins/papirusDataPlugin.js";
 import { execSync, spawnSync } from "child_process";
 import { readFileSync, writeFileSync, existsSync, rmSync, mkdirSync } from "fs";
 import { resolve, join, dirname } from "path";
@@ -75,7 +76,7 @@ const isSingleFile = process.env.VITE_SINGLE_FILE === "true";
 const isVisualize = process.env.VITE_VISUALIZE === "true";
 const isElectronBuild = process.env.VITE_ELECTRON === "true";
 
-const CDN_BASE = "https://cdn.jsdelivr.net/gh/Reeyuki/yukios@main/";
+const CDN_BASE = "https://cdn.jsdelivr.net/gh/NaoTomori1/yukios@main/";
 const outDir = resolve(__dirname, "dist");
 const staticDir = resolve(__dirname, "../static");
 const remoteDir = resolve(__dirname, "remote");
@@ -113,6 +114,30 @@ function serveStaticDev() {
     configureServer(server) {
       server.middlewares.use("/static/", serveDir("/static/", staticDir));
       server.middlewares.use("/remote/", serveDir("/remote/", remoteDir));
+    }
+  };
+}
+
+function faviconBundlePlugin() {
+  return {
+    name: "favicon-bundle",
+    async buildStart() {
+      const favDir = resolve(process.cwd(), "../static/icons/favicons");
+      const { existsSync, readdirSync } = await import("fs");
+      const count = existsSync(favDir) ? readdirSync(favDir).filter((f) => f.endsWith(".webp")).length : 0;
+      if (count < 36) {
+        try {
+          const { spawnSync } = await import("child_process");
+          console.log(`[favicon-bundle] Found ${count}/36 favicons, fetching...`);
+          const res = spawnSync("node", ["scripts/fetchFavicons.js"], { stdio: "inherit", cwd: process.cwd() });
+          if (res.status !== 0) console.warn("[favicon-bundle] fetch failed, continuing with fallback");
+          else console.log("[favicon-bundle] favicons ready");
+        } catch (e) {
+          console.warn("[favicon-bundle] error", e.message);
+        }
+      } else {
+        console.log(`[favicon-bundle] ${count} favicons cached, skip fetch`);
+      }
     }
   };
 }
@@ -321,7 +346,9 @@ const plugins = [
   serveStaticDev(),
   steamNewsData(),
   systemLibraryPlugin(),
-  iconRegistryPlugin()
+  iconRegistryPlugin(),
+  papirusDataPlugin(),
+  faviconBundlePlugin()
 ];
 if (isSingleFile) {
   plugins.unshift(viteSingleFile());
@@ -358,9 +385,9 @@ plugins.push(pageGenerator());
 plugins.push(copyRemoteClient());
 
 const baseOutput = {
-  entryFileNames: "assets/[name].js",
-  chunkFileNames: "assets/[name].js",
-  assetFileNames: "assets/[name][extname]"
+  entryFileNames: "assets/[name].[hash].js",
+  chunkFileNames: "assets/[name].[hash].js",
+  assetFileNames: "assets/[name].[hash][extname]"
 };
 if (isSingleFile) {
   baseOutput.inlineDynamicImports = true;
@@ -417,7 +444,7 @@ export default defineConfig({
     cssCodeSplit: !isSingleFile,
     modulePreload: !isDevBuild,
     reportCompressedSize: !isDevBuild,
-    assetsInlineLimit: 100000,
+    assetsInlineLimit: 0,
     rollupOptions: {
       treeshake: !isDevBuild,
       external: isSingleFile ? ["7z-wasm", "archive-wasm", "clippyjs", /^clippyjs\/.*/] : [],

@@ -57,7 +57,7 @@ export class AchievementsApp extends BaseApp {
     super(services);
     this.achievements = this.createAchievements();
     this.unlocked = new Map();
-    this.s1 = new Audio(resolveGhUrl("https://cdn.jsdelivr.net/gh/Reeyuki/yukios@main/static/audio/steam.opus"));
+    this.s1 = new Audio(resolveGhUrl("https://cdn.jsdelivr.net/gh/NaoTomori1/yukios@main/static/audio/steam.opus"));
 
     this.initBusListeners();
     this.thresholds = {
@@ -96,7 +96,7 @@ export class AchievementsApp extends BaseApp {
 
   open(opts = {}) {
     const win = os.window.create("achievements-yukios", "Achievements", "800px", "40em", {
-      icon: "fa fa-trophy",
+      icon: "papirus:actions/games-achievements",
       appId: "achievements-yukios"
     });
 
@@ -106,7 +106,7 @@ export class AchievementsApp extends BaseApp {
             <div class="achievements-hero__bg"></div>
             <div class="achievements-hero__content">
               <div class="achievements-hero__icon-wrapper">
-                <i class="fas fa-trophy achievements-hero__icon"></i>
+                <img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/games-achievements.svg" class="papirus-icon papirus-icon--22" alt="" />
               </div>
               <h1 class="achievements-hero__title">Achievements</h1>
               <p class="achievements-hero__subtitle">Track your progress in YukiOS</p>
@@ -140,15 +140,15 @@ export class AchievementsApp extends BaseApp {
           </div>
           <div class="achievements-toggle">
             <button class="achievements-toggle__btn achievements-toggle__btn--active" data-filter="all">
-              <i class="fas fa-list"></i>
+              <img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/view-list.svg" class="papirus-icon papirus-icon--22" alt="" />
               <span>All</span>
             </button>
             <button class="achievements-toggle__btn" data-filter="unlocked">
-              <i class="fas fa-check-circle"></i>
+              <img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/object-select.svg" class="papirus-icon papirus-icon--22" alt="" />
               <span>Unlocked</span>
             </button>
             <button class="achievements-toggle__btn" data-filter="locked">
-              <i class="fas fa-lock"></i>
+              <img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/object-locked.svg" class="papirus-icon papirus-icon--22" alt="" />
               <span>Locked</span>
             </button>
           </div>
@@ -191,231 +191,231 @@ export class AchievementsApp extends BaseApp {
           id: Achievements.MultiTasker,
           title: "Juggler",
           desc: "Run 5 apps simultaneously",
-          icon: "fa-window-maximize",
+          icon: "papirus:actions/window-maximize",
           rarity: "common"
         },
         {
           id: Achievements.ChaosMode,
           title: "Chaos Mode",
           desc: "Open 10 apps at once",
-          icon: "fa-fire",
+          icon: "papirus:apps/gufw",
           rarity: "epic"
         },
         {
           id: Achievements.ArchiveHandler,
           title: "Unzipped",
           desc: "Extract a compressed archive",
-          icon: "fa-file-zipper",
+          icon: "papirus:apps/ark",
           rarity: "common"
         },
         {
           id: Achievements.PersonalSpace,
           title: "Personal Space",
           desc: "Upload a custom wallpaper",
-          icon: "fa-image",
+          icon: "papirus:mimetypes/image-x-generic",
           rarity: "common"
         },
         {
           id: Achievements.DesktopStylist,
           title: "Curator",
           desc: "Change wallpaper 5 times",
-          icon: "fa-paintbrush",
+          icon: "papirus:apps/gpaint",
           rarity: "rare"
         },
         {
           id: Achievements.AppCollector,
           title: "App Collector",
           desc: "Launch 15 different apps",
-          icon: "fa-th-large",
+          icon: "papirus:actions/view-grid",
           rarity: "epic"
         },
         {
           id: Achievements.Skid,
           title: "SKID",
           desc: "Write neofetch on terminal",
-          icon: "fa-laptop-code",
+          icon: "papirus:apps/vscode",
           rarity: "rare"
         },
         {
           id: Achievements.TerminalUser,
           title: "First Command",
           desc: "Execute 5 commands in terminal",
-          icon: "fa-terminal",
+          icon: "papirus:apps/utilities-terminal",
           rarity: "uncommon"
         },
         {
           id: Achievements.FirstGame,
           title: "Insert Coin",
           desc: "Launch any game",
-          icon: "fa-gamepad",
+          icon: "papirus:apps/preferences-desktop-gaming",
           rarity: "common"
         },
         {
           id: Achievements.GameHopper,
           title: "Game Hopper",
           desc: "Play 10 games",
-          icon: "fa-dice",
+          icon: "papirus:apps/codes.nora.gDiceRoller",
           rarity: "epic"
         },
         {
           id: Achievements.GameHopperMega,
           title: "Grand Game Hopper",
           desc: "Play 100 games",
-          icon: "fa-crown",
+          icon: "papirus:apps/utilities-tweak-tool",
           rarity: "legendary"
         },
         {
           id: Achievements.RetroPlayer,
           title: "Retro Player",
           desc: "Play a DOS game",
-          icon: "fa-ghost",
+          icon: "papirus:apps/ghostwriter",
           rarity: "uncommon"
         },
         {
           id: Achievements.RegularUser,
           title: "Regular User",
           desc: "Use the OS across 5 sessions",
-          icon: "fa-user-clock",
+          icon: "papirus:apps/preferences-system-time",
           rarity: "uncommon"
         },
         {
           id: Achievements.Completionist,
           title: "Completionist",
           desc: "Unlock all achievements",
-          icon: "fa-trophy",
+          icon: "papirus:actions/games-achievements",
           rarity: "legendary"
         },
         {
           id: Achievements.SetupComplete,
           title: "Welcome Home",
           desc: "Finish YukiOS setup wizard",
-          icon: "fa-flag-checkered",
+          icon: "papirus:actions/flag",
           rarity: "uncommon"
         },
         {
           id: Achievements.IntroTourComplete,
           title: "Tour Guide",
           desc: "Finish the YukiOS intro tour",
-          icon: "fa-route",
+          icon: "papirus:apps/maps",
           rarity: "rare"
         },
         {
           id: Achievements.FontCustomizer,
           title: "Font Customizer",
           desc: "Set a custom TTF font as system font",
-          icon: "fa-font",
+          icon: "papirus:apps/preferences-desktop-font",
           rarity: "uncommon"
         },
         {
           id: Achievements.WorkspaceWanderer,
           title: "Workspace Wanderer",
           desc: "Switch workspaces 25 times",
-          icon: "fa-layer-group",
+          icon: "papirus:apps/utilities-tweak-tool",
           rarity: "rare"
         },
         {
           id: Achievements.WorkspaceArchitect,
           title: "Workspace Architect",
           desc: "Create 3 different workspaces",
-          icon: "fa-plus",
+          icon: "papirus:actions/list-add",
           rarity: "uncommon"
         },
         {
           id: Achievements.ScreenshotSavant,
           title: "Snip & Clip",
           desc: "Take 10 screenshots",
-          icon: "fa-camera",
+          icon: "papirus:apps/accessories-camera",
           rarity: "rare"
         },
         {
           id: Achievements.MathWhiz,
           title: "Crunch Time",
           desc: "Perform 50 calculations in the calculator",
-          icon: "fa-calculator",
+          icon: "papirus:apps/accessories-calculator",
           rarity: "uncommon"
         },
         {
           id: Achievements.NightPerson,
           title: "Night Person",
           desc: "Enable night mode",
-          icon: "fa-moon",
+          icon: "papirus:status/weather-clear-night",
           rarity: "common"
         },
         {
           id: Achievements.PowerUser,
           title: "Power Cycle",
           desc: "Switch power profiles 5 times",
-          icon: "fa-bolt",
+          icon: "papirus:status/battery-020",
           rarity: "rare"
         },
         {
           id: Achievements.Customizer,
           title: "Hotkeyed",
           desc: "Customize a keyboard shortcut",
-          icon: "fa-keyboard",
+          icon: "papirus:devices/input-keyboard",
           rarity: "uncommon"
         },
         {
           id: Achievements.Flashback,
           title: "Flashback",
           desc: "Play a Flash game",
-          icon: "fa-film",
+          icon: "papirus:mimetypes/video-x-generic",
           rarity: "common"
         },
         {
           id: Achievements.Converter,
           title: "Converted",
           desc: "Convert a file",
-          icon: "fa-exchange-alt",
+          icon: "papirus:actions/swap-panels",
           rarity: "common"
         },
         {
           id: Achievements.WidgetAdded,
           title: "Widget Wizard",
           desc: "Place your first desktop widget",
-          icon: "fa-puzzle-piece",
+          icon: "papirus:apps/gnome-taquin",
           rarity: "common"
         },
         {
           id: Achievements.ThemeSmith,
           title: "Theme Smith",
           desc: "Save a custom theme",
-          icon: "fa-swatchbook",
+          icon: "papirus:apps/com.github.cassidyjames.palette",
           rarity: "rare"
         },
         {
           id: Achievements.MacroMaker,
           title: "Macro Maker",
           desc: "Create a custom shortcut action",
-          icon: "fa-wand-magic-sparkles",
+          icon: "papirus:apps/accessories-dictionary",
           rarity: "rare"
         },
         {
           id: Achievements.GhostMode,
           title: "Ghost Mode",
           desc: "Open an incognito browser window",
-          icon: "fa-mask",
+          icon: "papirus:apps/maps",
           rarity: "rare"
         },
         {
           id: Achievements.PinCushion,
           title: "Pin Cushion",
           desc: "Pin an app to the taskbar",
-          icon: "fa-thumbtack",
+          icon: "papirus:actions/window-pin",
           rarity: "common"
         },
         {
           id: Achievements.Sampler,
           title: "Sampler",
           desc: "Sample a color with the color picker",
-          icon: "fa-eye-dropper",
+          icon: "papirus:actions/color-select",
           rarity: "common"
         },
         {
           id: Achievements.BootStyler,
           title: "Boot Styler",
           desc: "Choose a boot animation",
-          icon: "fa-play",
+          icon: "papirus:actions/media-playback-start",
           rarity: "common"
         }
       ];
@@ -457,7 +457,7 @@ export class AchievementsApp extends BaseApp {
       <div class="achievements-hero__bg"></div>
       <div class="achievements-hero__content">
         <div class="achievements-hero__icon-wrapper">
-          <i class="fas fa-trophy achievements-hero__icon"></i>
+          <img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/games-achievements.svg" class="papirus-icon papirus-icon--22" alt="" />
         </div>
         <h1 class="achievements-hero__title">Achievements</h1>
         <p class="achievements-hero__subtitle">Track your progress in YukiOS</p>
@@ -465,7 +465,7 @@ export class AchievementsApp extends BaseApp {
           disabled
             ? `
           <div class="achievements-disabled-banner">
-            <i class="fas fa-ban"></i>
+            <img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/im-ban-user.svg" class="papirus-icon papirus-icon--22" alt="" />
             Achievements are currently disabled in Settings
           </div>
         `
@@ -505,15 +505,15 @@ export class AchievementsApp extends BaseApp {
         <div class="achievement-card ${unlocked ? "achievement-card--unlocked" : ""} ${disabled ? "achievement-card--disabled" : ""}" data-rarity="${a.rarity}">
           <div class="achievement-card__icon-wrapper">
             <div class="achievement-card__icon-bg"></div>
-            <i class="fas ${a.icon} achievement-card__icon"></i>
-            ${unlocked ? '<div class="achievement-card__checkmark"><i class="fas fa-check"></i></div>' : ""}
+            ${a.icon.startsWith("papirus:") ? `<img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/${a.icon.slice(8)}.svg" class="papirus-icon papirus-icon--22 achievement-card__icon" alt="" />` : `<i class="fas ${a.icon} achievement-card__icon"></i>`}
+            ${unlocked ? '<div class="achievement-card__checkmark"><img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/object-select.svg" class="papirus-icon papirus-icon--22" alt="" /></div>' : ""}
           </div>
           <div class="achievement-card__content">
             <div class="achievement-card__header">
               <h3 class="achievement-card__title">${a.title}</h3>
               <div class="achievement-card__badges">
                 <span class="achievement-card__rarity achievement-card__rarity--${a.rarity}">${a.rarity}</span>
-                ${!unlocked ? '<div class="achievement-card__lock"><i class="fas fa-lock"></i></div>' : ""}
+                ${!unlocked ? '<div class="achievement-card__lock"><img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/object-locked.svg" class="papirus-icon papirus-icon--22" alt="" /></div>' : ""}
               </div>
             </div>
             <p class="achievement-card__desc">${a.desc}</p>
@@ -548,9 +548,9 @@ export class AchievementsApp extends BaseApp {
 
   renderToggle(current) {
     const opts = [
-      { val: "all", label: "All", icon: "fa-list" },
-      { val: "unlocked", label: "Unlocked", icon: "fa-check-circle" },
-      { val: "locked", label: "Locked", icon: "fa-lock" }
+      { val: "all", label: "All", icon: "papirus:actions/view-list" },
+      { val: "unlocked", label: "Unlocked", icon: "papirus:actions/object-select" },
+      { val: "locked", label: "Locked", icon: "papirus:actions/object-locked" }
     ];
     return `
       <div class="achievements-toggle">
@@ -561,7 +561,7 @@ export class AchievementsApp extends BaseApp {
             class="achievements-toggle__btn ${current === o.val ? "achievements-toggle__btn--active" : ""}"
             data-filter="${o.val}"
           >
-            <i class="fas ${o.icon}"></i>
+            ${o.icon.startsWith("papirus:") ? `<img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/${o.icon.slice(8)}.svg" class="papirus-icon papirus-icon--22" alt="" />` : `<i class="fas ${o.icon}"></i>`}
             <span>${o.label}</span>
           </button>
         `
@@ -670,11 +670,11 @@ export class AchievementsApp extends BaseApp {
     popup.innerHTML = `
     <div class="achievement-popup__icon-wrapper">
       <div class="achievement-popup__icon-bg"></div>
-      <i class="fas ${achievement.icon} achievement-popup__icon"></i>
+      ${achievement.icon.startsWith("papirus:") ? `<img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/${achievement.icon.slice(8)}.svg" class="papirus-icon papirus-icon--22 achievement-popup__icon" alt="" />` : `<i class="fas ${achievement.icon} achievement-popup__icon"></i>`}
     </div>
     <div class="achievement-popup__content">
       <div class="achievement-popup__badge">
-        <i class="fas fa-trophy"></i>
+        <img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/games-achievements.svg" class="papirus-icon papirus-icon--22" alt="" />
         Achievement Unlocked
       </div>
       <div class="achievement-popup__title">${achievement.title}</div>
@@ -735,7 +735,7 @@ export class AchievementsApp extends BaseApp {
       ${this.renderProgress()}
       ${this.renderToggle(filter)}
       <button type="button" class="achievements-unlock-all">
-        <i class="fas fa-gift"></i>
+        <img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/bookmark-new.svg" class="papirus-icon papirus-icon--22" alt="" />
         <span>Unlock All</span>
       </button>
       <div class="achievements-grid">

@@ -475,6 +475,7 @@ top.
 <summary>Third-party dependencies</summary>
 
 - [Ruffle](https://github.com/ruffle-rs/ruffle)
+- [Papirus Icon Pack](https://github.com/PapirusDevelopmentTeam/papirus-icon-theme)
 - [EmulatorJS](https://github.com/EmulatorJS/EmulatorJS)
 - [Monaco Editor](https://github.com/microsoft/monaco-editor)
 - [three.js](https://github.com/mrdoob/three.js)

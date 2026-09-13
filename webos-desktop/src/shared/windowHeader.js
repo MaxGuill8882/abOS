@@ -4,6 +4,10 @@ import { isImageFile } from "./fileKindDetector.js";
 
 export function buildWindowIconHtml(iconValue, color = null) {
   if (!iconValue) return "";
+  if (typeof iconValue === "string" && iconValue.startsWith("papirus:")) {
+    const resolved = resolveIconUrl(iconValue);
+    return `<img src="${resolved}" class="papirus-icon papirus-icon--16" style="margin-right:6px;vertical-align:middle;object-fit:contain;" alt="" loading="lazy" />`;
+  }
   const resolved = resolveIconUrl(iconValue);
   const isDataUrl = typeof resolved === "string" && resolved.startsWith("data:");
   const isHttpUrl = typeof resolved === "string" && /^https?:\/\//.test(resolved);

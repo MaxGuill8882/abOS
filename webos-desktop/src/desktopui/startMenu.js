@@ -6,6 +6,8 @@ import { isImageFile, resolveFileIcon, openFileWith, showFileProperties } from "
 import { isTextFile } from "../utils/utils.js";
 import { resolveIconUrl } from "../shared/assetResolver.js";
 import { showDynamicContextMenu, refreshIcons } from "../shared/contextMenu.js";
+import { getEffectiveIcon } from "../shared/iconPack.js";
+import { START_CATEGORY_ICONS } from "../registry/CategoryIcons.js";
 import { CDN_CONFIG } from "../shared/cdnConfig.js";
 import { getAppRegistry } from "../appRegistry.js";
 import { SYSTEM_APPS } from "../AppRegistryConfig.js";
@@ -234,20 +236,31 @@ function unfavoriteApp(appName) {
 }
 
 function buildIconEl(iconVal) {
+  const effective = getEffectiveIcon(iconVal);
+  const isPapirus = typeof effective === "string" && effective.startsWith("papirus:");
+  if (isPapirus) {
+    const iconEl = createElement("img");
+    iconEl.src = resolveIconUrl(effective);
+    iconEl.alt = "";
+    iconEl.loading = "lazy";
+    iconEl.className = "papirus-icon papirus-icon--22";
+    return iconEl;
+  }
   const isImage =
-    isImageFile(iconVal) ||
-    iconVal.startsWith("http") ||
-    iconVal.startsWith("data:") ||
-    iconVal.startsWith("blob:") ||
-    iconVal.startsWith("/");
+    typeof effective === "string" &&
+    (isImageFile(effective) ||
+      effective.startsWith("http") ||
+      effective.startsWith("data:") ||
+      effective.startsWith("blob:") ||
+      effective.startsWith("/"));
   if (isImage) {
     const iconEl = createElement("img");
-    let iconSrc = iconVal;
-    if (iconVal.startsWith("static/") || iconVal.startsWith("/static/")) {
-      const cleanPath = iconVal.startsWith("/") ? iconVal.substring(1) : iconVal;
+    let iconSrc = effective;
+    if (effective.startsWith("static/") || effective.startsWith("/static/")) {
+      const cleanPath = effective.startsWith("/") ? effective.substring(1) : effective;
       iconSrc = `${CDN_CONFIG.repos.main.base}/${cleanPath}`;
     } else {
-      iconSrc = resolveIconUrl(iconVal);
+      iconSrc = resolveIconUrl(effective);
     }
     iconEl.src = iconSrc;
     iconEl.alt = "";
@@ -255,7 +268,7 @@ function buildIconEl(iconVal) {
     return iconEl;
   }
   const iconEl = createElement("i");
-  iconEl.className = iconVal.startsWith("fa") ? iconVal : `fa ${iconVal}`;
+  iconEl.className = typeof effective === "string" && effective.startsWith("fa") ? effective : `fa ${effective}`;
   return iconEl;
 }
 
@@ -373,6 +386,27 @@ function isCoreApp(appId, appData) {
   return appData.type === "system" && !isWebApp(appId, appData);
 }
 
+function buildCategoryEl(cat, label) {
+  const papirusIcon = START_CATEGORY_ICONS[cat] || "papirus:actions/bookmark-new";
+  const effective = getEffectiveIcon(papirusIcon);
+  const el = createElement("div");
+  el.className = "start-cat";
+  el.dataset.cat = cat;
+  if (typeof effective === "string" && effective.startsWith("papirus:")) {
+    const img = createElement("img");
+    img.src = resolveIconUrl(effective);
+    img.className = "papirus-icon papirus-icon--22";
+    img.alt = "";
+    el.appendChild(img);
+  } else {
+    const icon = createElement("i");
+    icon.className = effective;
+    el.appendChild(icon);
+  }
+  el.appendChild(document.createTextNode(` ${label}`));
+  return el;
+}
+
 function ensureStartMenuStructure(menuEl) {
   if (!menuEl) return;
 
@@ -386,23 +420,130 @@ function ensureStartMenuStructure(menuEl) {
   const allPage = $('.start-page[data-page="all"]', menuEl);
   if (allPage) allPage.dataset.page = "all";
 
+  const catLabels = {
+    favorites: "Favorites",
+    recent: "Recent",
+    all: "All Applications",
+    internet: "Internet",
+    media: "Media",
+    office: "Office",
+    graphics: "Graphics",
+    games: "Games",
+    development: "Development",
+    system: "System",
+    help: "Help",
+    places: "Places"
+  };
+
+  for (const [cat, papirusIcon] of Object.entries(START_CATEGORY_ICONS)) {
+    const label = catLabels[cat] || cat.charAt(0).toUpperCase() + cat.slice(1);
+    let catEl = catList.querySelector(`.start-cat[data-cat="${cat}"]`);
+    if (catEl) {
+      const effective = getEffectiveIcon(papirusIcon);
+      catEl.querySelectorAll("img, i, svg").forEach((el) => el.remove());
+      let newIcon;
+      if (typeof effective === "string" && effective.startsWith("papirus:")) {
+        newIcon = createElement("img");
+        newIcon.src = resolveIconUrl(effective);
+        newIcon.className = "papirus-icon papirus-icon--22";
+        newIcon.alt = "";
+      } else {
+        newIcon = createElement("i");
+        newIcon.className = effective;
+      }
+      catEl.prepend(newIcon);
+    } else {
+      catEl = buildCategoryEl(cat, label);
+      const order = Object.keys(START_CATEGORY_ICONS);
+      const idx = order.indexOf(cat);
+      let inserted = false;
+      for (let j = idx + 1; j < order.length; j++) {
+        const nextCat = order[j];
+        const nextEl = catList.querySelector(`.start-cat[data-cat="${nextCat}"]`);
+        if (nextEl) {
+          catList.insertBefore(catEl, nextEl);
+          inserted = true;
+          break;
+        }
+      }
+      if (!inserted) catList.appendChild(catEl);
+      catEl.onclick = () => {
+        const catName = catEl.dataset.cat;
+        if (catName === "settingsApp") {
+          os.app.launch("settingsApp");
+          return;
+        }
+        activateCategoryPage(catEl);
+      };
+      catEl.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        showCategoryContextMenu(e, catEl);
+      });
+    }
+  }
+
+  const settingsCat = menuEl.querySelector('.start-cat[data-cat="settingsApp"]');
+  if (settingsCat) {
+    const effective = getEffectiveIcon("papirus:actions/configure");
+    settingsCat.querySelectorAll("img, i, svg").forEach((el) => el.remove());
+    let newIcon;
+    if (typeof effective === "string" && effective.startsWith("papirus:")) {
+      newIcon = createElement("img");
+      newIcon.src = resolveIconUrl(effective);
+      newIcon.className = "papirus-icon papirus-icon--22";
+      newIcon.alt = "";
+    } else {
+      newIcon = createElement("i");
+      newIcon.className = effective;
+    }
+    settingsCat.prepend(newIcon);
+  }
+
   let webCat = $('.start-cat[data-cat="web"]', menuEl);
+  const webPapirus = START_CATEGORY_ICONS.web || "papirus:apps/internet-web-browser";
+  const webEffective = getEffectiveIcon(webPapirus);
   if (!webCat) {
     webCat = createElement("div");
     webCat.className = "start-cat";
     webCat.dataset.cat = WEB_MENU_CATEGORY;
-
-    const icon = createElement("i");
-    icon.className = "fas fa-globe";
-    webCat.appendChild(icon);
+    if (typeof webEffective === "string" && webEffective.startsWith("papirus:")) {
+      const icon = createElement("img");
+      icon.src = resolveIconUrl(webEffective);
+      icon.className = "papirus-icon papirus-icon--22";
+      icon.alt = "";
+      webCat.appendChild(icon);
+    } else {
+      const icon = createElement("i");
+      icon.className = webEffective;
+      webCat.appendChild(icon);
+    }
     webCat.appendChild(document.createTextNode(" Web Apps"));
-
     const gamesCat = $('.start-cat[data-cat="games"]', menuEl);
     if (gamesCat) {
       catList.insertBefore(webCat, gamesCat);
     } else {
       catList.appendChild(webCat);
     }
+    webCat.onclick = () => activateCategoryPage(webCat);
+    webCat.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      showCategoryContextMenu(e, webCat);
+    });
+  } else {
+    webCat.querySelectorAll("img, i, svg").forEach((el) => el.remove());
+    let newIcon;
+    if (typeof webEffective === "string" && webEffective.startsWith("papirus:")) {
+      newIcon = createElement("img");
+      newIcon.src = resolveIconUrl(webEffective);
+      newIcon.className = "papirus-icon papirus-icon--22";
+      newIcon.alt = "";
+    } else {
+      newIcon = createElement("i");
+      newIcon.className = webEffective;
+    }
+    webCat.prepend(newIcon);
   }
 
   let webPage = $('.start-page[data-page="web"]', menuEl);
@@ -423,6 +564,17 @@ function ensureStartMenuStructure(menuEl) {
     }
   }
 }
+
+let startMenuIconPackListenerInstalled = false;
+function ensureStartMenuIconPackListener() {
+  if (startMenuIconPackListenerInstalled) return;
+  startMenuIconPackListenerInstalled = true;
+  os.events.on("icon-pack-changed", () => {
+    const menuEl = getStartMenuEl();
+    if (menuEl) ensureStartMenuStructure(menuEl);
+  });
+}
+ensureStartMenuIconPackListener();
 
 function getRecentlyUsed() {
   const val = os.storage.get(StorageKeys.recentlyUsedApps);
@@ -479,7 +631,7 @@ function createRecentAppItem(appId, appData) {
   const item = createElement("div");
   item.className = "recent-item";
   item.dataset.app = appId;
-  item.appendChild(buildIconEl(appData.icon || "fas fa-star"));
+  item.appendChild(buildIconEl(appData.icon || "papirus:actions/bookmark-new"));
   const content = createElement("div");
   content.className = "app-content";
   const title = createElement("span");
@@ -858,7 +1010,7 @@ export function setupStartMenu(sessionManager) {
               deletedCats.forEach((c) => setCategoryDeleted(c, false));
               applyStartMenuSettings(getStartMenuEl());
             },
-            "fas fa-undo"
+            "papirus:actions/edit-undo"
           )
         );
         if (deletedCats.size > 1) menu.appendChild(hr());
@@ -871,7 +1023,7 @@ export function setupStartMenu(sessionManager) {
                 setCategoryDeleted(catName, false);
                 applyStartMenuSettings(getStartMenuEl());
               },
-              "fas fa-plus"
+              "papirus:actions/list-add"
             )
           );
         });
@@ -1251,13 +1403,13 @@ export function tryGetIcon(id) {
     return resolveIconUrl("static/icons/file.webp");
   }
   if (id === "appCreatorApp") {
-    return "fa fa-cubes";
+    return "papirus:apps/kjumpingcube";
   }
   if (id === "kiwiIRC") {
     return resolveIconUrl("static/icons/kiwiirc.webp");
   }
   if (id === "youtube") {
-    return "fab fa-youtube";
+    return "papirus:apps/youtube";
   }
   try {
     if (os.app.getAllApps()) {
@@ -1307,36 +1459,50 @@ function getGridItems() {
   const saved = os.storage.get(StorageKeys.startMenuGridItems);
   if (saved) {
     try {
-      return saved;
+      const migrated = saved.map((i) =>
+        i.app === "installedAppsApp"
+          ? { ...i, app: "systemAppsApp", title: "System Apps", icon: "papirus:apps/utilities-tweak-tool" }
+          : i
+      );
+      const seen = new Set();
+      const deduped = migrated.filter((i) => {
+        if (seen.has(i.app)) return false;
+        seen.add(i.app);
+        return true;
+      });
+      if (deduped.length !== saved.length) {
+        os.storage.set(StorageKeys.startMenuGridItems, deduped);
+        return deduped;
+      }
+      return deduped;
     } catch (e) {
       console.error(e);
     }
   }
   return [
-    { app: "browserApp", title: "Yuki Browser", icon: "fas fa-globe" },
-    { app: "explorerApp", title: "Files", icon: "fas fa-folder" },
-    { app: "settingsApp", title: "Settings", icon: "fas fa-cog" },
-    { app: "aiAssistantApp", title: "Yuki AI Assistant", icon: "fas fa-robot" },
-    { app: "notepadApp", title: "Notepad", icon: "fas fa-edit" },
-    { app: "calculatorApp", title: "Calculator", icon: "fas fa-calculator" },
-    { app: "shortcutsApp", title: "Shortcuts", icon: "fas fa-keyboard" },
-    { app: "yukiConvertApp", title: "Yuki Convert", icon: "fas fa-exchange-alt" },
-    { app: "cameraApp", title: "Camera", icon: "fas fa-camera" },
-    { app: "officeApp", title: "Office", icon: "fas fa-file-word" },
-    { app: "installedAppsApp", title: "Installed Apps", icon: "fas fa-th-list" },
-    { app: "clipboardManagerApp", title: "Clipboard Manager", icon: "fas fa-paste" },
-    { app: "weatherApp", title: "Weather", icon: "fas fa-cloud" },
-    { app: "yukiOsGuideApp", title: "YukiOS Guide", icon: "fas fa-book-open" },
-    { app: "steamApp", title: "Yuki Steam", icon: "fab fa-steam" },
-    { app: "paint", title: "Paint", icon: "fas fa-paint-brush" },
-    { app: "newsApp", title: "What's New", icon: "fas fa-newspaper" },
-    { app: "shittifyApp", title: "Evil Spotify", icon: "fas fa-music" },
-    { app: "appCreatorApp", title: "AppCreator", icon: "fas fa-cubes" },
-    { app: "systemAppsApp", title: "System Apps", icon: "fas fa-screwdriver-wrench" },
-    { app: "taskManagerApp", title: "Task Manager", icon: "fas fa-list-check" },
-    { app: "terminal", title: "Terminal", icon: "fas fa-terminal" },
-    { app: "aboutApp", title: "About YukiOS", icon: "fas fa-info-circle" },
-    { app: "achievementsApp", title: "Achievements", icon: "fas fa-trophy" }
+    { app: "browserApp", title: "Yuki Browser", icon: "papirus:apps/internet-web-browser" },
+    { app: "explorerApp", title: "Files", icon: "papirus:places/folder-blue" },
+    { app: "settingsApp", title: "Settings", icon: "papirus:actions/configure" },
+    { app: "aiAssistantApp", title: "Yuki AI Assistant", icon: "papirus:apps/gnome-robots" },
+    { app: "notepadApp", title: "Notepad", icon: "papirus:actions/edit" },
+    { app: "calculatorApp", title: "Calculator", icon: "papirus:apps/accessories-calculator" },
+    { app: "shortcutsApp", title: "Shortcuts", icon: "papirus:devices/input-keyboard" },
+    { app: "yukiConvertApp", title: "Yuki Convert", icon: "papirus:actions/swap-panels" },
+    { app: "cameraApp", title: "Camera", icon: "papirus:apps/accessories-camera" },
+    { app: "officeApp", title: "Office", icon: "papirus:mimetypes/x-office-document" },
+    { app: "clipboardManagerApp", title: "Clipboard Manager", icon: "papirus:actions/edit-paste" },
+    { app: "weatherApp", title: "Weather", icon: "papirus:apps/weather" },
+    { app: "yukiOsGuideApp", title: "YukiOS Guide", icon: "papirus:apps/accessories-dictionary" },
+    { app: "steamApp", title: "Yuki Steam", icon: "papirus:apps/steam" },
+    { app: "paint", title: "Paint", icon: "papirus:apps/gpaint" },
+    { app: "newsApp", title: "What's New", icon: "papirus:apps/accessories-text-editor" },
+    { app: "shittifyApp", title: "Evil Spotify", icon: "papirus:apps/juk" },
+    { app: "appCreatorApp", title: "AppCreator", icon: "papirus:apps/kjumpingcube" },
+    { app: "systemAppsApp", title: "System Apps", icon: "papirus:apps/utilities-tweak-tool" },
+    { app: "taskManagerApp", title: "Task Manager", icon: "papirus:apps/application-default-icon-monitor" },
+    { app: "terminal", title: "Terminal", icon: "papirus:apps/utilities-terminal" },
+    { app: "aboutApp", title: "About YukiOS", icon: "papirus:actions/help-about" },
+    { app: "achievementsApp", title: "Achievements", icon: "papirus:actions/games-achievements" }
   ];
 }
 
@@ -1375,7 +1541,7 @@ function showStartItemEditor(currentItem) {
       if (explicitIcon && !isCdnOrUrl(explicitIcon)) return explicitIcon;
       const app = apps.find((a) => a.id === appId);
       if (app && app.icon && !isCdnOrUrl(app.icon)) return app.icon;
-      return "fas fa-star";
+      return "papirus:actions/bookmark-new";
     };
 
     const dialogTitle = currentItem ? "Edit Start Menu Item" : "Add Start Menu Item";
@@ -1437,7 +1603,7 @@ function showStartItemEditor(currentItem) {
                  type="text"
                  value="${iconVal}" />
           <div id="editor-icon-error" class="start-editor-error">
-            Must start with 'fa' (e.g. 'fas fa-star')
+            Must start with 'fa' or 'papirus:' (e.g. 'papirus:actions/bookmark-new')
           </div>
         </div>
 
@@ -1531,7 +1697,7 @@ function showStartItemEditor(currentItem) {
       const icon = uploadedIconDataUrl || iconInput.value.trim();
 
       if (!app || !title) return;
-      if (!uploadedIconDataUrl && !icon.startsWith("fa")) return;
+      if (!uploadedIconDataUrl && !icon.startsWith("fa") && !icon.startsWith("papirus:")) return;
 
       overlay.remove();
       resolve({ app, title, icon });
@@ -1587,7 +1753,7 @@ function showStartMenuContext(e, itemData, index) {
         () => {
           editGridItem(itemData, index);
         },
-        "fas fa-edit"
+        "papirus:actions/edit"
       )
     );
     menu.appendChild(
@@ -1598,7 +1764,7 @@ function showStartMenuContext(e, itemData, index) {
             m.showAppCustomizer(itemData.app, itemData.title, itemData.icon)
           );
         },
-        "fa-palette"
+        "papirus:apps/com.github.cassidyjames.palette"
       )
     );
     menu.appendChild(
@@ -1607,7 +1773,7 @@ function showStartMenuContext(e, itemData, index) {
         () => {
           removeGridItem(index);
         },
-        "fas fa-trash-alt"
+        "papirus:actions/entry-delete"
       )
     );
     menu.appendChild(hr());
@@ -1617,7 +1783,7 @@ function showStartMenuContext(e, itemData, index) {
         () => {
           addGridItem();
         },
-        "fas fa-plus"
+        "papirus:actions/list-add"
       )
     );
   });
@@ -1631,7 +1797,7 @@ function showStartGridContext(e) {
         () => {
           addGridItem();
         },
-        "fas fa-plus"
+        "papirus:actions/list-add"
       )
     );
   });
@@ -1652,7 +1818,7 @@ export function initializeAppGrid() {
     item.dataset.app = itemData.app;
     item.dataset.index = index;
 
-    const iconVal = itemData.icon || "fas fa-star";
+    const iconVal = itemData.icon || "papirus:actions/bookmark-new";
     item.appendChild(buildIconEl(iconVal));
 
     const contentEl = createElement("div");
@@ -1701,10 +1867,24 @@ export function initializeAppGrid() {
     placeholder.style.opacity = "0";
     placeholder.style.transition = "opacity 0.2s";
     placeholder.style.cursor = "pointer";
-
-    const iconEl = createElement("i");
-    iconEl.className = "fas fa-plus";
-    placeholder.appendChild(iconEl);
+    const placeholderEffective = getEffectiveIcon("papirus:actions/list-add");
+    if (typeof placeholderEffective === "string" && placeholderEffective.startsWith("papirus:")) {
+      const iconEl = createElement("img");
+      iconEl.src = resolveIconUrl(placeholderEffective);
+      iconEl.className = "papirus-icon papirus-icon--16";
+      iconEl.alt = "";
+      placeholder.appendChild(iconEl);
+    } else if (typeof placeholderEffective === "string" && placeholderEffective.startsWith("fa")) {
+      const iconEl = createElement("i");
+      iconEl.className = placeholderEffective;
+      placeholder.appendChild(iconEl);
+    } else {
+      const iconEl = createElement("img");
+      iconEl.src = resolveIconUrl(placeholderEffective);
+      iconEl.className = "papirus-icon papirus-icon--16";
+      iconEl.alt = "";
+      placeholder.appendChild(iconEl);
+    }
 
     const spanEl = createElement("span");
     spanEl.textContent = "Add Item";
@@ -1848,7 +2028,7 @@ function showAppItemContextMenu(e, appId, appData) {
       item(
         isPinned ? "Unpin from Taskbar" : "Pin to Taskbar",
         () => toggleTaskbarPin(appId, appData),
-        isPinned ? "fas fa-thumbtack-slash" : "fas fa-thumbtack"
+        isPinned ? "papirus:actions/window-pin" : "papirus:actions/window-pin"
       )
     );
 
@@ -1857,7 +2037,7 @@ function showAppItemContextMenu(e, appId, appData) {
       item(
         isFavorite ? "Unpin from Start" : "Pin to Start",
         () => toggleStartPin(appId),
-        isFavorite ? "fas fa-star-half-stroke" : "fas fa-star"
+        isFavorite ? "papirus:actions/bookmark-new" : "papirus:actions/bookmark-new"
       )
     );
 
@@ -1877,7 +2057,7 @@ function showAppItemContextMenu(e, appId, appData) {
             os.notify.send("Add to Desktop", "Could not add the app to your desktop.");
           }
         },
-        "fas fa-desktop"
+        "papirus:devices/computer"
       )
     );
 
@@ -1886,12 +2066,12 @@ function showAppItemContextMenu(e, appId, appData) {
     menu.appendChild(
       item(
         "View in Installed Apps",
-        () => os.app.launch("installedAppsApp", { searchQuery: appData.title || appId }),
-        "fas fa-th-list"
+        () => os.app.launch("systemAppsApp", { searchQuery: appData.title || appId }),
+        "papirus:actions/view-grid"
       )
     );
 
-    menu.appendChild(item("Properties", () => showAppProperties(appId, appData), "fas fa-info-circle"));
+    menu.appendChild(item("Properties", () => showAppProperties(appId, appData), "papirus:actions/help-about"));
 
     menu.appendChild(hr());
 
@@ -1903,7 +2083,7 @@ function showAppItemContextMenu(e, appId, appData) {
             m.showAppCustomizer(appId, appData.title || appId, appData.icon || "")
           );
         },
-        "fa-palette"
+        "papirus:apps/com.github.cassidyjames.palette"
       )
     );
 
@@ -1927,7 +2107,7 @@ function showAppItemContextMenu(e, appId, appData) {
               if (entryEl) entryEl.textContent = appData.title;
             });
         },
-        "fas fa-pen-to-square"
+        "papirus:actions/edit"
       )
     );
 
@@ -1948,7 +2128,7 @@ function showAppItemContextMenu(e, appId, appData) {
             }
           }
         },
-        "fas fa-trash-can"
+        "papirus:actions/entry-delete"
       )
     );
   });
@@ -1980,7 +2160,7 @@ function showCategoryContextMenu(e, catEl) {
             }
           });
         },
-        "fas fa-pen"
+        "papirus:actions/edit"
       )
     );
     if (!isProtected) {
@@ -1991,7 +2171,7 @@ function showCategoryContextMenu(e, catEl) {
             setCategoryDeleted(catName, true);
             catEl.style.display = "none";
           },
-          "fas fa-trash-can"
+          "papirus:actions/entry-delete"
         )
       );
     }
@@ -2004,7 +2184,7 @@ function createAppItem(appId, appData) {
   item.dataset.app = appId;
   item.style.position = "relative";
 
-  item.appendChild(buildIconEl(appData.icon || "fas fa-star"));
+  item.appendChild(buildIconEl(appData.icon || "papirus:actions/bookmark-new"));
 
   const contentEl = createElement("div");
   contentEl.className = "app-content";

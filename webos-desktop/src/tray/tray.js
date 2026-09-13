@@ -1,6 +1,8 @@
 import { $ } from "../shared/domUtils.js";
 import { showDynamicContextMenu } from "../shared/contextMenu.js";
 import { parseBool } from "../utils/utils.js";
+import { resolveIconUrl } from "../shared/assetResolver.js";
+import { getEffectiveIcon } from "../shared/iconPack.js";
 
 import { BusEvents } from "../core/EventBus.js";
 import { StorageKeys, os, MODES, createElement } from "../framework.js";
@@ -38,6 +40,7 @@ class TrayManager {
         this.render();
       }
     });
+    os.events.on("icon-pack-changed", () => this.render());
   }
 
   register(winId, icon, label, options = {}) {
@@ -171,24 +174,29 @@ class TrayManager {
   }
 
   buildIconContentHtml(icon, label) {
+    const effective = getEffectiveIcon(icon);
+    const isPapirus = typeof effective === "string" && effective.startsWith("papirus:");
+    if (isPapirus) {
+      return `<img src="${resolveIconUrl(effective)}" alt="${label}" class="papirus-icon papirus-icon--16" />`;
+    }
     const isUrl =
-      typeof icon === "string" &&
-      (icon.startsWith("http") ||
-        icon.startsWith("data:") ||
-        icon.startsWith("/") ||
-        /\.(webp|png|jpg|jpeg|gif|svg)/.test(icon));
+      typeof effective === "string" &&
+      (effective.startsWith("http") ||
+        effective.startsWith("data:") ||
+        effective.startsWith("/") ||
+        /\.(webp|png|jpg|jpeg|gif|svg)/.test(effective));
     const isFontAwesome =
-      typeof icon === "string" &&
-      (icon.startsWith("fa-") ||
-        icon.startsWith("fas") ||
-        icon.startsWith("fab") ||
-        icon.startsWith("far") ||
-        icon.startsWith("fa "));
+      typeof effective === "string" &&
+      (effective.startsWith("fa-") ||
+        effective.startsWith("fas") ||
+        effective.startsWith("fab") ||
+        effective.startsWith("far") ||
+        effective.startsWith("fa "));
     if (isUrl) {
-      return `<img src="${icon}" alt="${label}" />`;
+      return `<img src="${effective}" alt="${label}" />`;
     }
     if (isFontAwesome) {
-      return `<i class="${icon}"></i>`;
+      return `<i class="${effective}"></i>`;
     }
     return null;
   }
@@ -272,7 +280,12 @@ class TrayManager {
       const btn = createElement("button");
       btn.className = "tray-overflow-btn";
       btn.title = `${overflow.length} more`;
-      btn.innerHTML = `<i class="fas fa-chevron-up"></i><span class="tray-overflow-count">${overflow.length}</span>`;
+      const overflowIcon = getEffectiveIcon("papirus:actions/go-up");
+      const overflowIconHtml =
+        typeof overflowIcon === "string" && overflowIcon.startsWith("papirus:")
+          ? `<img src="${resolveIconUrl(overflowIcon)}" class="papirus-icon papirus-icon--16" alt="" />`
+          : `<i class="${overflowIcon}"></i>`;
+      btn.innerHTML = `${overflowIconHtml}<span class="tray-overflow-count">${overflow.length}</span>`;
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
         if (this.popupVisible) {
@@ -396,6 +409,8 @@ class TrayManager {
         menu.appendChild(hr());
       }
 
+      const openEffective = getEffectiveIcon("papirus:apps/application-default-icon");
+      const openIcon = openEffective.startsWith("papirus:") ? resolveIconUrl(openEffective) : openEffective;
       menu.appendChild(
         item(
           "Open",
@@ -403,10 +418,12 @@ class TrayManager {
             this.restoreFromTray(winId);
             this.hidePopup();
           },
-          "fa-window-maximize"
+          openIcon
         )
       );
       menu.appendChild(hr());
+      const quitEffective = getEffectiveIcon("papirus:actions/window-close");
+      const quitIcon = quitEffective.startsWith("papirus:") ? resolveIconUrl(quitEffective) : quitEffective;
       menu.appendChild(
         item(
           "Quit",
@@ -414,7 +431,7 @@ class TrayManager {
             this.quitApp(winId);
             this.hidePopup();
           },
-          "fa-times"
+          quitIcon
         )
       );
     });
@@ -460,7 +477,12 @@ class TrayManager {
       const btn = createElement("button");
       btn.className = "tray-overflow-btn";
       btn.title = `${overflow.length} more`;
-      btn.innerHTML = `<i class="fas fa-chevron-up"></i><span class="tray-overflow-count">${overflow.length}</span>`;
+      const overflowIcon2 = getEffectiveIcon("papirus:actions/go-up");
+      const overflowIconHtml2 =
+        typeof overflowIcon2 === "string" && overflowIcon2.startsWith("papirus:")
+          ? `<img src="${resolveIconUrl(overflowIcon2)}" class="papirus-icon papirus-icon--16" alt="" />`
+          : `<i class="${overflowIcon2}"></i>`;
+      btn.innerHTML = `${overflowIconHtml2}<span class="tray-overflow-count">${overflow.length}</span>`;
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
         if (this.popupVisible) {

@@ -1,4 +1,6 @@
 import { $, createElement } from "./domUtils.js";
+import { getEffectiveIcon } from "./iconPack.js";
+import { resolveIconUrl } from "./assetResolver.js";
 
 const MENU_ID = "context-menu";
 const bodySubmenus = [];
@@ -21,6 +23,21 @@ export function hideMenu() {
   }
   const menu = getMenu();
   cleanupBodySubmenus();
+  if (menu && menu._restoreSelection) {
+    try {
+      if (window.CSS && window.CSS.highlights) window.CSS.highlights.delete("terminal-preserved");
+    } catch {}
+    try {
+      const hl = menu._preservedHighlightEl;
+      if (hl && hl.parentNode) {
+        const parent = hl.parentNode;
+        while (hl.firstChild) parent.insertBefore(hl.firstChild, hl);
+        hl.remove();
+      }
+    } catch {}
+    menu._restoreSelection = null;
+    menu._preservedHighlightEl = null;
+  }
   if (!menu) return;
   if (menu.classList.contains("closing")) return;
   menu.classList.add("closing");
@@ -117,7 +134,9 @@ export function showContextMenu(e, items, handlers) {
       const icon = (item.icon || "fa-chevron-right").trim();
       const iconCls = icon.includes(" ") ? icon : `fas ${icon}`;
       const iconHtml = `<i class="${iconCls}" style="width:16px;text-align:center;opacity:0.7;"></i>`;
-      return `<div id="${item.id}">${iconHtml}<span>${item.label}</span></div>`;
+      const isDisabled = typeof item.disabled === "function" ? item.disabled() : !!item.disabled;
+      const disabledAttr = isDisabled ? ' class="context-menu-disabled" style="opacity:0.45;pointer-events:none;"' : "";
+      return `<div id="${item.id}"${disabledAttr}>${iconHtml}<span>${item.label}</span></div>`;
     })
     .join("");
 
@@ -125,6 +144,8 @@ export function showContextMenu(e, items, handlers) {
 
   items.forEach((item) => {
     if (typeof item === "string" || (item.condition && !item.condition())) return;
+    const isDisabled = typeof item.disabled === "function" ? item.disabled() : !!item.disabled;
+    if (isDisabled) return;
     const el = $("#" + item.id);
     if (el && handlers[item.action]) {
       el.onclick = (event) => {
@@ -135,9 +156,87 @@ export function showContextMenu(e, items, handlers) {
     }
   });
 
+  const sel = window.getSelection();
+  const savedRanges = [];
+  let savedInput = null;
+  const activeEl = document.activeElement;
+  const hasInputSelection =
+    activeEl &&
+    (activeEl.tagName === "TEXTAREA" || activeEl.tagName === "INPUT") &&
+    typeof activeEl.selectionStart === "number" &&
+    activeEl.selectionStart !== activeEl.selectionEnd;
+  if (
+    activeEl &&
+    (activeEl.tagName === "TEXTAREA" || activeEl.tagName === "INPUT") &&
+    typeof activeEl.selectionStart === "number"
+  ) {
+    savedInput = {
+      el: activeEl,
+      start: activeEl.selectionStart,
+      end: activeEl.selectionEnd,
+      hadSelection: hasInputSelection
+    };
+  }
+  if (sel && sel.rangeCount > 0 && !hasInputSelection) {
+    for (let i = 0; i < sel.rangeCount; i++) {
+      try {
+        const r = sel.getRangeAt(i).cloneRange();
+        if (!r.collapsed) savedRanges.push(r);
+      } catch {}
+    }
+  }
+
   positionMenu(menu, e.pageX, e.pageY);
   setupKeyboardNav(menu);
-  menu.focus({ preventScroll: true });
+
+  let shouldFocusMenu = true;
+  if (hasInputSelection) shouldFocusMenu = false;
+  if (shouldFocusMenu) menu.focus({ preventScroll: true });
+
+  if (savedInput && savedInput.el) {
+    try {
+      savedInput.el.setSelectionRange(savedInput.start, savedInput.end);
+      if (hasInputSelection) savedInput.el.focus({ preventScroll: true });
+    } catch {}
+  }
+  if (savedRanges.length > 0 && sel) {
+    try {
+      sel.removeAllRanges();
+      savedRanges.forEach((r) => sel.addRange(r.cloneRange()));
+    } catch {}
+  }
+
+  if (savedRanges.length > 0) {
+    try {
+      if (window.CSS && window.CSS.highlights) {
+        const highlight = new Highlight(...savedRanges.map((r) => r.cloneRange()));
+        window.CSS.highlights.set("terminal-preserved", highlight);
+      }
+    } catch {}
+  }
+
+  const restoreSelection = () => {
+    if (savedInput && savedInput.el) {
+      try {
+        if (document.contains(savedInput.el)) savedInput.el.setSelectionRange(savedInput.start, savedInput.end);
+      } catch {}
+    }
+    if (savedRanges.length > 0 && sel) {
+      try {
+        const cur = window.getSelection();
+        if (cur.rangeCount === 0) {
+          savedRanges.forEach((r) => cur.addRange(r.cloneRange()));
+        }
+        if (window.CSS && window.CSS.highlights && !window.CSS.highlights.has("terminal-preserved")) {
+          const highlight = new Highlight(...savedRanges.map((r) => r.cloneRange()));
+          window.CSS.highlights.set("terminal-preserved", highlight);
+        }
+      } catch {}
+    }
+  };
+  setTimeout(restoreSelection, 0);
+  menu._restoreSelection = restoreSelection;
+
   bindDismissal();
 }
 
@@ -250,8 +349,15 @@ function setupKeyboardNav(menuEl) {
 function createItemElement(text, onclick, icon) {
   const el = createElement("div");
   if (icon) {
-    const iconVal = icon.trim();
-    if (iconVal.startsWith("http")) {
+    const effective = getEffectiveIcon(icon);
+    const iconVal = typeof effective === "string" ? effective.trim() : "";
+    if (iconVal.startsWith("papirus:")) {
+      const iconImg = createElement("img");
+      iconImg.className = "context-menu-item-icon-img papirus-icon papirus-icon--16";
+      iconImg.src = resolveIconUrl(iconVal);
+      iconImg.alt = "";
+      el.appendChild(iconImg);
+    } else if (iconVal.startsWith("http")) {
       const iconImg = createElement("img");
       iconImg.className = "context-menu-item-icon-img";
       iconImg.src = iconVal;
@@ -437,13 +543,33 @@ export function showStartStyleMenu(e, buildFn) {
     const menuItem = createElement("div");
     menuItem.className = "menu-item";
 
-    const iconVal = (icon || "fa-chevron-right").trim();
-    const iconCls = iconVal.includes(" ") ? iconVal : `fas ${iconVal}`;
-    const iconEl = createElement("i");
-    iconEl.className = iconCls;
-    iconEl.style.width = "16px";
-    iconEl.style.textAlign = "center";
-    menuItem.appendChild(iconEl);
+    const effective = getEffectiveIcon(icon || "fa-chevron-right");
+    const iconVal = typeof effective === "string" ? effective.trim() : "fa-chevron-right";
+    if (iconVal.startsWith("papirus:")) {
+      const iconImg = createElement("img");
+      iconImg.className = "papirus-icon papirus-icon--16";
+      iconImg.src = resolveIconUrl(iconVal);
+      iconImg.alt = "";
+      iconImg.style.width = "16px";
+      iconImg.style.height = "16px";
+      iconImg.style.objectFit = "contain";
+      menuItem.appendChild(iconImg);
+    } else if (iconVal.startsWith("http") || iconVal.startsWith("data:") || iconVal.startsWith("/")) {
+      const iconImg = createElement("img");
+      iconImg.src = iconVal;
+      iconImg.alt = "";
+      iconImg.style.width = "16px";
+      iconImg.style.height = "16px";
+      iconImg.style.objectFit = "contain";
+      menuItem.appendChild(iconImg);
+    } else {
+      const iconCls = iconVal.includes(" ") ? iconVal : `fas ${iconVal}`;
+      const iconEl = createElement("i");
+      iconEl.className = iconCls;
+      iconEl.style.width = "16px";
+      iconEl.style.textAlign = "center";
+      menuItem.appendChild(iconEl);
+    }
 
     const label = createElement("span");
     label.textContent = text;

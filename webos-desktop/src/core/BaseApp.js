@@ -15,6 +15,7 @@ export class BaseApp {
   singletonWindowIds = [];
 
   constructor(param = {}) {
+    this.openWindows = new Set();
     if (param.kernel) {
       this.os = param;
       this.services = param;
@@ -43,7 +44,6 @@ export class BaseApp {
       this.fs = param.fs || param.fileSystemManager;
       this.bus = param.bus;
       this.notifications = param.notifications || param.notificationCenter;
-      this.openWindows = new Set();
     }
   }
 
@@ -54,7 +54,12 @@ export class BaseApp {
   onClose(winId) {}
 
   hasOpenWindow(winId) {
-    return this.openWindows.has(winId);
+    if (!this.openWindows.has(winId)) return false;
+    if (!$("#" + winId)) {
+      this.openWindows.delete(winId);
+      return false;
+    }
+    return true;
   }
 
   trackWindow(winId, win) {

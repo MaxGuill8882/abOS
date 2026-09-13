@@ -24,13 +24,13 @@ const BUILTIN_HANDLERS = {
   mediaViewer: {
     appId: "mediaViewer",
     title: "Media Viewer",
-    icon: "fas fa-play-circle",
+    icon: "papirus:actions/media-playback-start",
     extensions: [...IMAGE_EXTS, ...VIDEO_EXTS, ...AUDIO_EXTS]
   },
   fontViewer: {
     appId: "fontViewer",
     title: "Font Viewer",
-    icon: "fas fa-font",
+    icon: "papirus:mimetypes/application-x-font-ttf",
     extensions: [...FONT_EXTS]
   }
 };
@@ -69,7 +69,7 @@ function getAppDescriptor(appId) {
   const handler = getHandlerById(appId);
   if (handler) return handler;
   const info = os.app.getAppInfo(appId);
-  if (info?.title) return { appId, title: info.title, icon: info.icon || "fas fa-th", extensions: [] };
+  if (info?.title) return { appId, title: info.title, icon: info.icon || "papirus:actions/view-grid", extensions: [] };
   return null;
 }
 

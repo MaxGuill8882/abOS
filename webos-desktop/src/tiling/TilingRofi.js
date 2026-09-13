@@ -19,10 +19,10 @@ const MAX_RUN_HISTORY = 20;
 const MODES = ["drun", "run", "window", "calc"];
 
 const MODE_CONFIG = {
-  drun: { icon: "fa-th-large", label: "Apps", placeholder: "Search apps..." },
-  run: { icon: "fa-terminal", label: "Run", placeholder: "Type a command or app name..." },
-  window: { icon: "fa-window-restore", label: "Windows", placeholder: "Search open windows..." },
-  calc: { icon: "fa-calculator", label: "Calc", placeholder: "Type a math expression..." }
+  drun: { icon: "papirus:actions/view-grid", label: "Apps", placeholder: "Search apps..." },
+  run: { icon: "papirus:apps/utilities-terminal", label: "Run", placeholder: "Type a command or app name..." },
+  window: { icon: "papirus:actions/window-restore", label: "Windows", placeholder: "Search open windows..." },
+  calc: { icon: "papirus:apps/accessories-calculator", label: "Calc", placeholder: "Type a math expression..." }
 };
 
 export class TilingRofi {
@@ -50,7 +50,7 @@ export class TilingRofi {
     this.overlay.innerHTML = `
       <div class="rofi-input-wrapper">
         <div class="rofi-mode-indicator" id="rofi-mode-indicator">
-          <i class="fas fa-th-large"></i>
+          <img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/apps/application-default-icon.svg" class="papirus-icon papirus-icon--22" alt="" />
           <span>Apps</span>
         </div>
         <input type="text" id="rofi-search" placeholder="Search apps..." autocomplete="off" spellcheck="false">
@@ -277,7 +277,7 @@ export class TilingRofi {
     const items = history.map((cmd) => ({
       id: cmd,
       title: cmd,
-      icon: "fa-history",
+      icon: "papirus:actions/document-open-recent",
       desc: "",
       type: "history"
     }));
@@ -290,7 +290,7 @@ export class TilingRofi {
     const items = matched.map((cmd) => ({
       id: cmd,
       title: cmd,
-      icon: "fa-terminal",
+      icon: "papirus:apps/utilities-terminal",
       desc: "",
       type: "history"
     }));
@@ -405,7 +405,7 @@ export class TilingRofi {
         os.notify.send("Calculator", `Copied ${result} to clipboard`, {
           type: "info",
           duration: 2000,
-          icon: "fa-calculator"
+          icon: "papirus:apps/accessories-calculator"
         });
       }
     } catch {}
@@ -439,6 +439,7 @@ export class TilingRofi {
           item.icon.startsWith("data:") ||
           item.icon.startsWith("/") ||
           /\.(webp|png|jpg|jpeg|gif|svg)/.test(item.icon));
+      const isPapirus = typeof item.icon === "string" && item.icon.startsWith("papirus:");
       const isFa =
         typeof item.icon === "string" &&
         (item.icon.startsWith("fa-") ||
@@ -451,13 +452,18 @@ export class TilingRofi {
         img.src = item.icon;
         img.alt = item.title;
         el.appendChild(img);
+      } else if (isPapirus) {
+        const img = createElement("img");
+        img.src = resolveIconUrl(item.icon);
+        img.className = "papirus-icon papirus-icon--22";
+        el.appendChild(img);
       } else if (isFa) {
         const i = createElement("i");
         i.className = item.icon;
         el.appendChild(i);
       } else {
         const i = createElement("i");
-        i.className = "fas fa-cube";
+        i.className = "papirus:apps/kjumpingcube";
         el.appendChild(i);
       }
 

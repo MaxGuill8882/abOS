@@ -1,4 +1,4 @@
-import { CDN_MIRRORS, resolveIconUrl, resolveGhUrl } from "../shared/assetResolver.js";
+import { CDN_MIRRORS, resolveIconUrl, resolveGhUrl, resolvePapirusUrl } from "../shared/assetResolver.js";
 import { audioMixer } from "../audioMixer.js";
 import { YUKIOS_VERSION } from "../apps/about.js";
 import { getBasicThemes, getCustomThemes, getSpecialThemes } from "../shared/themeEngine.js";
@@ -17,6 +17,7 @@ import { renderRecentFilesPane } from "./pane-recentFiles.js";
 import { renderRuffleSettings } from "./pane-ruffle.js";
 import { renderGamingSettings } from "./pane-gaming.js";
 import { getAvailableHeaderStyles, buildHeaderForStyle, buildControlsForStyle } from "../windowManager/headerStyles.js";
+import { getIconPack, ICON_PACKS, SAMPLE_ICONS, getEffectiveIcon } from "../shared/iconPack.js";
 
 function getBrowserInfo() {
   const ua = navigator.userAgent;
@@ -262,28 +263,67 @@ export function buildSettingsHTML(settings, wm) {
   `;
 }
 
+function navIconHtml(icon) {
+  const eff = getEffectiveIcon(icon);
+  if (typeof eff === "string" && eff.startsWith("papirus:")) {
+    const src = resolvePapirusUrl(eff, 16);
+    return `<img src="${src}" class="papirus-icon papirus-icon--16" alt="" style="width:16px;height:16px;object-fit:contain;flex-shrink:0;" />`;
+  }
+  return `<i class="${eff}"></i>`;
+}
+
 function renderNavList(tilingActive, chromeOsActive, compact) {
-  let html = `<li class="active yuki-settings-quick" data-target="${QUICK_SETTINGS_ID}"><i class="fas fa-cog"></i><span>Quick Settings</span></li>`;
+  let html = `<li class="active yuki-settings-quick" data-target="${QUICK_SETTINGS_ID}">${navIconHtml("fas fa-cog")}<span>Quick Settings</span></li>`;
   SETTINGS_GROUPS.forEach((group, gi) => {
     const key = `g${gi}`;
-    html += `<li class="yuki-settings-nav-group ${compact ? "" : "expanded"}" data-group="${key}"><i class="${group.icon}"></i><span>${group.title}</span><i class="fas fa-chevron-right yuki-nav-group-chevron"></i></li>`;
+    html += `<li class="yuki-settings-nav-group ${compact ? "" : "expanded"}" data-group="${key}">${navIconHtml(group.icon)}<span>${group.title}</span><i class="fas fa-chevron-right yuki-nav-group-chevron"></i></li>`;
     html += `<ul class="yuki-settings-sublist" data-group="${key}">`;
     for (const item of group.items) {
       const ds = item.target ? ` data-scroll="${item.target}"` : "";
       const dl = item.launch ? ` data-launch="${item.launch}"` : "";
-      html += `<li class="yuki-settings-nav-item" data-group="${key}" data-id="${item.id}" data-target="${item.pane}"${ds}${dl}><i class="${item.icon}"></i><span>${item.title}</span></li>`;
+      html += `<li class="yuki-settings-nav-item" data-group="${key}" data-id="${item.id}" data-target="${item.pane}"${ds}${dl}>${navIconHtml(item.icon)}<span>${item.title}</span></li>`;
     }
     html += `</ul>`;
   });
   if (tilingActive) {
-    html += `<li class="yuki-settings-nav-group ${compact ? "" : "expanded"}" data-group="g-tiling"><i class="fas fa-th-large"></i><span>Window Management</span><i class="fas fa-chevron-right yuki-nav-group-chevron"></i></li>`;
-    html += `<ul class="yuki-settings-sublist" data-group="g-tiling"><li class="yuki-settings-nav-item" data-group="g-tiling" data-target="pane-tiling"><i class="fas fa-th-large"></i><span>Tiling</span></li></ul>`;
+    html += `<li class="yuki-settings-nav-group ${compact ? "" : "expanded"}" data-group="g-tiling">${navIconHtml("fas fa-th-large")}<span>Window Management</span><i class="fas fa-chevron-right yuki-nav-group-chevron"></i></li>`;
+    html += `<ul class="yuki-settings-sublist" data-group="g-tiling"><li class="yuki-settings-nav-item" data-group="g-tiling" data-target="pane-tiling">${navIconHtml("fas fa-th-large")}<span>Tiling</span></li></ul>`;
   }
   if (chromeOsActive) {
     html += `<li class="yuki-settings-nav-group ${compact ? "" : "expanded"}" data-group="g-chromeos"><i class="fab fa-chrome"></i><span>Chrome OS</span><i class="fas fa-chevron-right yuki-nav-group-chevron"></i></li>`;
     html += `<ul class="yuki-settings-sublist" data-group="g-chromeos"><li class="yuki-settings-nav-item" data-group="g-chromeos" data-target="pane-chromeos"><i class="fab fa-chrome"></i><span>Chrome OS</span></li></ul>`;
   }
   return html;
+}
+
+function renderIconPackChooser(currentPack, prefix = "quick") {
+  const isPapirus = currentPack === ICON_PACKS.PAPIRUS;
+  const papirusIcons = SAMPLE_ICONS.map(
+    (s) => `<img src="${resolvePapirusUrl(s.papirus, 22)}" class="papirus-icon papirus-icon--22" alt="" />`
+  ).join("");
+  const faIcons = SAMPLE_ICONS.map((s) => `<i class="${s.fa}" style="font-size:18px;"></i>`).join("");
+  return `
+    <div class="settings-card" id="sc-iconpack-${prefix}" style="margin-top:12px;">
+      <div class="settings-card-header"><i class="fas fa-icons"></i> Icon Pack</div>
+      <div class="settings-row settings-row--stacked">
+        <div class="settings-label-group">
+          <span class="settings-label-title">Choose Icon Style</span>
+          <span class="settings-label-desc">Papirus is the default colorful set. Click a style to preview and apply instantly.</span>
+        </div>
+        <div class="icon-pack-chooser" id="iconpack-${prefix}" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;width:100%;">
+          <button class="icon-pack-option ${isPapirus ? "active" : ""}" data-icon-pack="papirus" data-pack-target="${prefix}" style="display:flex;flex-direction:column;align-items:center;padding:10px;border:1.5px solid ${isPapirus ? "var(--brand)" : "var(--glass-border)"};border-radius:8px;background:${isPapirus ? "color-mix(in srgb, var(--brand) 12%, transparent)" : "var(--glass)"};cursor:pointer;gap:6px;">
+            <span class="icon-pack-label" style="font-weight:600;font-size:13px;"><i class="fas fa-palette" style="margin-right:6px;"></i>Papirus</span>
+            <div class="icon-pack-preview" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;padding:8px;background:var(--bg-secondary,rgba(0,0,0,0.15));border-radius:6px;margin:4px 0;min-height:38px;align-items:center;">${papirusIcons}</div>
+            <span class="icon-pack-desc" style="font-size:11px;color:var(--text-secondary)">Colorful detailed</span>
+          </button>
+          <button class="icon-pack-option ${!isPapirus ? "active" : ""}" data-icon-pack="fontawesome" data-pack-target="${prefix}" style="display:flex;flex-direction:column;align-items:center;padding:10px;border:1.5px solid ${!isPapirus ? "var(--brand)" : "var(--glass-border)"};border-radius:8px;background:${!isPapirus ? "color-mix(in srgb, var(--brand) 12%, transparent)" : "var(--glass)"};cursor:pointer;gap:6px;">
+            <span class="icon-pack-label" style="font-weight:600;font-size:13px;"><i class="fas fa-font" style="margin-right:6px;"></i>Font Awesome</span>
+            <div class="icon-pack-preview" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:8px;background:var(--bg-secondary,rgba(0,0,0,0.15));border-radius:6px;margin:4px 0;min-height:38px;align-items:center;">${faIcons}</div>
+            <span class="icon-pack-desc" style="font-size:11px;color:var(--text-secondary)">Monochrome vector</span>
+          </button>
+        </div>
+      </div>
+    </div>`;
 }
 
 export function renderQuickSettings(s) {
@@ -356,6 +396,8 @@ export function renderQuickSettings(s) {
           ${thumb(auto, "Automatic")}
         </div>
       </div>
+
+      ${renderIconPackChooser(getIconPack(), "quick")}
 
       <div class="settings-card" style="margin-top: 12px;">
         <div class="settings-card-header"><i class="fas fa-gauge-high"></i> System Behavior &amp; Animation</div>
@@ -998,6 +1040,7 @@ export function renderAppearanceSettings(s) {
   return `
     <div id="pane-appearance" class="settings-category-pane">
       <div class="settings-category-header">Appearance</div>
+      ${renderIconPackChooser(getIconPack(), "appearance")}
 
       <div class="settings-card" id="sc-sidebar" style="margin-top: 16px;">
         <div class="settings-card-header"><i class="fas fa-bars"></i> Sidebar</div>

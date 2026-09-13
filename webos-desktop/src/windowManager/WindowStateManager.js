@@ -156,6 +156,9 @@ export class WindowStateManager {
       const win = $("#" + winId);
       if (win) {
         this.silenceWindow(win);
+        try {
+          win.dispatchEvent(new Event("remove"));
+        } catch {}
         win.remove();
       }
       this.manager.removeFromTaskbar(winId);
@@ -184,7 +187,12 @@ export class WindowStateManager {
   }
 
   animateAndRemove(win) {
-    animateWindowClose(win, () => win.remove());
+    animateWindowClose(win, () => {
+      try {
+        win.dispatchEvent(new Event("remove"));
+      } catch {}
+      win.remove();
+    });
     this.manager.triggerSessionSave();
   }
 

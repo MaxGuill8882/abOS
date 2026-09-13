@@ -8,12 +8,13 @@ import { showStartStyleMenu } from "../shared/contextMenu.js";
 import { getLauncher, initLauncher, destroyLauncher } from "./Launcher.js";
 import { getAppRegistry } from "../appRegistry.js";
 import { ChromeOsQuickSettings } from "./quickSettings.js";
+import { getEffectiveIcon } from "../shared/iconPack.js";
 
 const DEFAULT_SHELF_APPS = [
   { appId: "explorerApp", title: "Files", icon: "static/icons/file.webp" },
   { appId: "browserApp", title: "Browser", icon: "static/icons/firefox.webp" },
   { appId: "terminalApp", title: "Terminal", icon: "static/icons/terminal.webp" },
-  { appId: "settingsApp", title: "Settings", icon: "fa fa-cog" }
+  { appId: "settingsApp", title: "Settings", icon: "papirus:actions/configure" }
 ];
 
 export class Shelf {
@@ -90,7 +91,11 @@ export class Shelf {
       className: "shelf-launcher-btn",
       attributes: { title: "Launcher" }
     });
-    this.launcherBtn.innerHTML = `<i class="fas fa-circle"></i>`;
+    const launcherEffective = getEffectiveIcon("papirus:actions/draw-circle");
+    this.launcherBtn.innerHTML =
+      typeof launcherEffective === "string" && launcherEffective.startsWith("papirus:")
+        ? `<img src="${resolveIconUrl(launcherEffective)}" class="papirus-icon papirus-icon--16" alt="" />`
+        : `<i class="${launcherEffective}"></i>`;
     leftSection.appendChild(this.launcherBtn);
 
     this.appsContainer = createElement("div", { className: "shelf-apps" });
@@ -156,17 +161,26 @@ export class Shelf {
   renderPinnedItems() {
     this.appsContainer.innerHTML = "";
     this.pinnedItems.forEach((app) => {
-      const iconValue = resolveIconUrl(app.icon);
+      const effective = getEffectiveIcon(app.icon);
       const item = createElement("div", {
         className: "shelf-pinned-item",
         attributes: { "data-app-id": app.appId }
       });
       const iconEl = createElement("div", { className: "shelf-item-icon" });
-      if (iconValue.startsWith("fa")) {
-        iconEl.innerHTML = `<i class="${iconValue}"></i>`;
+      if (typeof effective === "string" && effective.startsWith("papirus:")) {
+        iconEl.innerHTML = `<img src="${resolveIconUrl(effective)}" class="papirus-icon papirus-icon--22" alt="${app.title}" />`;
+      } else if (typeof effective === "string" && effective.startsWith("fa")) {
+        iconEl.innerHTML = `<i class="${effective}"></i>`;
       } else {
-        const img = createElement("img", { attributes: { src: iconValue, alt: app.title } });
-        iconEl.appendChild(img);
+        const resolved = resolveIconUrl(effective);
+        if (typeof resolved === "string" && resolved.startsWith("http")) {
+          iconEl.innerHTML = `<img src="${resolved}" class="papirus-icon papirus-icon--22" alt="${app.title}" />`;
+        } else if (typeof effective === "string" && effective.startsWith("fa")) {
+          iconEl.innerHTML = `<i class="${effective}"></i>`;
+        } else {
+          const img = createElement("img", { attributes: { src: resolved, alt: app.title } });
+          iconEl.appendChild(img);
+        }
       }
       item.appendChild(iconEl);
       item.addEventListener("click", () => {
@@ -182,11 +196,11 @@ export class Shelf {
             }
             addSeparator();
           }
-          addMenuItem("New Window", () => os.app.launch(app.appId), "fa-plus-square");
+          addMenuItem("New Window", () => os.app.launch(app.appId), "papirus:actions/list-add");
           addSeparator();
-          addMenuItem("Unpin", () => this.unpinApp(app.appId), "fa-thumbtack");
+          addMenuItem("Unpin", () => this.unpinApp(app.appId), "papirus:actions/window-pin");
           addSeparator();
-          addMenuItem("Launch", () => os.app.launch(app.appId), "fa-play");
+          addMenuItem("Launch", () => os.app.launch(app.appId), "papirus:actions/media-playback-start");
           addSeparator();
           addMenuItem(
             "Rename",
@@ -198,7 +212,7 @@ export class Shelf {
                 appRegistry.setAppName(app.appId, newName.trim());
               }
             },
-            "fa-pen"
+            "papirus:actions/edit"
           );
         });
       });
@@ -224,12 +238,25 @@ export class Shelf {
       attributes: { "data-win-id": winId }
     });
     const iconEl = createElement("div", { className: "shelf-item-icon" });
-    const resolved = resolveIconUrl(icon);
-    if (resolved.startsWith("fa")) {
-      iconEl.innerHTML = `<i class="${resolved}"></i>`;
+    const effective = getEffectiveIcon(icon);
+    if (typeof effective === "string" && effective.startsWith("papirus:")) {
+      iconEl.innerHTML = `<img src="${resolveIconUrl(effective)}" class="papirus-icon papirus-icon--22" alt="${title}" />`;
+    } else if (typeof effective === "string" && effective.startsWith("fa")) {
+      iconEl.innerHTML = `<i class="${effective}"></i>`;
     } else {
-      const img = createElement("img", { attributes: { src: resolved, alt: title } });
-      iconEl.appendChild(img);
+      const resolved = resolveIconUrl(effective);
+      if (
+        typeof resolved === "string" &&
+        (resolved.startsWith("http") || resolved.startsWith("data:") || resolved.startsWith("/"))
+      ) {
+        const img = createElement("img", { attributes: { src: resolved, alt: title } });
+        iconEl.appendChild(img);
+      } else if (typeof effective === "string" && effective.startsWith("fa")) {
+        iconEl.innerHTML = `<i class="${effective}"></i>`;
+      } else {
+        const img = createElement("img", { attributes: { src: resolved, alt: title } });
+        iconEl.appendChild(img);
+      }
     }
     item.appendChild(iconEl);
     const dot = createElement("div", { className: "shelf-running-dot" });
@@ -253,7 +280,7 @@ export class Shelf {
           this.wm.buildContextMenuItems(addMenuItem, addSeparator, targetWin);
         }
         addSeparator();
-        addMenuItem("Close", () => this.wm.closeWindow(targetWin), "fa-times");
+        addMenuItem("Close", () => this.wm.closeWindow(targetWin), "papirus:actions/window-close");
       });
     });
 

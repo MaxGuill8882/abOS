@@ -3,8 +3,8 @@ import { BaseApp, StorageKeys, os } from "../framework.js";
 import { $, $$ } from "../framework.js";
 import { resolveIconUrl, resolveGhUrl } from "../shared/assetResolver.js";
 
-const CDN = resolveGhUrl("https://cdn.jsdelivr.net/gh/reeyuki/yukios-games@main/html/roblox");
-const CDN_ROBLOX = resolveGhUrl("https://cdn.jsdelivr.net/gh/reeyuki/yukios-games@main/roblox");
+const CDN = resolveGhUrl("https://cdn.jsdelivr.net/gh/NaoTomori1/yukios-games@main/html/roblox");
+const CDN_ROBLOX = resolveGhUrl("https://cdn.jsdelivr.net/gh/NaoTomori1/yukios-games@main/roblox");
 
 const COVER_MAP = {
   clclimbforbrainrots: "static/icons/roblox/swingbrainrots.webp",

@@ -1,13 +1,33 @@
 import { SYSTEM_APPS } from "../AppRegistryConfig.js";
-import { resolveIconUrl } from "../shared/assetResolver.js";
+import { resolveIconUrl, resolvePapirusUrl } from "../shared/assetResolver.js";
 import { $$ } from "./domUtils.js";
+import { getEffectiveIcon } from "./iconPack.js";
 
 export function isFontAwesomeIcon(icon) {
   return typeof icon === "string" && /^fa[bsr]?\s/.test(icon);
 }
 
+export function isPapirusIcon(icon) {
+  return typeof icon === "string" && /^papirus:/.test(icon);
+}
+
+export function getPapirusUrl(icon, size = 48) {
+  if (!isPapirusIcon(icon)) return null;
+  return resolvePapirusUrl(icon, size);
+}
+
 export function resolveIconHtml(icon, options = {}) {
-  const { faClass = "", faStyle = "", imgClass = "", alt = "", imgLoading = "lazy" } = options;
+  const { faClass = "", faStyle = "", imgClass = "", alt = "", imgLoading = "lazy", size = 48 } = options;
+  icon = getEffectiveIcon(icon);
+  if (typeof icon === "string" && icon.startsWith("fa-") && !icon.includes(" ")) icon = "fas " + icon;
+  if (isPapirusIcon(icon)) {
+    const resolved = resolvePapirusUrl(icon, size);
+    const bucket = [16, 22, 24, 32, 48, 64].includes(size) ? size : 48;
+    const papirusClass = `papirus-icon papirus-icon--${bucket}${imgClass ? ` ${imgClass}` : ""}`;
+    const altAttr = alt ? ` alt="${alt}"` : ` alt=""`;
+    const loadingAttr = imgLoading ? ` loading="${imgLoading}"` : "";
+    return `<img src="${resolved}" class="${papirusClass}"${altAttr}${loadingAttr} />`;
+  }
   if (isFontAwesomeIcon(icon)) {
     const cls = faClass ? `${faClass} ${icon}` : icon;
     return `<i class="${cls}"${faStyle ? ` style="${faStyle}"` : ""}></i>`;
@@ -52,9 +72,20 @@ export function resolveDesktopIcon(content, fileName = null) {
     return resolveIconUrl("static/icons/file.webp");
   }
 
+  icon = getEffectiveIcon(icon);
+
+  if (isPapirusIcon(icon)) {
+    return resolvePapirusUrl(icon, 48);
+  }
+
+  if (typeof icon === "string" && icon.startsWith("fa-") && !icon.includes(" ")) {
+    icon = "fas " + icon;
+  }
+
   if (
     typeof icon === "string" &&
-    (icon.startsWith("fa") ||
+    (isFontAwesomeIcon(icon) ||
+      icon.startsWith("fa") ||
       icon.includes(" fa-") ||
       icon.startsWith("fas ") ||
       icon.startsWith("fab ") ||
@@ -63,7 +94,7 @@ export function resolveDesktopIcon(content, fileName = null) {
     return icon;
   }
 
-  if (icon.startsWith("http") || icon.startsWith("/")) {
+  if (typeof icon === "string" && (icon.startsWith("http") || icon.startsWith("/"))) {
     return icon;
   }
 

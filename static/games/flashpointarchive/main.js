@@ -1,8 +1,8 @@
 let entry = null;
 let gameZip = null;
 
-const GAMES_BASE = "https://cdn.jsdelivr.net/gh/Reeyuki/yukios-games@main/";
-const RAW_GAMES_BASE = "https://raw.githubusercontent.com/Reeyuki/yukios-games/main/";
+const GAMES_BASE = "https://cdn.jsdelivr.net/gh/NaoTomori1/yukios-games@main/";
+const RAW_GAMES_BASE = "https://raw.githubusercontent.com/NaoTomori1/yukios-games/main/";
 const HTDOCS = "flashpointarchive/infinity.unstable.life/Flashpoint/Legacy/htdocs/";
 const ZIPS = "flashpointarchive/download.unstable.life/gib-roms/Games/";
 const LEGACY_URL = new URL("https://infinity.unstable.life/Flashpoint/Legacy/htdocs/");

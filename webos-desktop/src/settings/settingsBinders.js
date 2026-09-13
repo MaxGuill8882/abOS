@@ -26,6 +26,7 @@ import {
 } from "./settingsApply.js";
 import { exportData, importData, deleteAllData } from "./settingsData.js";
 import { $, $$, bindEvent, toggleClass, setText, createElement, setHTML } from "../shared/domUtils.js";
+import { ICON_PACKS, setIconPack, getIconPack } from "../shared/iconPack.js";
 import { bindSelectMenu, getSelectMenuValue, setSelectMenuValue } from "../shared/selectMenu.js";
 import { bindRangeSlider, getRangeSliderValue, setRangeSliderValue } from "../shared/rangeSlider.js";
 import { addCustomTheme, getSpecialThemes, getCustomThemes, getThemeByValue } from "../shared/themeEngine.js";
@@ -587,6 +588,27 @@ export function bindDesktopCategory(win, save, settings, showSaved) {
   }
 }
 
+export function bindIconPackChooser(win, settings, showSaved) {
+  const options = $$(".icon-pack-option", win);
+  if (!options.length) return;
+  options.forEach((btn) => {
+    bindEvent(btn, "click", () => {
+      const pack = btn.dataset.iconPack === ICON_PACKS.FA ? ICON_PACKS.FA : ICON_PACKS.PAPIRUS;
+      setIconPack(pack);
+      settings.iconPack = pack;
+      const all = $$(".icon-pack-option", win);
+      all.forEach((b) => {
+        const isActive = b.dataset.iconPack === pack;
+        b.classList.toggle("active", isActive);
+        b.style.borderColor = isActive ? "var(--brand)" : "var(--glass-border)";
+        b.style.background = isActive ? "color-mix(in srgb, var(--brand) 12%, transparent)" : "var(--glass)";
+      });
+      showSaved?.();
+      os.events.emit(BusEvents.SETTINGS_CHANGED, settings);
+    });
+  });
+}
+
 export function bindAppearanceCategory(
   win,
   save,
@@ -1030,6 +1052,7 @@ export function bindAppearanceCategory(
   mountWallpaperEngine(win);
 
   bindCursorControls(win, settings, showSaved, normalizeCursorDataUrl);
+  bindIconPackChooser(win, settings, showSaved);
 }
 
 function bindCursorControls(win, settings, showSaved, normalizeCursorDataUrl) {
@@ -1631,6 +1654,8 @@ export function bindQuickSettings(win, settings, notificationCenter, showSaved) 
       showSaved?.();
     });
   }
+
+  bindIconPackChooser(win, settings, showSaved);
 }
 
 export function bindAutostartCategory(win) {

@@ -302,6 +302,20 @@
   font-size: 15px;
   text-align: center;
   color: color-mix(in srgb, var(--brand) 70%, var(--tx2));
+  flex-shrink: 0;
+}
+
+.start-cat img,
+.start-cat .papirus-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin: 0 2px;
+}
+
+html[data-icon-pack="papirus"] .start-cat {
+  gap: 2px;
 }
 
 .start-cat:hover {
@@ -316,7 +330,9 @@
   border-left-color: var(--brand);
 }
 
-.start-cat.active i {
+.start-cat.active i,
+.start-cat.active img,
+.start-cat.active .papirus-icon {
   color: var(--brand);
 }
 
@@ -328,7 +344,9 @@
   outline-offset: -1px;
 }
 
-.start-cat.keyboard-selected i {
+.start-cat.keyboard-selected i,
+.start-cat.keyboard-selected img,
+.start-cat.keyboard-selected .papirus-icon {
   color: var(--brand);
 }
 

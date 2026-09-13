@@ -1,8 +1,9 @@
-import { CDN_MIRRORS, setCdnMirror, getCdnMirror } from ".././shared/assetResolver.js";
+import { CDN_MIRRORS, setCdnMirror, getCdnMirror, resolveIconUrl } from ".././shared/assetResolver.js";
 
 import { BaseApp, StorageKeys, os, $, createElement } from "../framework.js";
 import { isTaskbarTop } from "../utils/utils.js";
 import { getTrayPosition } from "../tray/tray.js";
+import { getEffectiveIcon } from "../shared/iconPack.js";
 class NetworkTrayApp extends BaseApp {
   constructor(services) {
     super(services);
@@ -28,12 +29,11 @@ class NetworkTrayApp extends BaseApp {
   }
 
   getWifiIcon(signalStrength) {
-    const icons = ["fa-wifi", "fa-wifi", "fa-wifi", "fa-wifi", "fa-wifi"];
-    return icons[signalStrength] || "fa-wifi";
+    return "papirus:status/network-wireless-connected-100";
   }
 
   initTray() {
-    this.registerTray(this.winId, "fas fa-wifi", "Network", {
+    this.registerTray(this.winId, "papirus:status/network-wireless-connected-100", "Network", {
       resident: true,
       showInTray: true,
       priority: 100,
@@ -41,7 +41,7 @@ class NetworkTrayApp extends BaseApp {
         this.togglePopup();
       },
       contextMenuItems: [
-        { label: "Network Settings", icon: "fa-cog", action: () => this.openNetworkSettings() },
+        { label: "Network Settings", icon: "papirus:actions/configure", action: () => this.openNetworkSettings() },
         { type: "divider" }
       ]
     });
@@ -52,7 +52,7 @@ class NetworkTrayApp extends BaseApp {
     const signalStrength = this.getSignalStrength(this.currentCdn);
     const iconClass = this.getWifiIcon(signalStrength);
     this.unregisterTray(this.winId);
-    this.registerTray(this.winId, `fas ${iconClass}`, "Network", {
+    this.registerTray(this.winId, iconClass, "Network", {
       resident: true,
       showInTray: true,
       priority: 100,
@@ -60,7 +60,7 @@ class NetworkTrayApp extends BaseApp {
         this.togglePopup();
       },
       contextMenuItems: [
-        { label: "Network Settings", icon: "fa-cog", action: () => this.openNetworkSettings() },
+        { label: "Network Settings", icon: "papirus:actions/configure", action: () => this.openNetworkSettings() },
         { type: "divider" }
       ]
     });
@@ -108,6 +108,17 @@ class NetworkTrayApp extends BaseApp {
     document.addEventListener("click", this.handleOutsideClick);
   }
 
+  getPopupIconHtml(papirusIcon) {
+    const effective = getEffectiveIcon(papirusIcon);
+    if (typeof effective === "string" && effective.startsWith("papirus:")) {
+      return `<img src="${resolveIconUrl(effective)}" class="papirus-icon papirus-icon--16" alt="" />`;
+    }
+    if (typeof effective === "string" && effective.startsWith("fa")) {
+      return `<i class="${effective}"></i>`;
+    }
+    return `<img src="${effective}" class="papirus-icon papirus-icon--16" alt="" />`;
+  }
+
   buildPopupContent() {
     const currentCdn = getCdnMirror();
     const cdnList = CDN_MIRRORS.map((cdn) => {
@@ -122,7 +133,7 @@ class NetworkTrayApp extends BaseApp {
             <div class="network-name">${cdn.name}</div>
             <div class="network-status">${isConnected ? "Connected" : "Available"}</div>
           </div>
-          ${isConnected ? '<div class="network-badge"><i class="fas fa-check"></i></div>' : ""}
+          ${isConnected ? `<div class="network-badge">${this.getPopupIconHtml("papirus:actions/object-select")}</div>` : ""}
         </div>
       `;
     }).join("");
@@ -130,7 +141,7 @@ class NetworkTrayApp extends BaseApp {
     return `
       <div class="network-popup-content">
         <div class="network-header">
-          <i class="fas fa-wifi"></i>
+          ${this.getPopupIconHtml("papirus:status/network-wireless-connected-100")}
           <span>Network</span>
         </div>
         <div class="network-list">
@@ -138,7 +149,7 @@ class NetworkTrayApp extends BaseApp {
         </div>
         <div class="network-footer">
           <button class="network-settings-btn" id="network-settings-btn">
-            <i class="fas fa-cog"></i>
+            ${this.getPopupIconHtml("papirus:actions/configure")}
             <span>Network Settings</span>
           </button>
         </div>
@@ -227,7 +238,13 @@ class NetworkTrayApp extends BaseApp {
     this.currentCdn = cdnId;
 
     const cdn = CDN_MIRRORS.find((c) => c.id === cdnId);
-    this.notify("Network Connected", `Connected to ${cdn.name}`, "success", 2000, "fa-wifi");
+    this.notify(
+      "Network Connected",
+      `Connected to ${cdn.name}`,
+      "success",
+      2000,
+      "papirus:status/network-wireless-connected-100"
+    );
 
     this.updateTrayIcon();
     this.connecting = false;

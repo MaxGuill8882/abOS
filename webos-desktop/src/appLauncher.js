@@ -33,7 +33,7 @@ import { getNewsContentSignature, updateNewsBadge } from "./apps/news.js";
 import { SteamSettings } from "./games/steamSettings.js";
 import { PROXIES, clampProxyIndex, buildProxyUrl, fetchHtmlThroughProxy, fetchDirectAsBlobUrl } from "./proxies.js";
 import { trigger as triggerCursorEffect } from "./cursorEffect.js";
-const STATICALLY_BASE = resolveGhUrl("https://cdn.jsdelivr.net/gh/Reeyuki/yukios-games@main");
+const STATICALLY_BASE = resolveGhUrl("https://cdn.jsdelivr.net/gh/NaoTomori1/yukios-games@main");
 
 export class AppLauncher {
   wm;
@@ -210,6 +210,7 @@ export class AppLauncher {
   }
 
   async launch(app, swf = false, extra = null) {
+    if (app === "installedAppsApp") app = "systemAppsApp";
     const info = this.appMap[app];
     if (!info) {
       console.error(`App ${app} not found.`);

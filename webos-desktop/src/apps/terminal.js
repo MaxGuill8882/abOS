@@ -741,6 +741,7 @@ export class TerminalApp extends BaseApp {
 
     win.addEventListener("mousedown", (e) => {
       this.activeState = termStateMap.get(e.currentTarget);
+      if (e.button === 2) return;
       if (e.target.closest(".terminal-content")) return;
       const selection = window.getSelection();
       if (selection) selection.removeAllRanges();
@@ -973,16 +974,18 @@ export class TerminalApp extends BaseApp {
     const getSelectionText = () => {
       const docSel = window.getSelection().toString();
       if (docSel) return docSel;
-      const input = this.terminalInput;
+      const state = this.activeState;
+      const input = state?.terminalInput || this.terminalInput;
       if (input && input.selectionStart !== input.selectionEnd) {
         return input.value.substring(input.selectionStart, input.selectionEnd);
       }
       return "";
     };
-    const hasSelection = getSelectionText().length > 0;
+    const hasSelection = () => getSelectionText().length > 0;
     hideMenu();
+    const isCopyDisabled = !hasSelection();
     const items = [
-      { id: "term-ctx-copy", label: "Copy", icon: "fa-copy", action: "copy", condition: () => hasSelection },
+      { id: "term-ctx-copy", label: "Copy", icon: "fa-copy", action: "copy", disabled: isCopyDisabled },
       { id: "term-ctx-paste", label: "Paste", icon: "fa-paste", action: "paste" },
       { id: "term-ctx-selectall", label: "Select All", icon: "fa-object-group", action: "selectAll" },
       "hr",
@@ -990,35 +993,129 @@ export class TerminalApp extends BaseApp {
       { id: "term-ctx-clear", label: "Clear", icon: "fa-eraser", action: "clear" }
     ];
 
+    const copyTextToClipboard = async (text) => {
+      if (!text) return false;
+      try {
+        await navigator.clipboard.writeText(text);
+        try {
+          os.clipboardManager?.set(text, "text");
+        } catch {}
+        return true;
+      } catch {}
+      try {
+        const ta = createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        ta.style.pointerEvents = "none";
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand("copy");
+        ta.remove();
+        if (ok) {
+          try {
+            os.clipboardManager?.set(text, "text");
+          } catch {}
+          return true;
+        }
+      } catch {}
+      try {
+        os.clipboardManager?.set(text, "text");
+        return true;
+      } catch {}
+      return false;
+    };
+
+    const stateAtOpen = this.activeState;
+    const selAtOpen = window.getSelection();
+    const hadWindowSelection =
+      selAtOpen && selAtOpen.rangeCount > 0 && !selAtOpen.isCollapsed && selAtOpen.toString().length > 0;
+    const inputAtOpen = stateAtOpen?.terminalInput || this.terminalInput;
+    const hadInputSelection = inputAtOpen && inputAtOpen.selectionStart !== inputAtOpen.selectionEnd;
+
     const handlers = {
-      copy: () => {
+      copy: async () => {
         const text = getSelectionText();
-        if (text) navigator.clipboard?.writeText(text);
+        if (!text) return;
+        await copyTextToClipboard(text);
       },
       paste: async () => {
+        let text = "";
         try {
-          const text = await navigator.clipboard.readText();
-          if (text) {
-            const input = this.terminalInput;
-            const pos = input.selectionStart;
-            input.value = input.value.slice(0, pos) + text + input.value.slice(pos);
-            input.selectionStart = input.selectionEnd = pos + text.length;
-            input.focus();
-          }
+          text = await navigator.clipboard.readText();
         } catch {}
+        if (!text) {
+          try {
+            const item = os.clipboardManager?.get();
+            if (item?.data) text = String(item.data);
+          } catch {}
+        }
+        if (text) {
+          const state = this.activeState;
+          const input = state?.terminalInput || this.terminalInput;
+          if (!input) return;
+          const pos = input.selectionStart ?? input.value.length;
+          const end = input.selectionEnd ?? pos;
+          input.value = input.value.slice(0, pos) + text + input.value.slice(end);
+          input.selectionStart = input.selectionEnd = pos + text.length;
+          input.focus();
+        }
       },
       selectAll: () => {
+        const state = this.activeState;
+        const output = state?.terminalOutput || this.terminalOutput;
+        if (!output) return;
         const range = document.createRange();
-        range.selectNodeContents(this.terminalOutput);
+        range.selectNodeContents(output);
         const sel = window.getSelection();
         sel.removeAllRanges();
         sel.addRange(range);
+        try {
+          if (window.CSS && window.CSS.highlights) {
+            const hl = new Highlight(range.cloneRange());
+            window.CSS.highlights.set("terminal-preserved", hl);
+          }
+        } catch {}
+        const sc = state?.terminalContent || this.terminalContent;
+        if (sc) sc.classList.add("preserve-selection");
       },
       newTab: () => this.newTab(),
       clear: () => this.cmdClear()
     };
 
     showContextMenu(e, items, handlers);
+
+    if (hadWindowSelection || hadInputSelection) {
+      const sc = stateAtOpen?.terminalContent || this.terminalContent;
+      const out = stateAtOpen?.terminalOutput || this.terminalOutput;
+      if (sc) sc.classList.add("preserve-selection");
+      if (out) out.classList.add("preserve-selection");
+      const cleanup = () => {
+        if (sc) sc.classList.remove("preserve-selection");
+        if (out) out.classList.remove("preserve-selection");
+        document.removeEventListener("click", cleanup);
+        document.removeEventListener("selectionchange", cleanup);
+        const menu = document.getElementById("context-menu");
+        if (menu) {
+          const obs = menu._preserveCleanupObs;
+          if (obs) obs.disconnect();
+        }
+      };
+      setTimeout(() => document.addEventListener("click", cleanup, { once: true }), 0);
+      document.addEventListener("selectionchange", cleanup, { once: true });
+      const menu = document.getElementById("context-menu");
+      if (menu) {
+        const obs = new MutationObserver(() => {
+          if (menu.style.display === "none" || menu.classList.contains("closing")) {
+            cleanup();
+            obs.disconnect();
+          }
+        });
+        obs.observe(menu, { attributes: true, attributeFilter: ["style", "class"] });
+        menu._preserveCleanupObs = obs;
+      }
+    }
   }
 
   showTabContextMenu(e, tab, idx) {

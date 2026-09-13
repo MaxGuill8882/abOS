@@ -1,5 +1,6 @@
 import { $, createElement } from "../shared/domUtils.js";
 import { resolveIconUrl } from "../shared/assetResolver.js";
+import { getEffectiveIcon } from "../shared/iconPack.js";
 import { sanitizeTitle } from "../utils/utils.js";
 import { isImageFile } from "../fileDisplay.js";
 import { updateTransparency } from "./transparencyManager.js";
@@ -45,8 +46,9 @@ export class WindowManagerUtils {
   resolveIconType(iconValue) {
     const isDataUrl = typeof iconValue === "string" && iconValue.startsWith("data:");
     const isHttpUrl = typeof iconValue === "string" && /^https?:\/\//.test(iconValue);
+    const isPapirus = typeof iconValue === "string" && iconValue.startsWith("papirus:");
     return {
-      isImage: isImageFile(iconValue) || isHttpUrl,
+      isImage: isImageFile(iconValue) || isHttpUrl || isPapirus,
       isDataUrl
     };
   }
@@ -95,6 +97,13 @@ export class WindowManagerUtils {
 
   getWindowIconHtml(iconValue, color = null) {
     if (!iconValue) return "";
+    iconValue = getEffectiveIcon(iconValue);
+    const isPapirusRaw = typeof iconValue === "string" && iconValue.startsWith("papirus:");
+    if (isPapirusRaw) {
+      const src = resolveIconUrl(iconValue);
+      const size = 16;
+      return `<img src="${src}" class="papirus-icon papirus-icon--16" style="width:${size}px;height:${size}px;margin-right:6px;vertical-align:middle;object-fit:contain;" />`;
+    }
     iconValue = resolveIconUrl(iconValue);
     const size = 16;
     const { isImage, isDataUrl } = this.resolveIconType(iconValue);

@@ -6,6 +6,7 @@ import { Achievements } from "../../achievements.js";
 import { showDynamicContextMenu } from "../../shared/contextMenu.js";
 import { isFontFile, isISOFile, getExt } from "../../shared/fileKindDetector.js";
 import { fileKindFromName, showFileProperties, isImageFile, readFontBlob, openFileWithApp } from "../../fileDisplay.js";
+import { isVideoFile } from "../../shared/fileKindDetector.js";
 import { getCompatibleApps, getDefaultApp } from "../../fileAssociations.js";
 import { showChooseAppDialog } from "../../shared/chooseAppDialog.js";
 import { applyFontFamily } from "../../settings/settingsApply.js";
@@ -334,7 +335,7 @@ export function showFileContextMenu(explorer, e, itemName, isFile, inst) {
       );
     }
 
-    if (isFile && isImageFile(itemName)) {
+    if (isFile && (isImageFile(itemName) || isVideoFile(itemName))) {
       const getContent = async () => {
         const content = await explorer.fs.getFileContent(inst.currentPath, itemName);
         if (content instanceof Blob) {
@@ -349,9 +350,10 @@ export function showFileContextMenu(explorer, e, itemName, isFile, inst) {
       };
 
       menu.appendChild(hr());
+      const isVideoWallpaper = isVideoFile(itemName);
       menu.appendChild(
         item(
-          "Set Wallpaper",
+          "Set as Wallpaper",
           async () => {
             try {
               const content = await getContent();
@@ -362,7 +364,7 @@ export function showFileContextMenu(explorer, e, itemName, isFile, inst) {
               os.dialog.alert("Error", "Could not set wallpaper");
             }
           },
-          "fa-image"
+          isVideoWallpaper ? "fa-video" : "fa-image"
         )
       );
       menu.appendChild(

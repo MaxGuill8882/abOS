@@ -62,33 +62,97 @@ export function relayoutDesktopIcons() {
   if (!allIcons.length) return;
   if (desktop.clientWidth === 0 || desktop.clientHeight === 0) return;
   const positionHelper = new PositionHelper(desktop, GRID_CONFIG);
-  const regularIcons = allIcons;
-  allIcons.forEach((i) => {
-    i.style.left = "";
-    i.style.top = "";
-  });
+  const saved = PositionStore.load();
+  const { width, height, gap, marginX, marginY } = GRID_CONFIG;
+  const cellW = width + gap;
+  const cellH = height + gap;
+  const maxRows = Math.max(1, Math.floor((desktop.clientHeight - 2 * marginY) / cellH));
+  const maxCols = Math.max(1, Math.floor((desktop.clientWidth - 2 * marginX) / cellW));
   const storedAlignment = os.storage.get(StorageKeys.desktopIconAlignment);
   const alignment =
     storedAlignment !== undefined && storedAlignment !== null && storedAlignment !== ""
       ? storedAlignment
       : "horizontal";
-  let occupied = null;
-  if (regularIcons.length) {
-    occupied =
-      alignment === "vertical"
-        ? positionHelper.layoutSyncVertical(regularIcons, false, occupied)
-        : positionHelper.layoutSync(regularIcons, false, occupied);
+  const autoSort = os.storage.get(StorageKeys.desktopAutoSort);
+  const shouldPreserve = !(autoSort === true || autoSort === "true");
+  if (!shouldPreserve) {
+    allIcons.forEach((i) => {
+      i.style.left = "";
+      i.style.top = "";
+    });
+    let occupied = new Set();
+    if (allIcons.length) {
+      occupied =
+        alignment === "vertical"
+          ? positionHelper.layoutSyncVertical(allIcons, false, occupied)
+          : positionHelper.layoutSync(allIcons, false, occupied);
+    }
+    const out = {};
+    allIcons.forEach((icon) => {
+      const leftRaw = parseFloat(icon.style.left);
+      const topRaw = parseFloat(icon.style.top);
+      const left = Number.isFinite(leftRaw) ? leftRaw : 0;
+      const top = Number.isFinite(topRaw) ? topRaw : 0;
+      const { col, row } = positionHelper.pixelsToCell(left, top);
+      out[PositionStore.getKey(icon)] = { col, row };
+    });
+    PositionStore.save(out);
+    return;
   }
-  const saved = {};
+  const occupied = new Set();
+  const toReflow = [];
+  for (const icon of allIcons) {
+    const key = PositionStore.getKey(icon);
+    const pos = saved[key];
+    if (
+      pos &&
+      Number.isFinite(pos.col) &&
+      Number.isFinite(pos.row) &&
+      pos.col >= 0 &&
+      pos.col < maxCols &&
+      pos.row >= 0 &&
+      pos.row < maxRows &&
+      !occupied.has(`${pos.col},${pos.row}`)
+    ) {
+      const { left, top } = positionHelper.cellToPixels(pos.col, pos.row);
+      positionHelper.setPosition(icon, left, top);
+      occupied.add(`${pos.col},${pos.row}`);
+    } else {
+      toReflow.push(icon);
+    }
+  }
+  for (const icon of toReflow) {
+    const key = PositionStore.getKey(icon);
+    const pos = saved[key];
+    let startCol = 0;
+    let startRow = 0;
+    if (pos && Number.isFinite(pos.col) && Number.isFinite(pos.row)) {
+      startCol = Math.max(0, Math.min(maxCols - 1, pos.col));
+      startRow = Math.max(0, Math.min(maxRows - 1, pos.row));
+    } else {
+      const leftRaw = parseFloat(icon.style.left);
+      const topRaw = parseFloat(icon.style.top);
+      if (Number.isFinite(leftRaw) && Number.isFinite(topRaw) && icon.style.left !== "") {
+        const cell = positionHelper.pixelsToCell(leftRaw, topRaw);
+        startCol = cell.col;
+        startRow = cell.row;
+      }
+    }
+    const free = positionHelper.nextFreeCell(startCol, startRow, icon, occupied);
+    const { left, top } = positionHelper.cellToPixels(free.col, free.row);
+    positionHelper.setPosition(icon, left, top);
+    occupied.add(`${free.col},${free.row}`);
+  }
+  const out = {};
   allIcons.forEach((icon) => {
     const leftRaw = parseFloat(icon.style.left);
     const topRaw = parseFloat(icon.style.top);
     const left = Number.isFinite(leftRaw) ? leftRaw : 0;
     const top = Number.isFinite(topRaw) ? topRaw : 0;
     const { col, row } = positionHelper.pixelsToCell(left, top);
-    saved[PositionStore.getKey(icon)] = { col, row };
+    out[PositionStore.getKey(icon)] = { col, row };
   });
-  PositionStore.save(saved);
+  PositionStore.save(out);
 }
 
 class PositionHelper {
@@ -1308,7 +1372,7 @@ export function sortDesktopIcons(mode) {
   const storedAlign = os.storage.get(StorageKeys.desktopIconAlignment);
   const alignment =
     storedAlign !== undefined && storedAlign !== null && storedAlign !== "" ? storedAlign : "horizontal";
-  let occupied = null;
+  let occupied = new Set();
   if (regularIcons.length) {
     occupied =
       alignment === "vertical"

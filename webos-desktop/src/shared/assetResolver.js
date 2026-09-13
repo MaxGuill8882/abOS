@@ -1,6 +1,150 @@
 import { os } from "../os/index.js";
 import { $, $$ } from "./domUtils.js";
 import { StorageKeys } from "../StorageKeys.js";
+import { PAPIRUS_SYMLINKS as PAPIRUS_SYMLINKS_FALLBACK } from "./papirusDataLoader.js";
+
+const PAPIRUS_TO_FA = {
+  "papirus:apps/accessories-camera": "fas fa-camera",
+  "papirus:actions/help-about": "fa fa-circle-info",
+  "papirus:apps/accessories-text-editor": "fa fa-newspaper",
+  "papirus:apps/calc": "fa fa-calculator",
+  "papirus:apps/gnome-system-monitor": "fa fa-list-check",
+  "papirus:apps/weather": "fa fa-cloud",
+  "papirus:mimetypes/text-markdown": "fab fa-markdown",
+  "papirus:apps/code": "fas fa-code",
+  "papirus:actions/games-achievements": "fas fa-trophy",
+  "papirus:devices/input-keyboard": "fa fa-keyboard",
+  "papirus:actions/swap-panels": "fas fa-exchange-alt",
+  "papirus:apps/rocketchat": "fas fa-rocket",
+  "papirus:devices/network-server-database": "fas fa-database",
+  "papirus:apps/accessories-dictionary": "fas fa-book-open",
+  "papirus:actions/flag": "fas fa-flag-checkered",
+  "papirus:apps/systemsettings": "fas fa-layer-group",
+  "papirus:actions/edit-paste": "fas fa-paste",
+  "papirus:apps/gnome-robots": "fas fa-robot",
+  "papirus:status/network-wireless-100": "fas fa-wifi",
+  "papirus:emotes/face-smile": "fas fa-face-smile",
+  "papirus:actions/view-grid": "fas fa-th",
+  "papirus:apps/audio-player": "fas fa-wave-square",
+  "papirus:apps/discord": "fab fa-discord",
+  "papirus:apps/org.gnome.Games": "fas fa-gamepad",
+  "papirus:apps/codes.nora.gDiceRoller": "fas fa-dice",
+  "papirus:apps/preferences-system-firewall": "fas fa-fire",
+  "papirus:apps/spotify": "fab fa-spotify",
+  "papirus:apps/slack": "fab fa-slack",
+  "papirus:apps/email": "fas fa-envelope",
+  "papirus:actions/mail-open-multiple": "fas fa-envelope-open",
+  "papirus:apps/gbrainy": "fas fa-brain",
+  "papirus:devices/camera-video": "fas fa-video",
+  "papirus:apps/figma": "fab fa-figma",
+  "papirus:apps/twitter": "fab fa-x-twitter",
+  "papirus:apps/instagram": "fab fa-instagram",
+  "papirus:apps/com.github.PintaProject.Pinta": "fab fa-pinterest",
+  "papirus:mimetypes/application-msword": "fas fa-file-word",
+  "papirus:apps/org.gnome.design.Palette": "fas fa-palette",
+  "papirus:apps/github": "fab fa-github",
+  "papirus:apps/gitlab": "fab fa-gitlab",
+  "papirus:apps/gnome-twitch": "fab fa-twitch",
+  "papirus:apps/soundcloud": "fab fa-soundcloud",
+  "papirus:apps/deezer": "fab fa-deezer",
+  "papirus:actions/lock": "fas fa-shield",
+  "papirus:apps/yahoo-mail": "fab fa-yahoo",
+  "papirus:actions/download": "fas fa-download",
+  "papirus:mimetypes/image-x-generic": "fas fa-image",
+  "papirus:actions/media-play": "fas fa-play-circle",
+  "papirus:apps/tiktok": "fab fa-tiktok",
+  "papirus:actions/settings": "fa fa-cog",
+  "papirus:apps/preferences-desktop-wallpaper": "fas fa-paint-roller",
+  "papirus:apps/steam": "fab fa-steam",
+  "papirus:apps/kjumpingcube": "fas fa-cubes",
+  "papirus:apps/accessories-clock": "fas fa-clock",
+  "papirus:devices/network-server": "fas fa-server",
+  "papirus:actions/color-picker": "fas fa-eye-dropper",
+  "papirus:apps/maps": "fas fa-map",
+  "papirus:apps/terminal": "fas fa-terminal",
+  "papirus:actions/zoom-in": "fas fa-search-plus",
+  "papirus:devices/computer": "fas fa-desktop",
+  "papirus:apps/fish": "fas fa-fish",
+  "papirus:mimetypes/video-x-generic": "fas fa-film",
+  "papirus:devices/video-display": "fas fa-tv",
+  "papirus:apps/gpaint": "fas fa-paint-brush",
+  "papirus:status/microphone-sensitivity-muted": "fa-microphone-slash",
+  "papirus:status/audio-volume-muted": "fa-volume-off",
+  "papirus:actions/draw-circle": "fa-circle",
+  "papirus:status/weather-clear-night": "fa-moon",
+  "papirus:actions/im-ban-user": "fa-ban",
+  "papirus:actions/view-hidden": "fa-eye-slash",
+  "papirus:actions/cookies": "fa-cookie-bite",
+  "papirus:actions/list-add": "fa-plus",
+  "papirus:emotes/face-sad": "fa-skull",
+  "papirus:status/audio-volume-high": "fa-volume-high",
+  "papirus:status/audio-volume-low": "fas fa-volume-low",
+  "papirus:actions/object-locked": "fas fa-lock",
+  "papirus:actions/system-log-out": "fas fa-sign-out-alt",
+  "papirus:actions/system-shutdown": "fas fa-power-off",
+  "papirus:apps/system-suspend": "fas fa-bed",
+  "papirus:actions/bookmark-new": "fas fa-bookmark",
+  "papirus:actions/clock": "far fa-clock",
+  "papirus:apps/internet-web-browser": "fas fa-globe",
+  "papirus:apps/juk": "fas fa-music",
+  "papirus:mimetypes/x-office-document": "far fa-file-word",
+  "papirus:apps/vscode": "fas fa-file-code",
+  "papirus:apps/preferences-desktop-gaming": "far fa-gamepad",
+  "papirus:places/folder-blue": "fas fa-folder",
+  "papirus:apps/utilities-tweak-tool": "fa fa-wrench",
+  "papirus:actions/configure": "fas fa-cog"
+};
+
+const PAPIRUS_CDN_BASE = "https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master";
+
+export function resolvePapirusUrl(papirusIcon, size = 48) {
+  if (typeof papirusIcon !== "string") return papirusIcon;
+  let raw = papirusIcon.trim();
+  if (raw.startsWith("papirus:")) raw = raw.slice(8);
+  raw = raw.replace(/\.svg$/i, "");
+  let context = "apps";
+  let name = raw;
+  if (raw.includes("/")) {
+    const parts = raw.split("/");
+    name = parts.pop();
+    context = parts.join("/") || "apps";
+  }
+  let key = `${context}/${name}`;
+  if (PAPIRUS_SYMLINKS_FALLBACK[key]) {
+    const resolved = PAPIRUS_SYMLINKS_FALLBACK[key];
+    const parts = resolved.split("/");
+    name = parts.pop();
+    context = parts.join("/") || context;
+  }
+  let bucket = [16, 22, 24, 32, 48, 64].reduce(
+    (best, s) => (Math.abs(s - size) < Math.abs(best - size) ? s : best),
+    48
+  );
+  if (context === "actions") {
+    if (![16, 22, 24].includes(bucket)) bucket = 22;
+  } else if (context === "status") {
+    if (/^(battery|audio-volume|network-wireless)/.test(name)) bucket = 32;
+    else if (/^(notification-|weather-)/.test(name) && bucket !== 48) bucket = 48;
+    else if ([16, 22, 24].includes(bucket) && !/^(dialog-|avatar-)/.test(name)) {
+      const valid = [22, 24, 32, 48];
+      bucket = valid.reduce((best, s) => (Math.abs(s - size) < Math.abs(best - size) ? s : best), 32);
+    }
+  } else if (context === "panel") {
+    if (![16, 22, 24].includes(bucket)) bucket = 22;
+  } else if (
+    context === "apps" ||
+    context === "places" ||
+    context === "devices" ||
+    context === "mimetypes" ||
+    context === "emblems"
+  ) {
+    const valid = [16, 22, 24, 32, 48, 64];
+    if (!valid.includes(bucket))
+      bucket = valid.reduce((best, s) => (Math.abs(s - size) < Math.abs(best - size) ? s : best), 48);
+  }
+  const url = `${PAPIRUS_CDN_BASE}/Papirus/${bucket}x${bucket}/${context}/${name}.svg`;
+  return resolveGhUrl(url);
+}
 
 export const CDN_MIRRORS = [
   {
@@ -109,10 +253,10 @@ export function resolveNpmUrl(url) {
 const CDN_PROVIDERS = {
   jsdelivr: {
     get GAMES() {
-      return resolveGhUrl("https://cdn.jsdelivr.net/gh/Reeyuki/yukios-games@main");
+      return resolveGhUrl("https://cdn.jsdelivr.net/gh/NaoTomori1/yukios-games@main");
     },
     get MAIN() {
-      return resolveGhUrl("https://cdn.jsdelivr.net/gh/Reeyuki/yukios@main");
+      return resolveGhUrl("https://cdn.jsdelivr.net/gh/NaoTomori1/yukios@main");
     },
     get NPM() {
       return resolveNpmUrl("https://cdn.jsdelivr.net/npm");
@@ -268,6 +412,27 @@ export function getCdnRepoBase(url) {
 
 export function resolveIconUrl(url) {
   if (typeof url !== "string") return url;
+  if (url.startsWith("papirus:")) {
+    try {
+      let isFA = false;
+      try {
+        const pack = os.storage.get(StorageKeys.iconPack);
+        if (pack === "fontawesome") isFA = true;
+      } catch {}
+      if (!isFA) {
+        try {
+          const enabled = os.storage.get(StorageKeys.papirusEnabled);
+          if (enabled === false || enabled === "false" || enabled === "0") isFA = true;
+        } catch {}
+      }
+      if (isFA) {
+        const mapped = PAPIRUS_TO_FA[url] || PAPIRUS_TO_FA[url.trim()];
+        if (mapped) return mapped;
+        return "fas fa-cube";
+      }
+    } catch {}
+    return resolvePapirusUrl(url, 48);
+  }
   if (url.startsWith("data:") || url.startsWith("blob:") || url === "@content") return url;
 
   const hostname = window.location?.hostname || "";

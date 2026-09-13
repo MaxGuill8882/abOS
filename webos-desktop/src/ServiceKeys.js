@@ -18,7 +18,8 @@ export const ServiceKeys = {
   SETUP: "setupApp",
   REMOTE_HOST: "remoteHostApp",
   CLIPBOARD_MANAGER: "clipboardManagerApp",
-  DESKTOP_UI: "desktopUI"
+  DESKTOP_UI: "desktopUI",
+  INSTALLED_APPS: "systemAppsApp"
 };
 
 /**

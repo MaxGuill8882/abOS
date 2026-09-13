@@ -5,6 +5,7 @@ import { os, StorageKeys } from "../framework.js";
 import { ArchiveExtractor } from "../archiveExtractor.js";
 import { AppSource } from "../AppSource.js";
 import { showFileProperties, isImageFile, openFileWithApp, buildFileIconHTML } from "../fileDisplay.js";
+import { isVideoFile } from "../shared/fileKindDetector.js";
 import { FileKind, getExt, isZipFile } from "../shared/fileKindDetector.js";
 import { getCompatibleApps, getDefaultApp } from "../fileAssociations.js";
 import { showChooseAppDialog } from "../shared/chooseAppDialog.js";
@@ -323,26 +324,8 @@ export class DesktopContextMenuManager {
         )
       );
 
-      if (isImageFile(fileName)) {
-        const mimeMap = {
-          png: "image/png",
-          jpg: "image/jpeg",
-          jpeg: "image/jpeg",
-          gif: "image/gif",
-          webp: "image/webp",
-          bmp: "image/bmp",
-          svg: "image/svg+xml",
-          avif: "image/avif",
-          ico: "image/x-icon",
-          heic: "image/heic",
-          heif: "image/heif",
-          tiff: "image/tiff",
-          tif: "image/tiff",
-          raw: "image/x-raw"
-        };
-        const ext = fileName.split(".").pop().toLowerCase();
-        const mime = mimeMap[ext] !== undefined && mimeMap[ext] !== null ? mimeMap[ext] : "application/octet-stream";
-
+      if (isImageFile(fileName) || isVideoFile(fileName)) {
+        const isVideo = isVideoFile(fileName);
         const readAsDataUrl = async () => {
           const blob = await os.fs.readBinaryFile(filePath, fileName);
           if (!blob) return null;
@@ -361,12 +344,13 @@ export class DesktopContextMenuManager {
               try {
                 const dataUrl = await readAsDataUrl();
                 await SystemUtilities.setWallpaper(dataUrl);
+                os.notify.send(`Wallpaper set to "${fileName}"`);
               } catch (err) {
                 console.error("Set wallpaper error:", err);
                 os.dialog.alert("Error", "Could not set wallpaper");
               }
             },
-            "fa-image"
+            isVideo ? "fa-video" : "fa-image"
           )
         );
         menu.appendChild(
@@ -375,7 +359,13 @@ export class DesktopContextMenuManager {
             async () => {
               try {
                 const dataUrl = await readAsDataUrl();
-                await this.desktopUI.saveToWallpapers(fileName, dataUrl, FileKind.IMAGE, "@content");
+                await this.desktopUI.saveToWallpapers(
+                  fileName,
+                  dataUrl,
+                  isVideo ? FileKind.VIDEO : FileKind.IMAGE,
+                  "@content"
+                );
+                os.notify.send(`"${fileName}" saved to wallpapers`);
               } catch (err) {
                 console.error("Save wallpaper error:", err);
                 os.dialog.alert("Error", "Could not save wallpaper");
