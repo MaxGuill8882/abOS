@@ -36,3 +36,4 @@ export const PREDEFINED_AVATARS = [
 ];
 
 export { generateUUID } from "./utils.js";
+
