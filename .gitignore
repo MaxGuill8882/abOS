@@ -2,4 +2,6 @@ desktop/
 .env
 venv/
 *.pyc
-webos-desktop/src/generated
+webos-desktop/src/generated/*
+!webos-desktop/src/generated/papirus-available.json
+!webos-desktop/src/generated/papirus-symlinks.json
