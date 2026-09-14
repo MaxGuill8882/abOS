@@ -398,7 +398,7 @@ if (isSingleFile) {
 }
 
 export default defineConfig({
-  base: isSingleFile || isElectronBuild ? "./" : "/",
+  base: isSingleFile || isElectronBuild ? "./" : process.env.VITE_BASE_PATH || "/",
   outDir,
   plugins,
   server: {
