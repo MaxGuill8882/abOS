@@ -41,7 +41,7 @@ class VersionChecker {
         os.storage.set(StorageKeys.lastKnownRemoteVersion, remoteVersion);
 
         if (lastKnownRemote !== remoteVersion) {
-          os.notify.send("Update Available", `YukiOS ${remoteVersion} is now available!`, {
+          os.notify.send("Update Available", `abOS ${remoteVersion} is now available!`, {
             type: "info",
             duration: 0,
             icon: "fa-download",

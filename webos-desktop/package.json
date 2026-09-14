@@ -85,7 +85,7 @@
   "build": {
     "npmRebuild": false,
     "appId": "app.yukios.desktop",
-    "productName": "YukiOS",
+    "productName": "abOS",
     "directories": {
       "output": "release"
     },

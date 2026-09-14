@@ -239,12 +239,12 @@ export class SessionManager {
       <div class="session-wallpaper"></div>
       <div class="session-background"></div>
       <div class="session-content${state === "locked" ? "" : " extra-hidden"}">
-        <div class="session-brand">YukiOS</div>
+        <div class="session-brand">abOS</div>
         <div class="session-time">${timeStr}</div>
         <div class="session-date">${dateStr}</div>
 
         <div class="session-extra">
-        <div class="session-support-btn" id="session-support-btn" title="Support YukiOS">
+        <div class="session-support-btn" id="session-support-btn" title="Support abOS">
           <img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/emotes/face-smile.svg" class="papirus-icon papirus-icon--22" alt="" />
         </div>
         <a class="session-github-btn" href="https://github.com/Reeyuki/YukiOS" target="_blank" rel="noopener" title="Star Us On Github">
@@ -262,7 +262,7 @@ export class SessionManager {
           <div class="session-status-panel" id="session-status-panel">
             <div class="status-info-row">
               <span class="status-info-label">Version</span>
-              <span class="status-info-value">YukiOS ${YUKIOS_VERSION}</span>
+              <span class="status-info-value">abOS ${YUKIOS_VERSION}</span>
             </div>
             <div class="status-info-row">
               <span class="status-info-label">Build</span>
@@ -332,7 +332,7 @@ export class SessionManager {
             <div class="session-modes-grid">
               <button type="button" class="session-mode-btn" data-mode="reset">
                 <img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/48x48/status/weather-snow.svg" class="papirus-icon papirus-icon--22" alt="" />
-                <span>YukiOS</span>
+                <span>abOS</span>
               </button>
               <button type="button" class="session-mode-btn" data-mode="mac">
                 <img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/apps/apple-music.svg" class="papirus-icon papirus-icon--22" alt="" />
@@ -363,7 +363,7 @@ export class SessionManager {
             <img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/window-close.svg" class="papirus-icon papirus-icon--22" alt="" />
           </button>
           <img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/edit-download.svg" class="papirus-icon papirus-icon--22" alt="" />
-          <span><strong>YukiOS desktop app</strong> Persistent storage, system tray, remote desktop, and faster performance.</span>
+          <span><strong>abOS desktop app</strong> Persistent storage, system tray, remote desktop, and faster performance.</span>
           <div class="electron-banner-actions">
             <span class="electron-download-link" id="electron-download-btn"><img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/actions/edit-download.svg" class="papirus-icon papirus-icon--22" alt="" /> Download</span>
             <a href="https://github.com/reeyuki/yukios/releases" target="_blank" class="electron-releases-link">View all releases</a>
@@ -435,7 +435,7 @@ export class SessionManager {
               <div class="settings-card-header"><img src="https://cdn.jsdelivr.net/gh/PapirusDevelopmentTeam/papirus-icon-theme@master/Papirus/22x22/apps/utilities-tweak-tool.svg" class="papirus-icon papirus-icon--22" alt="" /> Session Modes</div>
               <div class="settings-row">
                 <div class="settings-label-group">
-                  <span class="settings-label-title">YukiOS</span>
+                  <span class="settings-label-title">abOS</span>
                   <span class="settings-label-desc">Default desktop session</span>
                 </div>
                 <label class="settings-toggle">
@@ -769,21 +769,21 @@ export class SessionManager {
   loadSessionPrefs() {
     const sections = os.storage.get(StorageKeys.sessionSectionVisibility) || {};
     const modes = os.storage.get(StorageKeys.sessionModeVisibility) || {};
-    const showSocial = os.storage.get(StorageKeys.sessionShowSocial) !== "false";
-    const showBanner = os.storage.get(StorageKeys.sessionShowBanner) !== "false";
+    const showSocial = os.storage.get(StorageKeys.sessionShowSocial) === "true";
+    const showBanner = os.storage.get(StorageKeys.sessionShowBanner) === "true";
     return {
       sections: {
-        online: sections.online !== false,
-        live: sections.live !== false,
-        news: sections.news !== false
+        online: sections.online === true,
+        live: sections.live === true,
+        news: sections.news === true
       },
       modes: {
-        reset: modes.reset !== false,
-        mac: modes.mac !== false,
-        chromeos: modes.chromeos !== false,
-        tiling: modes.tiling !== false,
-        "3d": modes["3d"] !== false,
-        steamdeck: modes.steamdeck !== false
+        reset: modes.reset === true,
+        mac: modes.mac === true,
+        chromeos: modes.chromeos === true,
+        tiling: modes.tiling === true,
+        "3d": modes["3d"] === true,
+        steamdeck: modes.steamdeck === true
       },
       showSocial,
       showBanner
@@ -1094,13 +1094,13 @@ export class SessionManager {
     }
 
     powerBtn.addEventListener("click", async () => {
-      if (await os.dialog.confirm("Shutdown", `Shut down YukiOS?`)) {
+      if (await os.dialog.confirm("Shutdown", `Shut down abOS?`)) {
         window.close();
       }
     });
 
     restartBtn.addEventListener("click", async () => {
-      if (await os.dialog.confirm("Restart", `Restart YukiOS?`)) {
+      if (await os.dialog.confirm("Restart", `Restart abOS?`)) {
         location.reload();
       }
     });

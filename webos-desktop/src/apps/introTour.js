@@ -106,7 +106,7 @@ const STEPS = [
     title: "One desktop, four faces.",
     body: "Flip the whole desktop to a Mac, a Chromebook, or a tiling window manager. Try one, then jump back to default mode.",
     modeButtons: [
-      { label: "YukiOS", icon: "fas fa-snowflake", mode: "reset" },
+      { label: "abOS", icon: "fas fa-snowflake", mode: "reset" },
       { label: "Mac", icon: "fab fa-apple", mode: "mac" },
       { label: "Chrome OS", icon: "fab fa-chrome", mode: "chromeos" },
       { label: "Tiling", icon: "fas fa-th-large", mode: "tiling" }

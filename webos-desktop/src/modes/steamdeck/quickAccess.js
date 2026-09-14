@@ -1102,12 +1102,12 @@ export class QuickAccessPanel {
 
   renderHelp(bodyEl) {
     const items = [
-      { icon: "fa-book-open", label: "YukiOS Guide", app: "yukiOsGuideApp" },
+      { icon: "fa-book-open", label: "abOS Guide", app: "yukiOsGuideApp" },
       { icon: "fa-keyboard", label: "Shortcuts", app: "shortcutsApp" },
-      { icon: "fa-info-circle", label: "About YukiOS", app: "aboutApp" }
+      { icon: "fa-info-circle", label: "About abOS", app: "aboutApp" }
     ];
     const infoRows = [
-      { icon: "fa-tag", label: "Version", value: `YukiOS ${YUKIOS_VERSION}` },
+      { icon: "fa-tag", label: "Version", value: `abOS ${YUKIOS_VERSION}` },
       { icon: "fa-display", label: "Platform", value: navigator.platform },
       { icon: "fa-expand", label: "Display", value: `${window.innerWidth} × ${window.innerHeight}` }
     ];

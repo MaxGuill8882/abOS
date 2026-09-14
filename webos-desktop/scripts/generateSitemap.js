@@ -300,28 +300,28 @@ const GENRE_KEYWORDS = {
 };
 
 const TITLE_TEMPLATES = {
-  Action: "${title} - Action Game - Play Free Online in Browser No Download | YukiOS",
-  Adventure: "${title} - Free Adventure Game - Play Online in Browser | YukiOS",
-  Strategy: "${title} - Strategy Game - Play Free Online Browser No Install | YukiOS",
-  Puzzle: "${title} - Free Puzzle Game - Brain Teaser Online No Download | YukiOS",
-  Simulation: "${title} - Simulation Game - Play Free Online in Your Browser | YukiOS",
-  RPG: "${title} - Free RPG - Play Online in Browser No Install Required | YukiOS",
-  Horror: "${title} - Scary Horror Game - Play Free Online in Browser | YukiOS",
-  Platformer: "${title} - Free Platformer Game - Play Online in Browser | YukiOS",
-  Shooter: "${title} - Shooter Game - Play Free Online Browser No Download | YukiOS",
-  Sports: "${title} - Sports Game - Play Free Online in Browser | YukiOS",
-  Racing: "${title} - Racing Game - Play Free Online in Browser | YukiOS",
-  Fighting: "${title} - Fighting Game - Play Free Online Browser No Download | YukiOS",
-  Casual: "${title} - Free Casual Game - Play Online Relax in Browser | YukiOS",
-  Sandbox: "${title} - Free Sandbox Game - Play Online in Browser No Limits | YukiOS",
-  Survival: "${title} - Survival Game - Play Free Online in Browser | YukiOS",
-  Roguelike: "${title} - Free Roguelike Game - Play Online Browser Run | YukiOS",
-  Card: "${title} - Card Game - Play Free Online Browser No Download | YukiOS",
-  Arcade: "${title} - Retro Arcade Game - Play Free Online Unblocked | YukiOS",
-  Educational: "${title} - Free Educational Game - Learn Online in Browser | YukiOS",
-  Idle: "${title} - Idle Clicker Game - Play Free Online in Browser | YukiOS",
-  Rhythm: "${title} - Music Rhythm Game - Play Free Online in Browser | YukiOS",
-  Multiplayer: "${title} - Multiplayer IO Browser Game - Play Free Online | YukiOS"
+  Action: "${title} - Action Game - Play Free Online in Browser No Download | abOS",
+  Adventure: "${title} - Free Adventure Game - Play Online in Browser | abOS",
+  Strategy: "${title} - Strategy Game - Play Free Online Browser No Install | abOS",
+  Puzzle: "${title} - Free Puzzle Game - Brain Teaser Online No Download | abOS",
+  Simulation: "${title} - Simulation Game - Play Free Online in Your Browser | abOS",
+  RPG: "${title} - Free RPG - Play Online in Browser No Install Required | abOS",
+  Horror: "${title} - Scary Horror Game - Play Free Online in Browser | abOS",
+  Platformer: "${title} - Free Platformer Game - Play Online in Browser | abOS",
+  Shooter: "${title} - Shooter Game - Play Free Online Browser No Download | abOS",
+  Sports: "${title} - Sports Game - Play Free Online in Browser | abOS",
+  Racing: "${title} - Racing Game - Play Free Online in Browser | abOS",
+  Fighting: "${title} - Fighting Game - Play Free Online Browser No Download | abOS",
+  Casual: "${title} - Free Casual Game - Play Online Relax in Browser | abOS",
+  Sandbox: "${title} - Free Sandbox Game - Play Online in Browser No Limits | abOS",
+  Survival: "${title} - Survival Game - Play Free Online in Browser | abOS",
+  Roguelike: "${title} - Free Roguelike Game - Play Online Browser Run | abOS",
+  Card: "${title} - Card Game - Play Free Online Browser No Download | abOS",
+  Arcade: "${title} - Retro Arcade Game - Play Free Online Unblocked | abOS",
+  Educational: "${title} - Free Educational Game - Learn Online in Browser | abOS",
+  Idle: "${title} - Idle Clicker Game - Play Free Online in Browser | abOS",
+  Rhythm: "${title} - Music Rhythm Game - Play Free Online in Browser | abOS",
+  Multiplayer: "${title} - Multiplayer IO Browser Game - Play Free Online | abOS"
 };
 
 const H1_TEMPLATES = {
@@ -598,9 +598,9 @@ const featurePages = [
   {
     key: "index",
     rootFile: "features.html",
-    title: "YukiOS Features - Desktop Environment in Your Browser",
+    title: "abOS Features - Desktop Environment in Your Browser",
     description:
-      "YukiOS is a full browser-based desktop environment with a tiling window manager, Mac desktop mode, 3000 free games, a terminal with Python and Git, retro emulators for DOS/Flash/x86/3DS, and 90+ built-in apps - all running directly in your browser with no installation."
+      "abOS is a full browser-based desktop environment with a tiling window manager, Mac desktop mode, 3000 free games, a terminal with Python and Git, retro emulators for DOS/Flash/x86/3DS, and 90+ built-in apps - all running directly in your browser with no installation."
   },
   {
     key: "tiling",
@@ -843,8 +843,8 @@ function makeStandalonePage(title, desc, jsonld, canonicalUrl, ogImage, extraCon
   <div class="slideshow-container">
     <button class="slideshow-btn slideshow-btn-prev" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i></button>
     <div class="slideshow-wrapper">
-      <img id="slideshow-img-front" class="slideshow-img slideshow-img-front" src="${galleryImages[0].src}" alt="YukiOS Screenshot" loading="lazy" />
-      <img id="slideshow-img-back" class="slideshow-img slideshow-img-back" src="${galleryImages[0].src}" alt="YukiOS Screenshot" loading="lazy" />
+      <img id="slideshow-img-front" class="slideshow-img slideshow-img-front" src="${galleryImages[0].src}" alt="abOS Screenshot" loading="lazy" />
+      <img id="slideshow-img-back" class="slideshow-img slideshow-img-back" src="${galleryImages[0].src}" alt="abOS Screenshot" loading="lazy" />
       <div class="slideshow-dots" id="slideshow-dots"></div>
     </div>
     <button class="slideshow-btn slideshow-btn-next" onclick="changeSlide(1)"><i class="fas fa-chevron-right"></i></button>
@@ -905,14 +905,14 @@ function startSlideshow() {
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>${escHtml(title)} - YukiOS</title>
+<title>${escHtml(title)} - abOS</title>
 <meta name="description" content="${escHtml(desc)}" />
-<meta property="og:title" content="${escHtml(title)} - YukiOS" />
+<meta property="og:title" content="${escHtml(title)} - abOS" />
 <meta property="og:description" content="${escHtml(desc)}" />
 <meta property="og:type" content="website" />
 <meta property="og:image" content="${escHtml(ogImage)}" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="${escHtml(title)} - YukiOS" />
+<meta name="twitter:title" content="${escHtml(title)} - abOS" />
 <meta name="twitter:description" content="${escHtml(desc)}" />
 <meta name="twitter:image" content="${escHtml(ogImage)}" />
 <link rel="canonical" href="${canonicalUrl}" />
@@ -939,7 +939,7 @@ ${landingStyle}
     <section class="seo-hero">
       <h1>${title}</h1>
       <p>${desc}</p>
-      <a class="launch-btn" href="${launchUrl}">Launch YukiOS</a>
+      <a class="launch-btn" href="${launchUrl}">Launch abOS</a>
     </section>
     ${screenshot}
     <section class="seo-content">
@@ -949,7 +949,7 @@ ${landingStyle}
     </section>
   </main>
   <footer class="seo-footer">
-    <p>YukiOS - Free Browser-Based Desktop Environment</p>
+    <p>abOS - Free Browser-Based Desktop Environment</p>
     <div><a href="/features.html">Features</a> &middot; <a href="https://github.com/NaoTomori1/yukios">GitHub</a> &middot; <a href="/">About</a></div>
   </footer>
 </div>
@@ -965,8 +965,8 @@ function makeLanding(title, desc, extraContent, imageUrl) {
   <div class="slideshow-container">
     <button class="slideshow-btn slideshow-btn-prev" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i></button>
     <div class="slideshow-wrapper">
-      <img id="slideshow-img-front" class="slideshow-img slideshow-img-front" src="${galleryImages[0].src}" alt="YukiOS Screenshot" loading="lazy" />
-      <img id="slideshow-img-back" class="slideshow-img slideshow-img-back" src="${galleryImages[0].src}" alt="YukiOS Screenshot" loading="lazy" />
+      <img id="slideshow-img-front" class="slideshow-img slideshow-img-front" src="${galleryImages[0].src}" alt="abOS Screenshot" loading="lazy" />
+      <img id="slideshow-img-back" class="slideshow-img slideshow-img-back" src="${galleryImages[0].src}" alt="abOS Screenshot" loading="lazy" />
       <div class="slideshow-dots" id="slideshow-dots"></div>
     </div>
     <button class="slideshow-btn slideshow-btn-next" onclick="changeSlide(1)"><i class="fas fa-chevron-right"></i></button>
@@ -1037,7 +1037,7 @@ function startSlideshow() {
     <section class="seo-hero">
       <h1>${title}</h1>
       <p>${desc}</p>
-      <button class="launch-btn" onclick="document.getElementById('seo-overlay').classList.add('hidden')">Launch YukiOS</button>
+      <button class="launch-btn" onclick="document.getElementById('seo-overlay').classList.add('hidden')">Launch abOS</button>
     </section>
     ${screenshot}
     <section class="seo-content">
@@ -1047,7 +1047,7 @@ function startSlideshow() {
     </section>
   </main>
   <footer class="seo-footer">
-    <p>YukiOS - Free Browser-Based Desktop Environment</p>
+    <p>abOS - Free Browser-Based Desktop Environment</p>
     <div><a href="/features.html">Features</a> &middot; <a href="https://github.com/NaoTomori1/yukios">GitHub</a> &middot; <a href="/">About</a></div>
   </footer>
 </div>
@@ -1062,8 +1062,8 @@ function generateBullets(description, minBullets) {
     .map((s) => s.replace(/\.+$/, "").trim());
   const fallbacks = [
     "Available directly in your browser with no downloads or installation required",
-    "Part of the YukiOS desktop environment with 90+ built-in applications and 3000 games",
-    "Accessible from the Start Menu and compatible with the full YukiOS ecosystem"
+    "Part of the abOS desktop environment with 90+ built-in applications and 3000 games",
+    "Accessible from the Start Menu and compatible with the full abOS ecosystem"
   ];
   for (const fb of fallbacks) {
     if (pts.length >= minBullets) break;
@@ -1137,7 +1137,7 @@ function makeMinimalGamePage(
   seoDesc,
   gameType
 ) {
-  const st = seoTitle || `${title} - Play Online Free on YukiOS`;
+  const st = seoTitle || `${title} - Play Online Free on abOS`;
   const sd = seoDesc || desc;
   const isSubwaySurfers = title.toLowerCase().includes("subway surfers");
   let finalGameIcon = gameIcon;
@@ -1331,14 +1331,14 @@ body{background:#0a0a14;color:#ccc;font-family:-apple-system,BlinkMacSystemFont,
       <div class="game-info-card">
         <h3>Quick Links</h3>
         <a href="/games.html" style="color:#d97706;text-decoration:none;display:block;padding:8px 0;font-size:.95rem">→ Browse All Games</a>
-        <a href="/features.html" style="color:#d97706;text-decoration:none;display:block;padding:8px 0;font-size:.95rem">→ YukiOS Features</a>
+        <a href="/features.html" style="color:#d97706;text-decoration:none;display:block;padding:8px 0;font-size:.95rem">→ abOS Features</a>
       </div>
       <style>${AD_SLOT_STYLE}</style>
       ${adSlotHtml("sidebar-ad")}
     </aside>
   </div>
   <footer class="seo-footer">
-    <p>YukiOS - Free Browser-Based Desktop Environment</p>
+    <p>abOS - Free Browser-Based Desktop Environment</p>
     <div>
       <a href="/features.html">Features</a>
       <a href="/games.html">Games</a>
@@ -1349,7 +1349,7 @@ body{background:#0a0a14;color:#ccc;font-family:-apple-system,BlinkMacSystemFont,
 </div>
 <div id="game-player">
   <div class="gp-header">
-    <button onclick="window.location.href='/'">Back to YukiOS</button>
+    <button onclick="window.location.href='/'">Back to abOS</button>
     <span class="gp-title">${escHtml(title)}</span>
     <button onclick="toggleFS()">Fullscreen</button>
   </div>
@@ -1655,7 +1655,7 @@ body{background:#0a0a14;color:#ccc;font-family:-apple-system,BlinkMacSystemFont,
   </div>
 </main>
 <footer class="seo-footer">
-  <p>YukiOS - Free Browser-Based Desktop Environment</p>
+  <p>abOS - Free Browser-Based Desktop Environment</p>
   <div><a href="/features.html">Features</a> &middot; <a href="/">Home</a></div>
 </footer>
 ${
@@ -1749,7 +1749,7 @@ function makeGenrePage(genre, genreGames, allGenreConfigs) {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "YukiOS", item: BASE },
+      { "@type": "ListItem", position: 1, name: "abOS", item: BASE },
       { "@type": "ListItem", position: 2, name: "Games", item: `${BASE}/games.html` },
       { "@type": "ListItem", position: 3, name: config.h1, item: `${BASE}/games/${config.slug}.html` }
     ]
@@ -1822,7 +1822,7 @@ body{background:#0a0a14;color:#ccc;font-family:-apple-system,BlinkMacSystemFont,
   ${otherLinksHtml}
 </main>
 <footer class="gc-footer">
-  <p>YukiOS - Free Browser-Based Desktop Environment</p>
+  <p>abOS - Free Browser-Based Desktop Environment</p>
   <div><a href="/features.html">Features</a> &middot; <a href="/games.html">All Games</a> &middot; <a href="https://github.com/NaoTomori1/yukios">GitHub</a></div>
 </footer>
 ${adSlotScript("genre-ad")}
@@ -1839,13 +1839,13 @@ function buildPages(apps, games, gameDescs, featurePages, indexHtml) {
   mkdirSync(appDir, { recursive: true });
   for (const a of apps) {
     const pageTitle = APP_TITLE_OVERRIDES[a.key] || a.title;
-    const desc = APP_DESC_OVERRIDES[a.key] || a.description || `${a.title} - a built-in YukiOS app.`;
+    const desc = APP_DESC_OVERRIDES[a.key] || a.description || `${a.title} - a built-in abOS app.`;
     const url = `${BASE}/app/${a.key}.html`;
     const jsonld = JSON.stringify([
       {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        name: `${pageTitle} - YukiOS`,
+        name: `${pageTitle} - abOS`,
         url,
         description: desc,
         operatingSystem: "Web Browser",
@@ -1856,7 +1856,7 @@ function buildPages(apps, games, gameDescs, featurePages, indexHtml) {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
         itemListElement: [
-          { "@type": "ListItem", position: 1, name: "YukiOS", item: BASE },
+          { "@type": "ListItem", position: 1, name: "abOS", item: BASE },
           { "@type": "ListItem", position: 2, name: "Apps", item: `${BASE}/features.html` },
           { "@type": "ListItem", position: 3, name: pageTitle, item: url }
         ]
@@ -1870,12 +1870,12 @@ function buildPages(apps, games, gameDescs, featurePages, indexHtml) {
       if (i !== appIdx) nearby.push(apps[i]);
     }
     const relatedApps = nearby.length
-      ? `<p class="seo-more">More YukiOS apps: ${nearby
+      ? `<p class="seo-more">More abOS apps: ${nearby
           .slice(0, 4)
           .map((n) => `<a href="/app/${n.key}.html">${n.title}</a>`)
           .join(", ")}</p>`
       : "";
-    const extra = `${bullets}<p class="seo-cta">${pageTitle} is part of YukiOS - a free browser-based desktop environment with 90+ apps, 3000 games, and no downloads or sign-ups required. Launch it directly from the Start Menu or bookmark this page for quick access.</p>${relatedApps}`;
+    const extra = `${bullets}<p class="seo-cta">${pageTitle} is part of abOS - a free browser-based desktop environment with 90+ apps, 3000 games, and no downloads or sign-ups required. Launch it directly from the Start Menu or bookmark this page for quick access.</p>${relatedApps}`;
     const html = makeStandalonePage(pageTitle, desc, jsonld, url, `${GH}/yuki-deck.png`, extra, `/?app=${a.key}`);
     writeFileSync(resolve(appDir, `${a.key}.html`), html, "utf-8");
   }
@@ -1884,8 +1884,8 @@ function buildPages(apps, games, gameDescs, featurePages, indexHtml) {
   mkdirSync(classDir, { recursive: true });
   for (const g of games) {
     const desc = gameDescs[g.key]
-      ? `Play ${g.title} in your browser on YukiOS - ${gameDescs[g.key]}`
-      : `Play ${g.title} in your browser on YukiOS`;
+      ? `Play ${g.title} in your browser on abOS - ${gameDescs[g.key]}`
+      : `Play ${g.title} in your browser on abOS`;
     const genre = (g.genre && g.genre[0]) || "Casual";
     const titleTmpl = TITLE_TEMPLATES[genre] || TITLE_TEMPLATES.Casual;
     const h1Tmpl = H1_TEMPLATES[genre] || H1_TEMPLATES.Casual;
@@ -1908,7 +1908,7 @@ function buildPages(apps, games, gameDescs, featurePages, indexHtml) {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
         itemListElement: [
-          { "@type": "ListItem", position: 1, name: "YukiOS", item: BASE },
+          { "@type": "ListItem", position: 1, name: "abOS", item: BASE },
           { "@type": "ListItem", position: 2, name: "Games", item: `${BASE}/games.html` },
           { "@type": "ListItem", position: 3, name: g.title, item: url }
         ]
@@ -2167,16 +2167,16 @@ function buildPages(apps, games, gameDescs, featurePages, indexHtml) {
   </a>
 </div>
 <div class="seo-gallery">${cards}</div>
-<p style="color:#aaa;font-size:.85rem;text-align:center;margin-top:48px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">YukiOS is free, open-source, and runs entirely in your browser with no downloads, sign-ups, or installation required.</p>`;
+<p style="color:#aaa;font-size:.85rem;text-align:center;margin-top:48px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">abOS is free, open-source, and runs entirely in your browser with no downloads, sign-ups, or installation required.</p>`;
     } else {
-      extra = `${bullets}<p class="seo-cta">${f.title} is part of YukiOS - a free browser-based desktop environment that runs entirely in your browser with no downloads or sign-ups needed.</p>${relatedLinks}`;
+      extra = `${bullets}<p class="seo-cta">${f.title} is part of abOS - a free browser-based desktop environment that runs entirely in your browser with no downloads or sign-ups needed.</p>${relatedLinks}`;
     }
     let jsonld;
     const breadcrumbBase = {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "YukiOS", item: BASE },
+        { "@type": "ListItem", position: 1, name: "abOS", item: BASE },
         { "@type": "ListItem", position: 2, name: "Features", item: `${BASE}/features.html` }
       ]
     };
@@ -2193,12 +2193,12 @@ function buildPages(apps, games, gameDescs, featurePages, indexHtml) {
         {
           "@context": "https://schema.org",
           "@type": "WebPage",
-          name: `${f.title} - YukiOS`,
+          name: `${f.title} - abOS`,
           url,
           description: f.description,
-          about: { "@type": "SoftwareApplication", name: "YukiOS" }
+          about: { "@type": "SoftwareApplication", name: "abOS" }
         },
-        { "@type": "ItemList", name: "YukiOS Features", numberOfItems: items.length, itemListElement: items },
+        { "@type": "ItemList", name: "abOS Features", numberOfItems: items.length, itemListElement: items },
         breadcrumbBase
       ]);
     } else {
@@ -2213,10 +2213,10 @@ function buildPages(apps, games, gameDescs, featurePages, indexHtml) {
         {
           "@context": "https://schema.org",
           "@type": "WebPage",
-          name: `${f.title} - YukiOS`,
+          name: `${f.title} - abOS`,
           url,
           description: f.description,
-          about: { "@type": "SoftwareApplication", name: "YukiOS" }
+          about: { "@type": "SoftwareApplication", name: "abOS" }
         },
         breadcrumb
       ]);
@@ -2237,7 +2237,7 @@ function buildPages(apps, games, gameDescs, featurePages, indexHtml) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Page Not Found - YukiOS</title>
+<title>Page Not Found - abOS</title>
 <meta name="robots" content="noindex">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -2252,7 +2252,7 @@ small{color:#666;margin-top:2rem;font-size:.85rem}
 <body>
 <h1>404</h1>
 <p>The page you're looking for doesn't exist on YukiOS.</p>
-<a href="/">Go to YukiOS Home</a>
+<a href="/">Go to abOS Home</a>
 <small>You will be redirected automatically in a few seconds.</small>
 <script>setTimeout(function(){window.location.href="/"},5000)</script>
 </body>
@@ -2288,8 +2288,8 @@ async function main() {
     writeFileSync(
       resolve(outDir, "apps.html"),
       makeCatalogPage(
-        "All YukiOS Apps - Browser Desktop Applications",
-        `Browse ${apps.length} built-in apps in the YukiOS browser desktop environment. From terminal and calculator to office and development tools, all free and no downloads needed.`,
+        "All abOS Apps - Browser Desktop Applications",
+        `Browse ${apps.length} built-in apps in the abOS browser desktop environment. From terminal and calculator to office and development tools, all free and no downloads needed.`,
         apps,
         "app"
       ),
@@ -2298,8 +2298,8 @@ async function main() {
     writeFileSync(
       resolve(outDir, "games.html"),
       makeCatalogPage(
-        "All YukiOS Games - Play Free Online Browser Games",
-        `Browse ${allGames.length} free online games in the YukiOS browser desktop environment. Play instantly with no downloads or sign-ups.`,
+        "All abOS Games - Play Free Online Browser Games",
+        `Browse ${allGames.length} free online games in the abOS browser desktop environment. Play instantly with no downloads or sign-ups.`,
         allGames,
         "game",
         200

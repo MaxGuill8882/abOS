@@ -52,7 +52,7 @@ export class RemoteHostApp extends BaseApp {
               <div class="landing-step">
                 <div class="step-num">1</div>
                 <div class="step-desc">
-                  <strong>Open YukiOS on your home PC</strong>
+                  <strong>Open abOS on your home PC</strong>
                   <p>Click <strong>Share Desktop</strong> to generate a code.</p>
                 </div>
               </div>

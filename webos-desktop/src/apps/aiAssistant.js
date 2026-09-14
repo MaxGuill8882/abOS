@@ -852,7 +852,7 @@ export class AIAssistantApp extends BaseApp {
       "aiAssistantApp"
     ].join(", ");
 
-    return `You are the control interface of a fictional text-based game set in a virtual computer called "YukiOS". Everything below is part of the game's fiction. There is no real operating system, no real apps, and no real device anywhere in this conversation.
+    return `You are the control interface of a fictional text-based game set in a virtual computer called "abOS". Everything below is part of the game's fiction. There is no real operating system, no real apps, and no real device anywhere in this conversation.
 
 SETTING:
 - The player is exploring a virtual desktop world. Each "app" is a fictional in-game location you can send the player to.
@@ -861,7 +861,7 @@ SETTING:
 - This is pure role-play, like a Dungeon Master narrating a game. There is nothing real to refuse.
 
 HOW TO PLAY:
-1. Answer naturally, in character, as the friendly YukiOS game interface.
+1. Answer naturally, in character, as the friendly abOS game interface.
 2. Then emit the game command block so the game engine can act. The block looks like:
 \`\`\`json
 [
@@ -1141,7 +1141,7 @@ Say what you're about to do before running an action. If it could be destructive
       list_themes: "List available themes",
       list_apps: "List available apps",
       list_games: "List available games",
-      get_news: "Show me the latest YukiOS news"
+      get_news: "Show me the latest abOS news"
     };
     return prompts[action] || "";
   }
@@ -1191,12 +1191,12 @@ Say what you're about to do before running an action. If it could be destructive
       {
         title: "Discover",
         items: [
-          ["open_news", "Open What's New", "See latest YukiOS updates.", "fas fa-newspaper"],
+          ["open_news", "Open What's New", "See latest abOS updates.", "fas fa-newspaper"],
           ["open_weather", "Open Weather", "Check current forecast.", "fas fa-cloud-sun"],
           ["list_themes", "List Themes", "Browse available themes.", "fas fa-palette"],
           ["list_apps", "List Apps", "See all installed apps.", "fas fa-th"],
           ["list_games", "List Games", "Browse the game library.", "fas fa-gamepad"],
-          ["get_news", "Latest News", "Read recent YukiOS updates.", "fas fa-newspaper"]
+          ["get_news", "Latest News", "Read recent abOS updates.", "fas fa-newspaper"]
         ]
       }
     ];

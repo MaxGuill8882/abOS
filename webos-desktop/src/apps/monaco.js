@@ -591,7 +591,7 @@ export class MonacoApp extends BaseApp {
   initTerminal() {
     if (!this.terminalOutput) return;
     this.terminalOutput.innerHTML = "";
-    this.printToTerminal("YukiOS Terminal");
+    this.printToTerminal("abOS Terminal");
     this.printToTerminal("Type 'help' for available commands");
     this.updateTerminalPrompt();
   }

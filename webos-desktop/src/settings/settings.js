@@ -187,7 +187,7 @@ export class SettingsApp extends BaseApp {
         windowSwitcherMode: os.storage.get(StorageKeys.windowSwitcherMode) || "mru",
         windowSwitcherUI: os.storage.get(StorageKeys.windowSwitcherUI) || "overlay",
         windowSwitcherIncludeMinimized: parseBool(os.storage.get(StorageKeys.windowSwitcherIncludeMinimized), true),
-        mikuCursor: parseBool(os.storage.get(StorageKeys.mikuCursor), true),
+        mikuCursor: parseBool(os.storage.get(StorageKeys.mikuCursor), false),
         fontFamily: os.storage.get(StorageKeys.fontFamily) || "opensans",
         uiDensity: os.storage.get(StorageKeys.uiDensity) || "comfortable",
         sidebarCompact: parseBool(os.storage.get(StorageKeys.sidebarCompact), true),

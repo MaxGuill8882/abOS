@@ -38,7 +38,7 @@ export class NotepadApp extends BaseApp {
           <span>File</span>
           <div class="notepad-dropdown">
             <div class="dropdown-item" data-action="new">New</div>
-            <div class="dropdown-item" data-action="open">Open from YukiOS<span class="shortcut">Ctrl+O</span></div>
+            <div class="dropdown-item" data-action="open">Open from abOS<span class="shortcut">Ctrl+O</span></div>
             <div class="dropdown-item" data-action="openFromComputer">Open from Computer</div>
             <div class="dropdown-item" data-action="save">Save<span class="shortcut">Ctrl+S</span></div>
             <div class="dropdown-item" data-action="saveAs">Save As...<span class="shortcut">Ctrl+Shift+S</span></div>

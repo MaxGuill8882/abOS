@@ -149,7 +149,7 @@ export class HologramRenderer {
     ctx.font = "12px sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
-    ctx.fillText("YUKIOS LIBRARY", W / 2, 10);
+    ctx.fillText("abOS LIBRARY", W / 2, 10);
 
     this.drawGrid(ctx, W, H);
     this.drawNavigation(ctx, W, H);

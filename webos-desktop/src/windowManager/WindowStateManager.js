@@ -37,7 +37,7 @@ export class WindowStateManager {
       entry.taskbarItem.classList.add("active");
       entry.taskbarItem.classList.remove("minimized");
       this.manager.updatePageFavicon(entry.iconValue, entry.title);
-      document.title = sanitizeTitle(entry.title) || "YukiOS";
+      document.title = sanitizeTitle(entry.title) || "abOS";
       if (entry.record) entry.record.zIndex = this.manager.zIndexCounter;
       os.events.emit(BusEvents.WINDOW_FOCUSED, { winId: win.id });
     }

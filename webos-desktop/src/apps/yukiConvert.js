@@ -28,7 +28,7 @@ export class YukiConvertApp extends BaseApp {
               <i class="fas fa-laptop"></i> From Device
             </button>
             <button id="yuki-convert-btn-yuki" class="yuki-convert-btn-secondary">
-              <i class="fas fa-folder-open"></i> Browse YukiOS
+              <i class="fas fa-folder-open"></i> Browse abOS
             </button>
           </div>
         </div>

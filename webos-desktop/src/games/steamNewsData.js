@@ -40,7 +40,7 @@ export const STEAM_NEWS_ITEMS = [
     "image": "https://cdn.akamai.steamstatic.com/steam/apps/517670/header.jpg",
     "title": "Now Available on Steam - Cowbots and Aliens",
     "description": "Cowbots and Aliens is Now Available on Steam! Cowbots and Aliens is a furious PvP Multiplayer VR brawl set in the Saloon-iverse! Free movement, laser precise gunplay, multiple competitive modes and a custom networked physics system that lets you use EVERYTHING as a weapon makes for an immensely satisfying VR ruckus!",
-    "date": "December 25, 2023"
+    "date": "December 24, 2023"
   },
   {
     "image": "https://cdn.cloudflare.steamstatic.com/steam/apps/479010/header.jpg",

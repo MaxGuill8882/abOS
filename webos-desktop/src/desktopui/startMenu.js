@@ -1492,7 +1492,7 @@ function getGridItems() {
     { app: "officeApp", title: "Office", icon: "papirus:mimetypes/x-office-document" },
     { app: "clipboardManagerApp", title: "Clipboard Manager", icon: "papirus:actions/edit-paste" },
     { app: "weatherApp", title: "Weather", icon: "papirus:apps/weather" },
-    { app: "yukiOsGuideApp", title: "YukiOS Guide", icon: "papirus:apps/accessories-dictionary" },
+    { app: "yukiOsGuideApp", title: "abOS Guide", icon: "papirus:apps/accessories-dictionary" },
     { app: "steamApp", title: "Yuki Steam", icon: "papirus:apps/steam" },
     { app: "paint", title: "Paint", icon: "papirus:apps/gpaint" },
     { app: "newsApp", title: "What's New", icon: "papirus:apps/accessories-text-editor" },
@@ -1501,7 +1501,7 @@ function getGridItems() {
     { app: "systemAppsApp", title: "System Apps", icon: "papirus:apps/utilities-tweak-tool" },
     { app: "taskManagerApp", title: "Task Manager", icon: "papirus:apps/application-default-icon-monitor" },
     { app: "terminal", title: "Terminal", icon: "papirus:apps/utilities-terminal" },
-    { app: "aboutApp", title: "About YukiOS", icon: "papirus:actions/help-about" },
+    { app: "aboutApp", title: "About abOS", icon: "papirus:actions/help-about" },
     { app: "achievementsApp", title: "Achievements", icon: "papirus:actions/games-achievements" }
   ];
 }

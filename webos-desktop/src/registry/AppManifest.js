@@ -65,7 +65,7 @@ export const APP_MANIFESTS = [
     windowIdPatterns: ["news"],
     category: "help",
     clippy: { message: "Catch up on the latest changes and see what shipped.", animation: ClippyAnimation.Show },
-    description: "Displays system updates, release notes, and changelog entries for YukiOS features and improvements."
+    description: "Displays system updates, release notes, and changelog entries for abOS features and improvements."
   },
   {
     serviceKey: "calculatorApp",
@@ -228,7 +228,7 @@ export const APP_MANIFESTS = [
     windowIdPatterns: ["setup", "setup-wizard"],
     category: "help",
     clippy: { message: "Walk through setup and get the basics out of the way.", animation: ClippyAnimation.Greeting },
-    description: "Initial setup guide for new users to configure YukiOS preferences."
+    description: "Initial setup guide for new users to configure abOS preferences."
   },
   {
     serviceKey: "dataEditorApp",
@@ -246,7 +246,7 @@ export const APP_MANIFESTS = [
     serviceKey: "yukiOsGuideApp",
     enhanced: true,
     type: "system",
-    title: "YukiOS Guide",
+    title: "abOS Guide",
     icon: "papirus:apps/accessories-dictionary",
     launchType: "instance",
     windowIdPatterns: ["yuki-os-guide", "yukios-guide"],
@@ -274,7 +274,7 @@ export const APP_MANIFESTS = [
     launchType: "instance",
     windowIdPatterns: [],
     category: "system",
-    description: "Switch between desktop modes: MacOS, SteamDeck, ChromeOS, Tiling, and YukiOS default."
+    description: "Switch between desktop modes: MacOS, SteamDeck, ChromeOS, Tiling, and abOS default."
   },
   {
     serviceKey: "clipboardManagerApp",

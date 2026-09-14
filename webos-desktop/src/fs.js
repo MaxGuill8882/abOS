@@ -65,7 +65,7 @@ export const defaultStorage = {
     },
     "YukiOS.md": {
       type: "file",
-      content: typeof __README_CONTENT__ !== "undefined" ? __README_CONTENT__ : "# YukiOS\n",
+      content: typeof __README_CONTENT__ !== "undefined" ? __README_CONTENT__ : "# abOS\n",
       kind: FileKind.TEXT,
       icon: "static/icons/notepad.webp"
     },

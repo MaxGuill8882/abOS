@@ -415,7 +415,7 @@ export const descriptionMap = {
   explorer: "Browse, organize, and manage your virtual files with familiar folder navigation.",
   notepad: "Jot down notes, draft ideas, or edit plain text without any fuss.",
   browserApp: "Surf the web from inside your virtual desktop with the built-in Yuki Browser.",
-  yukiDevTools: "Yuki Dev Tools loads IT Tools in a themed iframe and keeps it synced with YukiOS CSS variables.",
+  yukiDevTools: "Yuki Dev Tools loads IT Tools in a themed iframe and keeps it synced with abOS CSS variables.",
   terminal: "Fire up the command line for scripts, system commands, and developer tools.",
   music: "Stream and play audio while you work, browse, or relax on the desktop.",
   cameraApp: "Snap screenshots or record webcam footage right from your desktop.",
@@ -423,7 +423,7 @@ export const descriptionMap = {
   flash: "Classic Flash games live on through Ruffle and Flashpoint Archive, all in one hub.",
   vscode:
     "Visual Studio Code is a free, lightweight code editor by Microsoft, released in 2015. It supports virtually every programming language with extensions, debugging, and integrated Git.",
-  yukiCode: "A Monaco-powered code editor built into YukiOS, based on the same engine that runs Visual Studio Code.",
+  yukiCode: "A Monaco-powered code editor built into abOS, based on the same engine that runs Visual Studio Code.",
   jsDosApp:
     "JsDos is a JavaScript port of the DOSBox emulator, allowing classic DOS programs and games to run natively inside a web browser.",
   v86app:
