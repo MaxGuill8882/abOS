@@ -1343,6 +1343,21 @@ export const APP_MANIFESTS = [
     description: "Browse and play Roblox games with full immersive desktop support."
   },
   {
+    serviceKey: "azerunApp",
+    enhanced: true,
+    type: "system",
+    title: "World of Warcraft",
+    icon: `${CDN_BASE}/static/icons/worldOfWarcraft.webp`,
+    launchType: "remote",
+    windowIdPatterns: ["azerun"],
+    category: "games",
+    persistContentState: false,
+    clippy: { message: "Wrath-era Azeroth in your browser, no installer needed.", animation: ClippyAnimation.Show },
+    description: "Play Wrath-era WoW directly in your browser via Azerun.",
+    source: "https://azerun.com/play/",
+    windowSize: ["90vw", "85vh"]
+  },
+  {
     serviceKey: "runApp",
     enhanced: true,
     type: "system",
